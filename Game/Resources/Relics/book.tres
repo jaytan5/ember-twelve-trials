@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/LevelSystem/RelicData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "book"
+title = "先知手记"
+description = "每回合抽牌 +1。"
+starter = false
+effects = {"turn_draw": 1}

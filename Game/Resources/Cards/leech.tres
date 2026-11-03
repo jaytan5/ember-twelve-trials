@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "leech"
+title = "汲取"
+kind = "攻击"
+route = "venom"
+cost = 2
+target = true
+exhaust = false
+effects = {"damage": 11, "heal_recent": 4}
+upgrade = {"damage": 15, "heal_recent": 6}

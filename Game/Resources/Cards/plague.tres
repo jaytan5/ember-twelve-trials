@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "plague"
+title = "疫潮"
+kind = "技能"
+route = "venom"
+cost = 3
+target = false
+exhaust = false
+effects = {"all_poison": 8}
+upgrade = {"all_poison": 11}

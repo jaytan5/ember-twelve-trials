@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/LevelSystem/RelicData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "venom_core"
+title = "青蛇牙"
+description = "每场战斗首次施毒时，额外施加 2 层毒素。"
+starter = true
+effects = {"first_poison": 2}

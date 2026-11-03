@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/EnemySystem/EnemyData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "stage_11_1"
+title = "王座左卫"
+max_hp = 75
+pattern = [{"amount": 14, "hits": 1, "type": "attack"}, {"amount": 16, "type": "defend"}]
+boss = false

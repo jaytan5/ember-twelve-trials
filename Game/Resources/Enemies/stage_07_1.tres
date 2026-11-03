@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/EnemySystem/EnemyData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "stage_07_1"
+title = "血砂掠夺者"
+max_hp = 72
+pattern = [{"amount": 13, "hits": 1, "type": "attack"}, {"amount": 2, "type": "buff"}, {"amount": 6, "hits": 3, "type": "attack"}]
+boss = false

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "recycle"
+title = "毒素回收"
+kind = "技能"
+route = "venom"
+cost = 0
+target = true
+exhaust = false
+effects = {"next_energy": 1, "poison_cost": 4}
+upgrade = {"next_energy": 2}

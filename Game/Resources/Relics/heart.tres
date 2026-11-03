@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/LevelSystem/RelicData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "heart"
+title = "生命琥珀"
+description = "获得时最大生命 +18，并恢复 18 生命。"
+starter = false
+effects = {"max_hp": 18}

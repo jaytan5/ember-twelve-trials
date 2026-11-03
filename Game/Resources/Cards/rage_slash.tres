@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "rage_slash"
+title = "怒斩"
+kind = "攻击"
+route = "fury"
+cost = 2
+target = true
+exhaust = false
+effects = {"damage": 6, "fury_burst": 3}
+upgrade = {"damage": 9, "fury_burst": 4}

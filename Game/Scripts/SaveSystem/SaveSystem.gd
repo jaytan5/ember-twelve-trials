@@ -1,0 +1,70 @@
+extends RefCounted
+const Data = preload("res://Game/Scripts/CardSystem/CardCatalog.gd")
+const DECK_LIMIT = 30
+var s: Dictionary = {}
+var rng = RandomNumberGenerator.new()
+
+func save_run(path: String = "user://run_save.json") -> Error:
+ var file = FileAccess.open(path, FileAccess.WRITE)
+ if file == null: return FileAccess.get_open_error()
+ var payload = s.duplicate(true)
+ payload.rng_state = str(rng.state)
+ file.store_string(JSON.stringify(payload))
+ return OK
+
+func load_run(path: String = "user://run_save.json") -> bool:
+ if not FileAccess.file_exists(path): return false
+ var parsed = normalize_numbers(JSON.parse_string(FileAccess.get_file_as_string(path)))
+ if not parsed is Dictionary: return false
+ if parsed.get("version", 0) not in [1, 2, 3, 4, 5]: return false
+ if not parsed.has("difficulty"): parsed.difficulty = "easy"
+ if not Data.DIFFICULTIES.has(parsed.difficulty): return false
+ for key in ["route", "stage", "phase", "hp", "max_hp", "deck", "relics", "enemies", "hand", "draw", "discard", "exhaust", "log", "gold"]:
+  if not parsed.has(key): return false
+ if not Data.ROUTES.has(parsed.route) or parsed.stage < 1 or parsed.stage > 12: return false
+ if parsed.phase not in ["battle", "reward", "relic", "camp", "victory", "defeat"]: return false
+ if not parsed.has("reserve"): parsed.reserve = []
+ if not parsed.reserve is Array: return false
+ if parsed.version < 5:
+  var replacements = {"first_aid":"disarm", "rally":"stockpile", "feint":"expose", "prepare":"aegis"}
+  for zone in ["deck", "reserve", "hand", "draw", "discard", "exhaust", "reward_cards", "shop_cards"]:
+   for i in range(parsed.get(zone, []).size()):
+    var old: String = parsed[zone][i]
+    var id = old.trim_suffix("+")
+    if replacements.has(id): parsed[zone][i] = replacements[id] + ("+" if old.ends_with("+") else "")
+ for id in parsed.deck + parsed.reserve + parsed.hand + parsed.draw + parsed.discard + parsed.exhaust + parsed.get("reward_cards", []) + parsed.get("shop_cards", []):
+  if not id is String or not Data.CARDS.has(id.trim_suffix("+")): return false
+ # JSON stores numbers as floats. Indices and serialized shop identifiers must be integers.
+ for key in ["stage", "hp", "max_hp", "gold", "potions", "wins", "played", "damage_total", "block", "strength", "thorns", "turn", "target", "energy", "energy_max", "last_gold"]:
+  if parsed.has(key): parsed[key] = int(parsed[key])
+ for i in range(parsed.get("shop_sold", []).size()): parsed.shop_sold[i] = int(parsed.shop_sold[i])
+ s = parsed
+ # Preserve old saves and the current battle's already-shuffled piles.
+ # Oversized legacy decks are capped for all future battles, without deleting cards.
+ while s.deck.size() > DECK_LIMIT: s.reserve.push_front(s.deck.pop_back())
+ for key in ["fury", "fury_engine", "coating", "next_block", "next_draw", "next_energy", "retain_cap", "temp_thorns", "recoverable_hp", "barrier"]:
+  if not s.has(key): s[key] = 0
+ # Former one-use skills become recyclable; preserve every copy and upgrade.
+ for i in range(s.exhaust.size() - 1, -1, -1):
+  if Data.card(s.exhaust[i]).kind != "能力" and not Data.card(s.exhaust[i]).get("exhaust", false):
+   s.discard.append(s.exhaust[i])
+   s.exhaust.remove_at(i)
+ if not s.has("last_acquired_zone"): s.last_acquired_zone = "deck"
+ while s.hand.size() > Data.CONFIG.hand_limit: s.draw.append(s.hand.pop_back())
+ for enemy in s.enemies:
+  if not enemy.has("frozen"): enemy.frozen = 0
+ s.version = 5
+ rng.randomize()
+ if s.has("rng_state"): rng.state = int(s.rng_state)
+ s.erase("rng_state")
+ return true
+
+func normalize_numbers(value: Variant) -> Variant:
+ # This schema uses whole numbers only; JSON decodes every number as a float.
+ if value is float: return int(value)
+ if value is Array:
+  for i in range(value.size()): value[i] = normalize_numbers(value[i])
+ elif value is Dictionary:
+  for key in value: value[key] = normalize_numbers(value[key])
+ return value
+

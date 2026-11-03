@@ -15,19 +15,20 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="余烬十二关 · 卡牌 Demo"
-run/main_scene="res://main.tscn"
+run/main_scene="res://Game/Scenes/Main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [display]
 
-window/size/viewport_width=1440
-window/size/viewport_height=960
-window/size/window_width_override=1440
-window/size/window_height_override=960
+window/size/viewport_width=1600
+window/size/viewport_height=900
+window/size/window_width_override=1600
+window/size/window_height_override=900
 window/stretch/mode="canvas_items"
-window/size/min_width=1100
-window/size/min_height=760
+window/stretch/aspect="keep"
+window/size/min_width=960
+window/size/min_height=540
 
 [rendering]
 

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "thorn_armor"
+title = "棘甲"
+kind = "技能"
+route = "bastion"
+cost = 1
+target = false
+exhaust = false
+effects = {"block": 6, "temp_thorns": 2}
+upgrade = {"block": 8, "temp_thorns": 3}

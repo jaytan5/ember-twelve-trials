@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "corrosion"
+title = "腐蚀"
+kind = "技能"
+route = "venom"
+cost = 1
+target = true
+exhaust = false
+effects = {"poison": 3, "weak": 1}
+upgrade = {"poison": 4, "weak": 2}

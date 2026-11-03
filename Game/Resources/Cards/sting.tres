@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "sting"
+title = "毒刃"
+kind = "攻击"
+route = "venom"
+cost = 1
+target = true
+exhaust = false
+effects = {"damage": 3, "poison": 3}
+upgrade = {"damage": 5, "poison": 4}

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "sweep"
+title = "横扫"
+kind = "攻击"
+route = "neutral"
+cost = 2
+target = false
+exhaust = false
+effects = {"all_damage": 7}
+upgrade = {"all_damage": 10}

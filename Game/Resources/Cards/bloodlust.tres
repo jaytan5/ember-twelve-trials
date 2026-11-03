@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "bloodlust"
+title = "燃血"
+kind = "技能"
+route = "fury"
+cost = 0
+target = false
+exhaust = false
+effects = {"energy": 1, "self_damage": 5}
+upgrade = {"self_damage": 4}

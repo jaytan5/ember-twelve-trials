@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "tactical_strike"
+title = "试探斩"
+kind = "攻击"
+route = "neutral"
+cost = 1
+target = true
+exhaust = false
+effects = {"damage": 4, "draw": 1}
+upgrade = {"damage": 6}

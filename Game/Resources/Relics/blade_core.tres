@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/LevelSystem/RelicData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "blade_core"
+title = "赤刃印记"
+description = "每场战斗开始时获得 1 力量。"
+starter = true
+effects = {"start_strength": 1}

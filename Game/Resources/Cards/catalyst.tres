@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "catalyst"
+title = "催化"
+kind = "技能"
+route = "venom"
+cost = 2
+target = true
+exhaust = false
+effects = {"multiply_poison": 2, "poison_growth_cap": 12}
+upgrade = {"poison_growth_cap": 18}

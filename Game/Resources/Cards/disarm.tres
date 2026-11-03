@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "disarm"
+title = "卸力"
+kind = "技能"
+route = "neutral"
+cost = 1
+target = true
+exhaust = false
+effects = {"heal": 3, "weak": 2}
+upgrade = {"heal": 5, "weak": 3}

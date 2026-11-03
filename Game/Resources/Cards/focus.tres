@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "focus"
+title = "战术调整"
+kind = "技能"
+route = "neutral"
+cost = 1
+target = false
+exhaust = false
+effects = {"draw": 2}
+upgrade = {"draw": 3}

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/EnemySystem/EnemyData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "stage_08_2"
+title = "血誓卫士"
+max_hp = 60
+pattern = [{"amount": 10, "hits": 1, "type": "attack"}, {"amount": 14, "type": "defend"}, {"amount": 15, "hits": 1, "type": "attack"}]
+boss = false

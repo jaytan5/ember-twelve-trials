@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/LevelSystem/RelicData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "flask"
+title = "不竭药瓶"
+description = "每场战斗胜利后恢复 8 生命。"
+starter = false
+effects = {"victory_heal": 8}

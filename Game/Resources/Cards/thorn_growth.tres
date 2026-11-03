@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "thorn_growth"
+title = "荆棘生长"
+kind = "能力"
+route = "bastion"
+cost = 2
+target = false
+exhaust = true
+effects = {"block": 6, "thorns": 4}
+upgrade = {"block": 8, "thorns": 5}

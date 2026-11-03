@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/EnemySystem/BossData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "stage_06_1"
+title = "铁狱监军"
+max_hp = 150
+pattern = [{"amount": 20, "type": "defend"}, {"amount": 16, "hits": 1, "type": "attack"}, {"amount": 3, "type": "buff"}, {"amount": 7, "hits": 3, "type": "attack"}]
+boss = true

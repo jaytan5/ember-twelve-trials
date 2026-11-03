@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/LevelSystem/RelicData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "shell"
+title = "古龙鳞"
+description = "每个玩家回合开始时获得 4 护甲。"
+starter = false
+effects = {"turn_block": 4}

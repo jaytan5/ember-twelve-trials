@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/EnemySystem/EnemyData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "stage_02_2"
+title = "孢子幼体"
+max_hp = 22
+pattern = [{"amount": 6, "type": "defend"}, {"amount": 6, "hits": 1, "type": "attack"}]
+boss = false

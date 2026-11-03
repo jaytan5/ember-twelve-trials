@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/EnemySystem/BossData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "stage_12_1"
+title = "余烬之王"
+max_hp = 260
+pattern = [{"amount": 8, "hits": 3, "type": "attack"}, {"amount": 26, "type": "defend"}, {"amount": 4, "type": "buff"}, {"amount": 32, "hits": 1, "type": "attack"}, {"amount": 11, "hits": 3, "type": "attack"}]
+boss = true

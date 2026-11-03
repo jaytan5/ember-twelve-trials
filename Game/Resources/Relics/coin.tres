@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/LevelSystem/RelicData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "coin"
+title = "旅商金章"
+description = "每场战斗胜利额外获得 20 金币。"
+starter = false
+effects = {"victory_gold": 20}

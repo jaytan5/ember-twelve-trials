@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/GameConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+initial_hand = 5
+turn_draw = 2
+hand_limit = 10
+initial_common = ["strike", "strike", "strike", "guard", "guard", "quick", "quick", "sweep", "focus", "focus", "insight", "erudition"]
+routes = {"bastion": {"cards": ["fortify", "fortify", "shield_bash", "hold", "shield_draw"], "color": "85b5f5", "desc": "叠甲后盾击，或累积反伤、释放反击风暴。\n初始遗物：每个玩家回合开始获得 3 护甲。", "hp": 88, "name": "铁壁", "relic": "iron_core", "tag": "护甲转伤 / 荆棘反击"}, "fury": {"cards": ["cleave", "cleave", "rage", "execute", "warcry"], "color": "f08e85", "desc": "力量强化多段攻击；嗜战积攒狂怒，怒斩收尾。\n初始遗物：每场战斗开始获得 1 点力量。", "hp": 82, "name": "狂刃", "relic": "blade_core", "tag": "力量连击 / 狂怒爆发"}, "venom": {"cards": ["sting", "sting", "toxic_guard", "catalyst", "corrosion"], "color": "75cbb3", "desc": "叠毒与淬毒持续侵蚀，或消耗毒层引爆、回能。\n初始遗物：每场战斗首次施毒额外 +2 层。", "hp": 76, "name": "蚀毒", "relic": "venom_core", "tag": "叠毒侵蚀 / 毒层引爆"}}
+difficulties = {"easy": {"action_scale": 1, "desc": "显示敌人下次的攻击伤害、连击次数、防御与蓄力；敌人数值为基础值。", "hp_scale": 1, "name": "简单", "show_intents": true}, "hard": {"action_scale": 1.25, "desc": "隐藏行动预告；敌人生命 +35%，攻击、防御和蓄力数值 +25%（向上取整）。", "hp_scale": 1.35, "name": "困难", "show_intents": false}, "normal": {"action_scale": 1, "desc": "隐藏敌人下一步行动及伤害预告；敌人数值为基础值。", "hp_scale": 1, "name": "中等", "show_intents": false}}
+chapters = ["青苔边境", "失落铁城", "血砂荒原", "余烬王座"]

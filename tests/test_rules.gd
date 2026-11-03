@@ -16,7 +16,7 @@ func _init() -> void:
  for route in Data.ROUTES:
   var g = Run.new()
   g.new_run(route, 42)
-  check(g.s.deck.size() == 11 and g.s.hand.size() == 5 and g.s.energy == 3, "initial deck and turn " + route)
+  check(g.s.deck.size() == 17 and g.s.hand.size() == 5 and g.s.energy == 3, "initial deck and turn " + route)
   check(g.s.hp == Data.ROUTES[route].hp, "route health")
  test_damage()
  test_flow()
@@ -25,6 +25,7 @@ func _init() -> void:
  test_balance_rules()
  test_deck_management()
  test_difficulties()
+ test_revision_rules()
  for route in Data.ROUTES:
   var wins = 0
   var stages = 0
@@ -259,6 +260,11 @@ func score_card(g, c: Dictionary) -> float:
  if c.has("retain_cap"): score += maxi(0, c.retain_cap - g.s.retain_cap) * 2.0
  if c.has("strength"): score += c.strength * 8
  if c.has("thorns"): score += c.thorns * 6
+ if c.has("heal"): score += mini(c.heal, g.s.max_hp - g.s.hp) * 2.2
+ if c.has("armor_damage"): score += e.block * c.armor_damage
+ if c.has("barrier"): score += minf(threat, 15)
+ if c.has("freeze_all"): score += threat * 1.5
+ if c.has("store_energy"): score += 0.1 if g.s.energy > 0 else -10
  if c.has("heal_recent"): score += mini(c.heal_recent, g.s.recoverable_hp) * 2.2
  if c.has("weak"): score += threat * 0.5
  if c.has("vulnerable"): score += 5
@@ -294,7 +300,7 @@ func test_expanded_cards() -> void:
    probe.s.thorns = 4
    probe.s.fury = 5
    check(probe.play(0), "all card variants execute: " + id + suffix)
- check(counts == {"neutral":16, "venom":10, "bastion":10, "fury":10}, "exact 16/10/10/10 card counts")
+ check(counts == {"neutral":17, "venom":10, "bastion":10, "fury":10}, "exact 17/10/10/10 card counts")
  var g = durable_run()
  g.s.hand = ["detonate"]
  g.s.enemies[0].poison = 7
@@ -348,17 +354,7 @@ func test_expanded_cards() -> void:
  g.s.hand = ["sunder"]
  g.s.enemies[0].block = 90
  g.play(0)
- check(g.s.enemies[0].hp == 976 and g.s.enemies[0].block == 0, "sunder strips armor before hitting")
- g = durable_run()
- g.s.hand = ["prepare+"]
- g.s.draw = []
- for _i in range(20): g.s.draw.append("strike")
- g.play(0)
- check(g.s.next_block == 14 and g.s.next_draw == 1 and g.s.block == 20, "preparation delayed")
- g.end_turn()
- check(g.s.block == 14 and g.s.hand.size() == 6 and g.s.next_draw == 0, "preparation triggers next turn after block clearing")
- g.end_turn()
- check(g.s.block == 0 and g.s.hand.size() == 5, "preparation triggers only once")
+ check(g.s.enemies[0].hp == 910 and g.s.enemies[0].block == 0, "sunder strips armor before hitting")
  # New cards are available in offers and never leak another route's cards.
  var offered: Dictionary = {}
  for route in Data.ROUTES:
@@ -380,11 +376,12 @@ func test_balance_rules() -> void:
    g.s.hand = [id + suffix]
    g.s.enemies[0].poison = 20
    # Keep draws away from the card being checked.
-   g.s.draw = ["strike", "strike", "strike", "strike", "strike"]
+   g.s.draw = []
+   for _i in range(12): g.s.draw.append("strike")
    g.play(0)
-   if c.kind == "能力": check(g.s.exhaust == [id + suffix], "only abilities activate: " + id + suffix)
+   if c.kind == "能力" or c.get("exhaust", false): check(g.s.exhaust == [id + suffix], "only abilities activate: " + id + suffix)
    else: check(g.s.exhaust.is_empty() and g.s.discard.has(id + suffix), "all ordinary cards recycle: " + id + suffix)
-  check(c.kind == "能力" or not c.get("exhaust", false), "no ordinary exhaust metadata")
+  check(c.kind == "能力" or not c.get("exhaust", false) or id == "mend", "only emergency heal is a consumable skill")
   if c.cost == 0:
    check(not c.has("draw") and (not c.has("energy") or c.get("self_damage", 0) > 0), "free cards cannot fuel costless draw energy loops")
  for route in costs: check(3 in costs[route], "every pool has three-cost cards: " + route)
@@ -404,11 +401,12 @@ func test_balance_rules() -> void:
  g.start_battle()
  check(g.s.retain_cap == 0, "retention resets next battle")
  g = durable_run()
- g.s.hand = ["rally", "recycle+"]
+ g.s.hand = ["stockpile", "recycle+"]
+ g.s.energy = 2
  g.s.enemies[0].poison = 4
  g.play(0)
  g.play(0)
- check(g.s.energy == 19 and g.s.next_energy == 4, "delayed energy stacks without immediate grant")
+ check(g.s.energy == 0 and g.s.next_energy == 4, "delayed energy stacks without immediate grant")
  g.end_turn()
  check(g.s.energy == 7 and g.s.next_energy == 0, "delayed energy granted once")
  g.end_turn()
@@ -425,23 +423,12 @@ func test_balance_rules() -> void:
  g.end_turn()
  check(g.s.hp == 24 and g.s.recoverable_hp == 6, "actual enemy health damage forms wound budget")
  g.s.energy = 20
- g.s.hand = ["first_aid", "mend", "leech"]
+ g.s.hand = ["leech"]
  g.play(0)
- check(g.s.hp == 27 and g.s.recoverable_hp == 3, "bandage heals recent damage")
- g.play(0)
- g.play(0)
- check(g.s.hp == 30 and g.s.recoverable_hp == 0, "multiple healing cards cannot recover old wounds")
- g.s.hand = ["bloodlust", "mend"]
- g.play(0)
- g.play(0)
- check(g.s.hp == 25 and g.s.recoverable_hp == 0, "self damage is not card healable")
- g.s.block = 0
- g.end_turn()
+ check(g.s.hp == 28 and g.s.recoverable_hp == 2, "leech still obeys recent wound budget")
  g.s.hand = ["mend"]
- g.use_potion()
- var hp: int = g.s.hp
  g.play(0)
- check(g.s.hp == hp and g.s.recoverable_hp == 0, "potion consumes recent wound allowance too")
+ check(g.s.hp == 48 and g.s.recoverable_hp == 0, "emergency heal restores old wounds")
  g.s.block = 0
  g.end_turn()
  g.s.enemies[0].pattern = [Data.defend(0)]
@@ -462,8 +449,8 @@ func test_balance_rules() -> void:
   g.s.block = 20
   g.save_run(path)
   var copy = Run.new()
-  check(copy.load_run(path) and copy.s.version == 4, "balance save migration version %d" % version)
-  check(copy.s.exhaust == ["coating"] and copy.s.discard.count("focus+") == 2 and copy.s.discard.has("mend"), "migration preserves copies and activates only abilities")
+  check(copy.load_run(path) and copy.s.version == 5, "balance save migration version %d" % version)
+  check(copy.s.exhaust == ["mend", "coating"] and copy.s.discard.count("focus+") == 2, "migration preserves copies and activates only abilities")
   copy.end_turn()
   check(copy.s.block == 14 and not copy.s.keep_block, "legacy one-turn hold honored once")
   copy.end_turn()
@@ -523,7 +510,7 @@ func test_deck_management() -> void:
  g.s.version = 1
  for key in ["reserve", "fury", "fury_engine", "coating", "next_block", "next_draw", "last_acquired_zone", "difficulty"]: g.s.erase(key)
  g.save_run(path)
- check(copy.load_run(path) and copy.s.version == 4 and copy.s.deck.size() == 30 and copy.s.reserve.size() == 4, "legacy oversized deck migrates without losing copies")
+ check(copy.load_run(path) and copy.s.version == 5 and copy.s.deck.size() == 30 and copy.s.reserve.size() == 4, "legacy oversized deck migrates without losing copies")
  check(copy.s.hand == original_hand and copy.s.fury == 0 and copy.s.coating == 0, "legacy current combat preserved")
  copy.end_turn()
  check(copy.s.phase == "battle", "legacy battle resumes")
@@ -584,3 +571,153 @@ func test_difficulties() -> void:
     file.close()
     check(loaded.load_run(path) and loaded.s.difficulty == "easy" and loaded.s.enemies == legacy.enemies, "old saves keep visible intents and current values")
   DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+
+func test_revision_rules() -> void:
+ var expected_common = ["strike", "strike", "strike", "guard", "guard", "quick", "quick", "sweep", "focus", "focus", "insight", "erudition"]
+ for route in Data.ROUTES:
+  var initial = Run.new()
+  initial.new_run(route, 1)
+  check(initial.s.deck.slice(0, 12) == expected_common and initial.s.deck.size() == 17, "exact common starter list " + route)
+  check(initial.s.hand.size() == 5 and initial.s.draw.size() == 12, "opening hand and remaining deck " + route)
+  check(initial.s.deck.slice(12).all(func(id): return Data.card(id).route == route), "five route-exclusive starters " + route)
+ for id in ["first_aid", "rally", "feint", "prepare"]: check(not Data.CARDS.has(id), "removed card absent " + id)
+ var g = durable_run("fury")
+ g.s.hand = ["strike", "guard", "focus", "quick", "sweep"]
+ g.s.draw = ["rage", "cleave", "execute", "warcry", "strike", "guard"]
+ g.s.discard = []
+ var retained = g.s.hand.duplicate()
+ g.end_turn()
+ check(g.s.hand.slice(0, 5) == retained and g.s.hand.size() == 7 and g.s.discard.is_empty(), "retain hand and draw exactly two")
+ g.end_turn()
+ check(g.s.hand.size() == 9, "second retained turn draws two")
+ g.end_turn()
+ check(g.s.hand.size() == 10 and g.s.draw.size() == 1, "only draw to limit without burning overflow")
+ g.end_turn()
+ check(g.s.hand.size() == 10 and g.s.draw.size() == 1, "full hand leaves draw pile untouched")
+ g.s.hand = ["guard"]
+ g.s.draw = ["strike"]
+ g.s.discard = ["quick", "sweep"]
+ g.draw_cards(4)
+ check(g.s.hand.size() == 4 and g.s.hand[0] == "guard" and g.s.hand[1] == "strike" and g.s.draw.is_empty() and g.s.discard.is_empty(), "draw across shuffle without duplicating retained cards")
+ g = durable_run("fury")
+ g.s.strength = 0
+ g.s.hand = ["expose", "disarm", "quick", "brace"]
+ g.s.hp = 20
+ g.play(0)
+ check(g.s.enemies[0].hp == 999 and g.s.enemies[0].vulnerable == 2, "expose deals one before vulnerability")
+ g.play(0)
+ check(g.s.hp == 23 and g.s.block == 0 and g.s.enemies[0].weak == 2, "disarm directly heals three and applies weakness")
+ g.s.enemies[0].vulnerable = 0
+ g.play(0)
+ check(g.s.enemies[0].hp == 997, "quick two one-damage hits")
+ var hand_size: int = g.s.hand.size()
+ g.play(0)
+ check(g.s.enemies[0].poison == 2 and g.s.hand.size() == hand_size, "brace poisons target and draws one")
+ g = durable_run("fury")
+ g.s.strength = 0
+ g.s.hp = 20
+ g.s.hand = ["polymath"]
+ g.play(0)
+ check(g.s.enemies[0].hp == 998 and g.s.block == 2 and g.s.hp == 23 and g.s.strength == 1 and g.s.enemies[0].poison == 2, "polymath resolves all five effects with strength after damage")
+ g.s.hand = ["mend"]
+ g.play(0)
+ check(g.s.hp == 43 and g.s.exhaust == ["mend"] and not g.s.discard.has("mend"), "mend heals twenty and exhausts")
+ g.s.draw = []
+ g.draw_cards(8)
+ check(not g.s.hand.has("mend"), "mend cannot reappear on reshuffle")
+ g.s.deck = ["mend", "strike", "guard", "focus", "quick"]
+ g.start_battle()
+ check(g.s.hand.has("mend") and g.s.exhaust.is_empty(), "consumable returns next encounter")
+ g = durable_run("fury")
+ g.s.strength = 50
+ g.s.enemies[0].vulnerable = 3
+ g.s.enemies[0].block = 17
+ g.s.hand = ["sunder", "sunder"]
+ g.play(0)
+ check(g.s.enemies[0].hp == 983 and g.s.enemies[0].block == 0, "sunder exact removed armor without strength/vulnerable")
+ g.play(0)
+ check(g.s.enemies[0].hp == 983, "zero armor produces zero damage")
+ g.s.enemies[0].block = 17
+ g.s.hand = ["sunder+"]
+ g.play(0)
+ check(g.s.enemies[0].hp == 958, "upgraded armor damage rounds 17 times 1.5 down to 25")
+ g = durable_run("fury")
+ g.s.energy = 4
+ g.s.hand = ["stockpile"]
+ g.play(0)
+ check(g.s.energy == 0 and g.s.next_energy == 4, "X spends all available energy")
+ g.end_turn()
+ check(g.s.energy == 7 and g.s.next_energy == 0, "stored energy granted next turn")
+ g.end_turn()
+ check(g.s.energy == 3, "stored energy granted once")
+ g.s.energy = 0
+ g.s.hand = ["stockpile"]
+ check(g.play(0) and g.s.next_energy == 0 and g.s.energy == 0, "X zero allowed without free base energy")
+ g.s.hand = ["stockpile+"]
+ check(g.play(0) and g.s.next_energy == 1, "upgraded X grants its documented extra one")
+ g = durable_run("fury")
+ g.s.hand = ["blizzard", "blizzard"]
+ g.s.enemies[0].poison = 3
+ var hp: int = g.s.hp
+ g.play(0)
+ g.play(0)
+ check(g.s.enemies.all(func(e): return e.frozen == 1), "freeze affects every living enemy without stacking turns")
+ g.end_turn()
+ check(g.s.hp == hp and g.s.enemies[0].hp == 997 and g.s.enemies[0].poison == 2 and g.s.enemies[0].step == 0, "frozen enemy takes poison but skips its action")
+ check(g.s.enemies.all(func(e): return e.frozen == 0), "freeze expires on skipped phase")
+ g.end_turn()
+ check(g.s.hp == hp - 6 and g.s.enemies[0].step == 1, "enemy resumes the same pending action")
+ g = durable_run("fury")
+ g.s.enemies[0].pattern = [Data.attack(4, 3)]
+ g.s.hand = ["aegis"]
+ g.play(0)
+ hp = g.s.hp
+ g.end_turn()
+ check(g.s.hp == hp - 8 and g.s.barrier == 0, "barrier cancels one multihit segment")
+ g.s.energy = 3
+ g.s.hand = ["aegis", "aegis"]
+ g.play(0)
+ g.play(0)
+ check(g.s.barrier == 2, "barrier stacks charges")
+ check(g.take_player_damage(0) == 0 and g.s.barrier == 2, "zero damage does not consume barrier")
+ g.s.enemies[0].pattern = [Data.defend(0)]
+ g.end_turn()
+ check(g.s.barrier == 2, "unused barrier persists across turns")
+ g.s.block = 10
+ hp = g.s.hp
+ check(g.take_player_damage(6) == 0 and g.s.block == 10 and g.s.hp == hp and g.s.barrier == 1, "barrier prevents hit before armor is spent")
+ g.s.energy = 3
+ g.s.hand = ["bloodlust"]
+ g.play(0)
+ check(g.s.hp == hp and g.s.barrier == 0 and g.s.energy == 4, "barrier also intercepts positive self damage")
+ g.start_battle()
+ check(g.s.barrier == 0, "barrier resets between battles")
+ g = durable_run("fury")
+ g.s.hand = ["erudition"]
+ g.s.draw = []
+ for _i in range(12): g.s.draw.append("strike")
+ g.play(0)
+ check(g.s.hand.size() == 6 and g.s.draw.size() == 6, "erudition draws six")
+ g.s.hand = ["erudition", "guard", "guard", "guard", "guard", "guard", "guard", "guard", "guard", "guard"]
+ g.play(0)
+ check(g.s.hand.size() == 10 and g.s.draw.size() == 5, "erudition respects ten-card cap")
+ # Stable RNG state prevents save/reload from rerolling later rewards.
+ var save_path = "res://test-results/revision-save.json"
+ g.s.barrier = 2
+ g.s.enemies[0].frozen = 1
+ g.s.next_energy = 5
+ g.save_run(save_path)
+ var restored = Run.new()
+ check(restored.load_run(save_path) and restored.s == g.s, "all new states survive save/load")
+ check(restored.roll_cards(3) == g.roll_cards(3), "RNG state survives save/load")
+ g.s.version = 4
+ g.s.deck = ["first_aid+", "rally", "feint", "prepare+", "strike"]
+ g.s.hand = ["first_aid+", "rally", "feint", "prepare+", "strike", "guard", "quick", "sweep", "focus", "insight", "strike", "guard"]
+ g.s.reward_cards = ["first_aid", "rally+", "prepare"]
+ g.s.shop_cards = ["feint+", "prepare", "rally"]
+ g.save_run(save_path)
+ check(restored.load_run(save_path), "old save with deleted cards migrates")
+ check(restored.s.deck == ["disarm+", "stockpile", "expose", "aegis+", "strike"], "old owned cards map to replacements retaining upgrades")
+ check(restored.s.hand.size() == 10 and restored.s.draw.size() == g.s.draw.size() + 2, "legacy hand overflow preserved in draw pile")
+ check(restored.s.reward_cards == ["disarm", "stockpile+", "aegis"] and restored.s.shop_cards == ["expose+", "aegis", "stockpile"], "legacy offers also migrate")
+ DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path))

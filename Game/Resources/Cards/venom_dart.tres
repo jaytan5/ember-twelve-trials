@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "venom_dart"
+title = "蚀骨飞针"
+kind = "攻击"
+route = "venom"
+cost = 0
+target = true
+exhaust = false
+effects = {"damage": 1, "poison": 1}
+upgrade = {"damage": 2}
