@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://Game/Scenes/MainMenu/Components/ArtButton.gd" id="1"]
+[node name="RouteCard" type="TextureButton"]
+toggle_mode = true
+script = ExtResource("1")
+choice = true

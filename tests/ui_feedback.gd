@@ -201,10 +201,10 @@ func test_retry_ui_and_fonts() -> void:
  check(OS.get_user_data_dir().replace("\\", "/").ends_with("/Godot/app_userdata/余烬十二关 · 卡牌 Demo"), "rename preserves legacy save and settings directory")
  for id in ["easy", "normal", "hard", "legendary"]:
   check(ui.find_child("Difficulty_" + id, true, false).tooltip_text.is_empty(), "difficulty has no hover text " + id)
- var displayed = collect_text(ui.layout)
+ var displayed = collect_text(ui.find_child("TalentScreen", true, false))
  for removed in ["YOUR PATH", "选择一条战斗路线。以", "12 场战斗", "4 位 Boss", "3 条成长路线", "4 档难度", "路线决定起始卡组和奖励池", "建议先试", "EMBER", "选择起始路线和本局难度。", "一副卡牌，一条通往王座的路。"]:
   check(not removed in displayed, "removed route decoration: " + removed)
- check("小泥团，出击！" in displayed, "header shows new game name")
+ check(ui.find_child("TalentTitle", true, false) != null and ui.find_child("SettingsButton", true, false) == null, "talent art replaces the old shell header")
  var cursor: Image = ui.game_cursor.texture.get_image()
  check(cursor.get_size() == Vector2i(48, 48) and cursor.detect_alpha() != Image.ALPHA_NONE and cursor.get_pixel(0, 0).a == 0, "sword cursor uses compact transparent PNG")
  ui.show_settings()

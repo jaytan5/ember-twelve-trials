@@ -1,0 +1,108 @@
+{
+  "exports": [
+    {
+      "file": "RouteVenom.png",
+      "id": "venom",
+      "rect": [
+        491,
+        194,
+        276,
+        465
+      ],
+      "role": "route"
+    },
+    {
+      "file": "RouteFury.png",
+      "id": "fury",
+      "rect": [
+        787,
+        194,
+        276,
+        465
+      ],
+      "role": "route"
+    },
+    {
+      "file": "RouteBastion.png",
+      "id": "bastion",
+      "rect": [
+        1083,
+        194,
+        276,
+        465
+      ],
+      "role": "route"
+    },
+    {
+      "file": "DifficultyEasy.png",
+      "id": "easy",
+      "rect": [
+        364,
+        780,
+        176,
+        104
+      ],
+      "role": "difficulty"
+    },
+    {
+      "file": "DifficultyNormal.png",
+      "id": "normal",
+      "rect": [
+        556,
+        780,
+        176,
+        104
+      ],
+      "role": "difficulty"
+    },
+    {
+      "file": "DifficultyHard.png",
+      "id": "hard",
+      "rect": [
+        748,
+        780,
+        176,
+        104
+      ],
+      "role": "difficulty"
+    },
+    {
+      "file": "DifficultyLegendary.png",
+      "id": "legendary",
+      "rect": [
+        940,
+        780,
+        176,
+        104
+      ],
+      "role": "difficulty"
+    },
+    {
+      "file": "RedGoldBar.png",
+      "id": "title",
+      "rect": [
+        612,
+        9,
+        623,
+        120
+      ],
+      "role": "decoration"
+    },
+    {
+      "file": "RedGoldBar.png",
+      "id": "back",
+      "rect": [
+        16,
+        12,
+        151,
+        71
+      ],
+      "role": "navigation"
+    }
+  ],
+  "source_size": [
+    1672,
+    941
+  ],
+  "style": "Premium Stylized 3D cartoon adventure"
+}

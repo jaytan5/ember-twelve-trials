@@ -15,7 +15,7 @@ func capture(name_value: String) -> void:
  if DisplayServer.get_name() != "headless":
   await RenderingServer.frame_post_draw
   root.get_texture().get_image().save_png("res://test-results/" + name_value + ".png")
- check_bounds(ui.layout if is_instance_valid(ui.layout) else ui.find_child("HomeScreen", true, false))
+ check_bounds(ui.layout if is_instance_valid(ui.layout) else ui.find_child("HomeScreen" if ui.screen == "home" else "TalentScreen", true, false))
  if is_instance_valid(ui.modal): check_bounds(ui.modal)
  print("UI SCREEN: ", name_value)
 

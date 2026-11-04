@@ -153,6 +153,10 @@ func render() -> void:
   layout = null
   home_view_component.build_home(self)
   return
+ if screen == "routes":
+  layout = null
+  build_menu()
+  return
  var margins = MarginContainer.new()
  margins.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
  margins.add_theme_constant_override("margin_left", 28)
@@ -163,9 +167,7 @@ func render() -> void:
  layout = column(10)
  margins.add_child(layout)
  build_header()
- if screen == "routes":
-  build_menu()
- elif screen == "map":
+ if screen == "map":
   build_map()
  else:
   match game.s.phase:
@@ -174,7 +176,6 @@ func render() -> void:
    "relic": build_relic_reward()
    "camp": build_camp()
    "victory", "defeat": build_ending()
- if screen == "routes": return
  var footer = row()
  footer.add_child(label(message if not message.is_empty() else "四大场景 · 十二道试炼  /  冒险进度自动保存到本机", 13, MUTED))
  spacer(footer)

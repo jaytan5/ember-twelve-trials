@@ -12,10 +12,10 @@ $previousLocalData = $env:LOCALAPPDATA
 try {
     $env:APPDATA = $testRoaming
     $env:LOCALAPPDATA = $testLocal
-    foreach ($testScript in @('test_rules','test_combat_revision','test_relic_retry','ui_smoke','ui_feedback')) {
+    foreach ($testScript in @('test_rules','test_combat_revision','test_relic_retry','ui_smoke','ui_feedback','test_talent_ui')) {
         $logPath = Join-Path $testOutput ($testScript + '.log')
         $engineArgs = @('--path',$projectRoot,'--script',"res://tests/$testScript.gd",'--log-file',$logPath,'--audio-driver','Dummy')
-        if (-not $Rendered -or $testScript -notin @('ui_smoke','ui_feedback')) { $engineArgs += '--headless' }
+        if (-not $Rendered -or $testScript -notin @('ui_smoke','ui_feedback','test_talent_ui')) { $engineArgs += '--headless' }
         & $enginePath @engineArgs
         if ($LASTEXITCODE -ne 0) { throw "$testScript failed ($LASTEXITCODE)" }
         $content = Get-Content -LiteralPath $logPath -Raw

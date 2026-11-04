@@ -59,3 +59,9 @@ GameShell 的 screen 状态分别为 title（启动时的纯背景、Logo 与开
 `turn_cards_played` 仅在成功出牌后计数，begin_turn 清零；卡牌效果结束且角色存活时处理连击齿轮，再统一检查胜负。齿轮走 hit_enemy，因此使用已有伤害动画队列。`fate_triggered` 在 start_battle 重置，begin_turn 检查生命严格低于30%，一次发放额外抽牌与能量；两字段均随存档保存。
 
 存档 v7 在 start_battle 完成首回合初始化后保存 `battle_checkpoint`（无嵌套快照的完整开战状态，以及用字符串保存的 RNG state）。前三档仅在 defeat 可恢复该快照，界面提交恢复结果后保存；legendary 的 allow_retry=false，规则层也禁止调用重试。新关覆盖快照，界面动画的隔离副本会携带它，战败动画播放完成后才展示重试按钮。v1–v6 存档缺少开战快照时保留现有资源、满血重建本关，下一关起使用完整快照。旧战斗中已经产生的属性不追溯扣回，新遗物的开战效果在下一次开战时生效。
+
+## 天赋页独立美术组件
+
+MainMenuView 只实例化 Components/TalentScreen.tscn。该场景组合静态背景/标题与九个独立 TextureButton；RouteCard、DifficultyButton 采用同一 ArtButton 状态实现，SelectionOutline 提供扩展到控件外的柔和阴影、呼吸光圈与流动边缘亮光。卡牌与难度各自使用独立 Premium Stylized 3D 素材，文字由引擎单独排版。按钮在选择时原地更新，不改写对局数据。新冒险和存档确认仍调用 GameShell 的原有服务。
+
+资源与导出说明见 Assets/UI/TalentSelection/README.md。主页 HomeView 与 HomeMenuButton 已恢复本次修改前内容；新样式仅用于天赋页。

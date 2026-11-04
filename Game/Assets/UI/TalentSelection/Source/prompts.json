@@ -1,0 +1,42 @@
+{
+  "mode": "built-in imagegen",
+  "background_and_button": [
+    {
+      "key": "talentBackground",
+      "transparent_background": false,
+      "prompt": "Use case: precise-object-edit / game asset separation. The reference is an approved 16:9 game UI. Produce ONLY its clean full-screen BACKGROUND PLATE for a real interactive Godot scene. Keep EXACTLY the same composition, camera framing, cheerful rural Chinese red-brick courtyard with gray tiled roofs, blue sky, greenery, rabbit-hood child on the left in the same pointing pose, and sturdy rustic wooden gateway with two grounded posts, diagonal braces, lanterns and red hanging banners. Keep the empty wood-framed long tray along the bottom. REMOVE ALL foreground UI: three giant route cards including every card frame/icon/illustration/text, ALL four bottom difficulty buttons, the bottom-right red start button, upper-left back button, and the top red title sign including all gold trim belonging to that sign. Reconstruct the previously occluded village courtyard behind the removed cards naturally; the top wooden beam should continue behind the removed sign. Bottom tray must now be plain warm wooden interior with no button-shaped recesses or painted labels. No written words anywhere, no extra characters, no UI, no watermark. Preserve the child and wooden frame positions carefully because independently exported buttons and cards will be placed over this background at the original positions. Same polished colorful 3D illustrated game-art quality, warm sunlit red-brick rural setting, 16:9 landscape."
+    },
+    {
+      "key": "sharedRedButton",
+      "transparent_background": true,
+      "prompt": "Use case: background-extraction / reusable game UI asset. Reference is an approved game screen. Reconstruct ONLY the bottom-right red “开始冒险” button as ONE isolated standalone horizontal UI button, but remove the Chinese lettering to leave a BLANK usable deep crimson red leather/enamel face. Keep its elaborate bright beveled gold frame, two small gold diamond ornaments at left and right ends, warm gold highlights, symmetrical elongated horizontal silhouette. Match the reference bottom-right button design closely, no card-crest on top. Aspect ratio of actual button approximately 4.2:1. Entire outer gold frame must be complete, sharp, front-facing orthographic flat UI, minimal transparent padding. No text, no icons in its central face, no arrows, no scenery, no wooden tray, no character, no other buttons, no drop shadow outside its immediate contour. Real transparent alpha background, not checkerboard. Single high-quality reusable sprite whose label will be rendered by the engine."
+    }
+  ],
+  "card_reconstruction": [
+    {
+      "key": "venomSprite",
+      "which": "LEFT poison card",
+      "name": "蚀毒",
+      "first": "叠毒侵蚀",
+      "second": "毒层引爆",
+      "art": "green glowing poisoned dagger and poison droplets, green skull diamond badge"
+    },
+    {
+      "key": "furySprite",
+      "which": "MIDDLE fury card",
+      "name": "狂刃",
+      "first": "力量连击",
+      "second": "嗜血暴击",
+      "art": "two crossed silver curved swords, fiery crimson red backdrop inside the card, crossed swords red diamond badge"
+    },
+    {
+      "key": "bastionSprite",
+      "which": "RIGHT bastion card",
+      "name": "铁壁",
+      "first": "护甲转伤",
+      "second": "荆棘反击",
+      "art": "blue and gold shield with golden star, blue lightning backdrop inside the card, shield blue diamond badge"
+    }
+  ],
+  "card_instructions": "Extract the named route card with its exact two-line description as an isolated portrait transparent PNG. Preserve gold frame, badge, art, parchment ribbon; no village fragments or selected halo. Selection is drawn by the engine."
+}
