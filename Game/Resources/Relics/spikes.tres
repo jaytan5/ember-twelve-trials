@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "spikes"
-title = "荆棘王冠"
-description = "每场战斗开始时获得 4 反伤。"
+title = "逆命护符"
+description = "每场战斗限一次：自己回合开始时，若生命低于 30%，抽 2 张牌并获得 3 点能量。"
 starter = false
-effects = {"start_thorns": 4}
+effects = {"low_hp_draw": 2, "low_hp_energy": 3}

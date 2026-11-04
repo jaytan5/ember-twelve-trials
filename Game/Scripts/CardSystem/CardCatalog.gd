@@ -32,6 +32,17 @@ static func encounter(stage: int) -> Array:
 static func cost_text(c: Dictionary) -> String:
  return "X" if c.cost < 0 else str(c.cost)
 
+static func sorted_card_ids(route: String) -> Array:
+ var ids: Array = []
+ for id in CARDS:
+  if CARDS[id].route == route: ids.append(id)
+ # X has a variable cost and is listed after all fixed costs.
+ ids.sort_custom(func(a, b):
+  var left: int = 99 if CARDS[a].cost < 0 else CARDS[a].cost
+  var right: int = 99 if CARDS[b].cost < 0 else CARDS[b].cost
+  return left < right if left != right else a < b)
+ return ids
+
 static func card_count(route: String) -> int:
  var total = 0
  for c in CARDS.values():
@@ -56,6 +67,8 @@ static func describe(c: Dictionary) -> String:
  if c.has("block_damage"): parts.append("造成当前护甲 +%d 伤害" % c.damage)
  elif c.has("damage"):
   parts.append("造成 %d 伤害%s" % [c.damage, " ×%d" % c.hits if c.has("hits") else ""])
+ if c.has("lost_hp_damage"): parts.append("造成当前已损失生命的 %d%% 伤害（向下取整，另加力量）" % c.lost_hp_damage)
+ if c.has("random_damage"): parts.append("随机攻击 %d 次，每次 %d 伤害\n每段独立选择存活敌人" % [c.hits, c.random_damage])
  if c.has("all_damage"):
   if c.has("block_ratio"): parts.append("全体受到护甲的 50%% +%d 伤害" % c.all_damage)
   else: parts.append("对全体造成 %d 伤害" % c.all_damage)
@@ -66,9 +79,9 @@ static func describe(c: Dictionary) -> String:
  if c.has("poison_burst"): parts.append("清空目标毒素\n造成层数 ×%d 穿甲伤害" % c.poison_burst)
  if c.has("coating"): parts.append("本场淬毒 +%d\n每张攻击后施加毒素" % c.coating)
  if c.has("all_thorns_damage"): parts.append("全体受到反伤值 ×%d 伤害\n不消耗反伤" % c.all_thorns_damage)
- if c.has("fury_engine"): parts.append("本场嗜战 +%d\n每张攻击后获得狂怒" % c.fury_engine)
- if c.has("fury"): parts.append("获得 %d 狂怒" % c.fury)
- if c.has("fury_burst"): parts.append("清空狂怒，每层额外 +%d 伤害" % c.fury_burst)
+ if c.has("next_lifesteal"): parts.append("下回合所有对敌伤害附带 %d%% 吸血\n按实际生命伤害恢复自身生命" % c.next_lifesteal)
+ if c.has("low_hp_crit"): parts.append("本场生命低于 25%% 时\n每段对敌伤害有 %d%% 几率造成 2 倍伤害" % c.low_hp_crit)
+ if c.has("next_strength"): parts.append("下回合力量 +%d\n仅持续下回合" % c.next_strength)
  if c.has("next_block"): parts.append("下回合开始获得 %d 护甲" % c.next_block)
  if c.has("next_draw"): parts.append("下回合额外抽 %d 张牌" % c.next_draw)
  if c.has("strength"): parts.append("本场战斗力量 +%d" % c.strength)
@@ -79,8 +92,8 @@ static func describe(c: Dictionary) -> String:
  if c.has("freeze_all"): parts.append("冰冻全体敌人：跳过下一次行动，毒素照常结算")
  if c.has("barrier"): parts.append("抵挡下一次正伤害（多段仅挡一段）")
  if c.has("heal_recent"): parts.append("治疗上轮伤势 %d" % c.heal_recent)
- if c.has("weak"): parts.append("虚弱 %d 回合" % c.weak)
- if c.has("vulnerable"): parts.append("易伤 %d 回合" % c.vulnerable)
+ if c.has("weak"): parts.append("施加虚弱：攻击伤害 -30%，本场不衰减、不叠加")
+ if c.has("vulnerable"): parts.append("施加易伤：受到普通伤害 +20%，本场不衰减、不叠加")
  if c.has("next_energy"): parts.append("下回合额外获得 %d 能量" % c.next_energy)
  if c.has("temp_thorns"): parts.append("反伤 +%d，持续至下回合开始" % c.temp_thorns)
  if c.has("energy"): parts.append("获得 %d 能量" % c.energy)

@@ -1,6 +1,7 @@
 extends RefCounted
 const Data = preload("res://Game/Scripts/CardSystem/CardCatalog.gd")
 const DECK_LIMIT = 30
+const DECK_MIN = 15
 var s: Dictionary = {}
 var rng = RandomNumberGenerator.new()
 
@@ -16,7 +17,7 @@ func load_run(path: String = "user://run_save.json") -> bool:
  if not FileAccess.file_exists(path): return false
  var parsed = normalize_numbers(JSON.parse_string(FileAccess.get_file_as_string(path)))
  if not parsed is Dictionary: return false
- if parsed.get("version", 0) not in [1, 2, 3, 4, 5]: return false
+ if parsed.get("version", 0) not in [1, 2, 3, 4, 5, 6, 7]: return false
  if not parsed.has("difficulty"): parsed.difficulty = "easy"
  if not Data.DIFFICULTIES.has(parsed.difficulty): return false
  for key in ["route", "stage", "phase", "hp", "max_hp", "deck", "relics", "enemies", "hand", "draw", "discard", "exhaust", "log", "gold"]:
@@ -42,8 +43,16 @@ func load_run(path: String = "user://run_save.json") -> bool:
  # Preserve old saves and the current battle's already-shuffled piles.
  # Oversized legacy decks are capped for all future battles, without deleting cards.
  while s.deck.size() > DECK_LIMIT: s.reserve.push_front(s.deck.pop_back())
- for key in ["fury", "fury_engine", "coating", "next_block", "next_draw", "next_energy", "retain_cap", "temp_thorns", "recoverable_hp", "barrier"]:
+ for key in ["lifesteal", "next_lifesteal", "low_hp_crit", "next_strength", "temporary_strength", "coating", "next_block", "next_draw", "next_energy", "retain_cap", "temp_thorns", "recoverable_hp", "barrier"]:
   if not s.has(key): s[key] = 0
+ s.erase("fury")
+ s.erase("fury_engine")
+ # Legacy small decks: equip owned reserves first, then grant basic cards.
+ # Keep an ongoing battle intact; new equipped copies join its draw pile.
+ while s.deck.size() < DECK_MIN:
+  var id: String = s.reserve.pop_front() if not s.reserve.is_empty() else ("strike" if s.deck.size() % 2 == 0 else "guard")
+  s.deck.append(id)
+  if s.phase == "battle": s.draw.append(id)
  # Former one-use skills become recyclable; preserve every copy and upgrade.
  for i in range(s.exhaust.size() - 1, -1, -1):
   if Data.card(s.exhaust[i]).kind != "能力" and not Data.card(s.exhaust[i]).get("exhaust", false):
@@ -53,7 +62,11 @@ func load_run(path: String = "user://run_save.json") -> bool:
  while s.hand.size() > Data.CONFIG.hand_limit: s.draw.append(s.hand.pop_back())
  for enemy in s.enemies:
   if not enemy.has("frozen"): enemy.frozen = 0
- s.version = 5
+  enemy.weak = 1 if enemy.get("weak", 0) > 0 else 0
+  enemy.vulnerable = 1 if enemy.get("vulnerable", 0) > 0 else 0
+ if not s.has("turn_cards_played"): s.turn_cards_played = 0
+ if not s.has("fate_triggered"): s.fate_triggered = false
+ s.version = 7
  rng.randomize()
  if s.has("rng_state"): rng.state = int(s.rng_state)
  s.erase("rng_state")

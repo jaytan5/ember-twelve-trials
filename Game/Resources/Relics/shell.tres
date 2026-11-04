@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "shell"
-title = "古龙鳞"
-description = "每个玩家回合开始时获得 4 护甲。"
+title = "连击齿轮"
+description = "每回合打出第 3、6、9 张卡牌后，对随机存活敌人造成 6 点伤害；每回合最多触发 3 次。"
 starter = false
-effects = {"turn_block": 4}
+effects = {"combo_damage": 6}

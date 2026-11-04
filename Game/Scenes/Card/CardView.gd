@@ -38,6 +38,6 @@ func card_view(ui: Control, id: String, action: Callable, hint: String = "", loc
  var description = ui.paragraph(ui.Data.describe(c), 14, ui.TEXT)
  description.size_flags_vertical = Control.SIZE_EXPAND_FILL
  body.add_child(description)
- body.add_child(ui.label("单体 · 当前目标" if c.get("target", false) else "自身 / 全体效果", 12, ui.MUTED))
+ body.add_child(ui.label("随机敌人 · 每段独立" if c.has("random_damage") else ("单体 · 当前目标" if c.get("target", false) else "自身 / 全体效果"), 12, ui.MUTED))
  return node
 

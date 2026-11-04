@@ -1,6 +1,7 @@
 extends RefCounted
 ## Two persistent owned-card zones. Dragging transfers a specific copy, never deletes it.
 const Data = preload("res://Game/Scripts/CardSystem/CardCatalog.gd")
+const NameButton = preload("res://Game/Scenes/Card/CardNameButton.gd")
 var ui: Control
 var revision = 0
 var scrolls: Dictionary = {}
@@ -14,8 +15,8 @@ func show_screen(host: Control, notice: String = "", keep_scroll: bool = false) 
  var s: Dictionary = ui.game.s
  var body = ui.open_modal("卡组管理  /  已拥有 %d 张" % (s.deck.size() + s.reserve.size()), Vector2(1280, 810))
  var editable: bool = ui.game.can_edit_deck()
- var instruction = "拖动卡牌到另一侧即可换牌，也可点击卡牌操作。出战 5–30 张；备用卡不会参与抽牌。"
- if not editable: instruction = "战斗与结算期间仅查看；在战后选牌、遗物或营火阶段可以拖动调整。"
+ var instruction = "悬停卡名查看详情；拖动或点击换牌。出战 15–30 张；备用卡不参与抽牌。"
+ if not editable: instruction = "悬停卡名查看详情。战斗期间仅查看；战后选牌、遗物或营火阶段可以调整。"
  body.add_child(ui.paragraph(instruction, 17))
  if notice != "": body.add_child(ui.paragraph(notice, 16, ui.GOLD))
  var panes = ui.row(18)
@@ -38,17 +39,26 @@ func show_screen(host: Control, notice: String = "", keep_scroll: bool = false) 
   scroll.custom_minimum_size.y = 490
   scrolls[zone] = scroll
   var grid = GridContainer.new()
-  grid.columns = 2
+  grid.columns = 3
   grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-  grid.add_theme_constant_override("h_separation", 12)
-  grid.add_theme_constant_override("v_separation", 12)
+  grid.add_theme_constant_override("h_separation", 8)
+  grid.add_theme_constant_override("v_separation", 8)
   grid.mouse_filter = Control.MOUSE_FILTER_PASS
   for i in range(s[zone].size()):
    var id: String = s[zone][i]
-   var tile: Button = ui.card_view(id, func(): inspect_card(zone, i), "拖动换牌" if editable else "只读")
+   var tile = NameButton.new()
+   tile.host = ui
+   tile.card_id = id
+   tile.text = Data.card(id).name
+   tile.tooltip_text = Data.describe(Data.card(id))
+   tile.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+   tile.focus_mode = Control.FOCUS_NONE
+   tile.add_theme_font_size_override("font_size", 18)
+   tile.pressed.connect(ui.settings.play_click)
+   tile.pressed.connect(func(): inspect_card(zone, i))
    tile.name = ("DeckCard" if zone == "deck" else "ReserveCard") + str(i)
    tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-   tile.custom_minimum_size = Vector2(250, 270)
+   tile.custom_minimum_size = Vector2(160, 40)
    tile.set_drag_forwarding(
     func(_pos): return drag_card(tile, zone, i, id),
     func(_pos, data): return accepts(data, zone),
@@ -106,11 +116,11 @@ func inspect_card(source: String, index: int) -> void:
  var id: String = ui.game.s[source][index]
  var c = Data.card(id)
  var body = ui.open_modal(c.name, Vector2(720, 550))
- body.add_child(ui.paragraph("%s · %d 能量\n\n%s" % [c.kind, c.cost, Data.describe(c)], 20, ui.TEXT))
+ body.add_child(ui.paragraph("%s · %s 能量\n\n%s" % [c.kind, Data.cost_text(c), Data.describe(c)], 20, ui.TEXT))
  var destination = "reserve" if source == "deck" else "deck"
  if ui.game.can_edit_deck():
   var move_button = ui.button("移入备用卡库" if destination == "reserve" else "加入出战卡组", func(): transfer(source, index, destination, revision), true)
   move_button.disabled = not ui.game.can_move_card(source, index, destination)
   body.add_child(move_button)
-  if move_button.disabled: body.add_child(ui.paragraph("出战卡组最多 30 张、至少 5 张，请先调整其他卡牌。", 16))
+  if move_button.disabled: body.add_child(ui.paragraph("出战卡组最多 30 张、至少 15 张，请先调整其他卡牌。", 16))
  body.add_child(ui.button("返回卡组管理", func(): show_screen(ui, "", true)))

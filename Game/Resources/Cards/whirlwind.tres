@@ -5,11 +5,11 @@
 [resource]
 script = ExtResource("1")
 id = "whirlwind"
-title = "旋风斩"
+title = "顺劈斩"
 kind = "攻击"
 route = "fury"
 cost = 2
 target = false
 exhaust = false
-effects = {"all_damage": 8}
-upgrade = {"all_damage": 11}
+effects = {"random_damage": 6, "hits": 3}
+upgrade = {"hits": 4}

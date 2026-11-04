@@ -3,6 +3,9 @@
 | 目录 | 职责 |
 | --- | --- |
 | Scenes/MainMenu、Battle、Map、Card、Enemy、UI | 各自的场景和视图构建脚本；GameShell协调导航、输入与弹窗，视图读取战斗状态 |
+| Scenes/Battle/BattleAnimator.gd | 依次播放受击震动、护盾/治疗闪光和血条插值；GameShell在隔离副本上生成事件，播放完成后才提交状态、随机数状态与存档 |
+| Scenes/Card/CardNameButton.gd | 卡组管理的卡名按钮，原生鼠标悬停弹出完整卡牌；沿用独立副本的拖动与升级信息 |
+| Scenes/MainMenu/HomeView.gd | 开场 Logo、开始界面菜单和无声 OGV 循环背景；背景播放器跨界面重绘保留，由 GameShell 按 title/home 状态启停 |
 | Scripts/Combat/CombatState.gd | 对局生命周期、玩家伤害、回合、关卡转换 |
 | Scripts/CardSystem/CardEffects.gd | 卡牌结算，支持普通费用与X费用 |
 | Scripts/CardSystem/DeckSystem.gd | 洗牌、抽牌、手牌上限 |
@@ -10,11 +13,15 @@
 | Scripts/CardSystem/CardCatalog.gd | 读取独立资源，提供运行时副本和自动文案 |
 | Scripts/EnemySystem/EnemySystem.gd | 敌方行动、毒素、冰冻、多段攻击 |
 | Scripts/LevelSystem/RewardSystem.gd | 根据奖励资源生成卡牌选项 |
-| Scripts/SaveSystem/AppSettings.gd | 独立保存音量和显示偏好，管理音频总线与按钮音效 |
+| Scripts/SaveSystem/AppSettings.gd | 独立保存音量和显示偏好，管理音频总线、按钮音效与菜单循环 BGM；GameShell 按界面状态启停音乐 |
 | Scripts/SaveSystem/SaveSystem.gd | 序列化、旧存档迁移、恢复随机状态 |
 | Resources/Cards、Enemies、Bosses、Levels、Relics、Rewards | 每个内容条目对应独立.tres文件 |
 | Data/Config/game_rules.tres | 开局卡组、抽牌数量、手牌上限、路线与难度 |
 | Assets | 角色、卡牌/标题、背景、特效、音频及原始美术归档 |
+| Assets/Videos/MainMenu | 开始界面视频资源，实际引用项目内 OGV，可随项目打包 |
+| Assets/UI/Titles | 开场透明 Logo 及素材来源、布局登记 |
+| Scenes/UI/GameCursor.gd、Assets/UI/Cursors | 内置星芒小剑 PNG，48×48 硬件指针，剑尖热点 (5,1)，各鼠标形态统一使用 |
+| Assets/Fonts | 阿里妈妈方圆体 VF、MiSans Regular、FontVariation 标题样式与版权说明；GameShell 统一设置字体角色 |
 | Data/Localization | 后续翻译表位置，目前中文文案仍在资源中 |
 
 ## 自定义Resource
@@ -37,8 +44,18 @@ heal：直接回血；armor_damage：移除护甲后伤害倍率；store_energy�
 
 ## 导航与显示
 
-GameShell 的 screen 状态分别为 home（开始界面）、routes（路线确认）、map（四场景地图）、run（战斗/奖励/补给/结局）。HomeView、MainMenuView、MapView、BattleView 和 SettingsView 分别负责视图。
+GameShell 的 screen 状态分别为 title（启动时的纯背景、Logo 与开始提示）、home（开始菜单）、routes（路线确认）、map（四场景地图）、run（战斗/奖励/补给/结局）。HomeView、MainMenuView、MapView、BattleView 和 SettingsView 分别负责视图。title 不创建页眉、页脚或菜单，_input 消耗首次按键/点击/触摸/手柄按键后切换 home，保留背景视频和音乐进度；返回主界面直接进入 home。
 
 新冒险创建战斗状态后先显示地图；点击当前关卡只切换视图，不重新洗牌或调用 start_battle。营火完成后由 next_stage 初始化下一关，再显示地图。继续冒险读取后锁定路线与难度，确认后回到地图。地图与弹窗阻止战斗快捷键。
 
-逻辑画布为 1600×900，canvas_items + keep 保持 16:9；非 16:9 窗口留边。头像用 AtlasTexture 引用现有主角四视图，不改动原始图片。基础声音设置写入 settings.cfg，与 run_save.json 独立。
+默认窗口为 1280×720，逻辑画布为 1600×900，canvas_items + keep 保持 16:9；非 16:9 窗口留边。头像用 AtlasTexture 引用现有主角四视图，不改动原始图片。基础声音设置写入 settings.cfg，与 run_save.json 独立。
+
+应用显示名称为「小泥团，出击！」；`application/config/custom_user_dir_name` 固定原有的 `Godot/app_userdata/余烬十二关 · 卡牌 Demo`，兼容原存档和设置。项目目录无需随显示名称变更。
+
+## 遗物与小关重试
+
+遗物沿用 fang/shell/spikes 的稳定 ID，分别更新为进阶宝石、连击齿轮、逆命护符，已有存档保留持有关系。`relic_bonus()` 同时计算通用与当前路线的 `route_bonuses`。开战护甲在首个 `begin_turn()` 清理旧护甲之后发放，避免被首回合清零；首次毒加成沿用整场共用的 first_poison。
+
+`turn_cards_played` 仅在成功出牌后计数，begin_turn 清零；卡牌效果结束且角色存活时处理连击齿轮，再统一检查胜负。齿轮走 hit_enemy，因此使用已有伤害动画队列。`fate_triggered` 在 start_battle 重置，begin_turn 检查生命严格低于30%，一次发放额外抽牌与能量；两字段均随存档保存。
+
+存档 v7 在 start_battle 完成首回合初始化后保存 `battle_checkpoint`（无嵌套快照的完整开战状态，以及用字符串保存的 RNG state）。前三档仅在 defeat 可恢复该快照，界面提交恢复结果后保存；legendary 的 allow_retry=false，规则层也禁止调用重试。新关覆盖快照，界面动画的隔离副本会携带它，战败动画播放完成后才展示重试按钮。v1–v6 存档缺少开战快照时保留现有资源、满血重建本关，下一关起使用完整快照。旧战斗中已经产生的属性不追溯扣回，新遗物的开战效果在下一次开战时生效。

@@ -1,7 +1,7 @@
 extends Node
 
 func show_settings(ui: Control) -> void:
- var body = ui.open_modal("基础设置", Vector2(660, 460))
+ var body = ui.open_modal("基础设置", Vector2(660, 580))
  body.add_child(ui.paragraph("调整适合你的声音与显示方式。设置会自动保存。", 17))
  for channel in ["master", "effects"]:
   var line = ui.row(18)
@@ -32,6 +32,10 @@ func show_settings(ui: Control) -> void:
  body.add_child(fullscreen)
  body.add_child(ui.button("试听音效", ui.settings.play_click))
  body.add_child(ui.paragraph("数字1–9对应前九张手牌，0对应第十张；空格结束回合，Esc打开或关闭菜单。", 15))
+ body.add_child(ui.paragraph("字体：阿里妈妈方圆体 · MiSans\n方圆体 © 2023 阿里巴巴（中国）有限公司；MiSans © 2020–2025 北京小米移动软件有限公司。", 12))
+ var assets_notice = ui.paragraph("美术与音乐说明：本游戏使用的美术及音乐资产由 AI 生成，用于本游戏的视觉与听觉呈现。字体遵循各自的授权条款。", 12)
+ assets_notice.name = "AssetsNotice"
+ body.add_child(assets_notice)
 
 func show_game_menu(ui: Control) -> void:
  var body = ui.open_modal("冒险菜单", Vector2(540, 670))

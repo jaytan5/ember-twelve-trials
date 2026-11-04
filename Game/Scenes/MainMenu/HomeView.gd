@@ -1,30 +1,122 @@
 extends Node
 
+const BACKGROUND_VIDEO = preload("res://Game/Assets/Videos/MainMenu/开篇循环背景动画.ogv")
+const TITLE_LOGO = preload("res://Game/Assets/UI/Titles/小泥团出击-透明Logo.png")
+const MENU_BUTTON = preload("res://Game/Scenes/MainMenu/HomeMenuButton.gd")
+const START_ART = preload("res://Game/Assets/UI/MainMenu/开始游戏.png")
+const CONTINUE_ART = preload("res://Game/Assets/UI/MainMenu/继续游戏.png")
+const SETTINGS_ART = preload("res://Game/Assets/UI/MainMenu/设置齿轮.png")
+var background: Control
+var video: VideoStreamPlayer
+var shade: ColorRect
+
+func update_background(ui: Control, enabled: bool) -> void:
+ if not is_instance_valid(background):
+  background = Control.new()
+  background.name = "HomeVideoBackground"
+  background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+  ui.add_child(background)
+  background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+  video = VideoStreamPlayer.new()
+  video.name = "OpeningVideo"
+  video.stream = BACKGROUND_VIDEO
+  video.expand = true
+  video.loop = true
+  video.volume = 0.0
+  video.mouse_filter = Control.MOUSE_FILTER_IGNORE
+  background.add_child(video)
+  video.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+  shade = ColorRect.new()
+  shade.color = Color(0.02, 0.04, 0.06, 0.25)
+  shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+  background.add_child(shade)
+  shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+ background.visible = enabled
+ shade.visible = false
+ if enabled:
+  if not video.is_playing(): video.play()
+ else:
+  video.stop()
+
+func build_title(ui: Control) -> void:
+ var title = create_canvas(ui, "TitleScreen")
+ add_logo(title)
+ var prompt = ui.label("按任意键开始游戏", 22, Color.WHITE)
+ prompt.name = "TitlePrompt"
+ prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+ prompt.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+ prompt.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+ prompt.add_theme_constant_override("shadow_offset_x", 1)
+ prompt.add_theme_constant_override("shadow_offset_y", 2)
+ title.add_child(prompt)
+ prompt.anchor_left = 0.25
+ prompt.anchor_right = 0.75
+ prompt.anchor_top = 0.74
+ prompt.anchor_bottom = 0.80
+
+func create_canvas(ui: Control, node_name: String) -> Control:
+ var canvas = Control.new()
+ canvas.name = node_name
+ canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ ui.add_child(canvas)
+ canvas.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+ return canvas
+
+func add_logo(parent: Control) -> void:
+ var logo = TextureRect.new()
+ logo.name = "TitleLogo"
+ logo.texture = TITLE_LOGO
+ logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+ logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+ logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ parent.add_child(logo)
+ logo.anchor_left = 0.30
+ logo.anchor_right = 0.70
+ logo.anchor_top = 0.035
+ logo.anchor_bottom = 0.355
+
 func build_home(ui: Control) -> void:
- var center = CenterContainer.new()
- center.size_flags_vertical = Control.SIZE_EXPAND_FILL
- ui.layout.add_child(center)
- var frame = ui.panel(ui.PANEL, Color("4c5060"), 40)
- frame.custom_minimum_size = Vector2(1250, 650)
- center.add_child(frame)
- var content = ui.row(70)
- frame.add_child(content)
- var left = ui.column(24)
- left.custom_minimum_size.x = 650
- content.add_child(left)
- left.add_child(ui.label("EMBER  /  TWELVE TRIALS", 16, ui.GOLD))
- left.add_child(ui.label("余烬十二关", 64))
- left.add_child(ui.paragraph("带上一副卡牌，走过四片土地。\n下一段冒险，从这里开始。", 24))
- var spacer = Control.new()
- spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
- left.add_child(spacer)
- for item in [["开始新冒险", "HomeNew", ui.open_new_routes], ["继续冒险", "HomeContinue", ui.open_continue_routes], ["设置", "HomeSettings", ui.show_settings]]:
-  var action = ui.button(item[0], item[2], item[1] == "HomeNew")
-  action.name = item[1]
-  action.custom_minimum_size = Vector2(440, 58)
-  action.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-  if item[1] == "HomeContinue": action.disabled = not FileAccess.file_exists("user://run_save.json")
-  left.add_child(action)
- var portrait = ui.make_portrait(true)
- portrait.custom_minimum_size = Vector2(390, 550)
- content.add_child(portrait)
+ var home = create_canvas(ui, "HomeScreen")
+ add_logo(home)
+ var start = art_button(ui, home, "HomeNew", "开始游戏", START_ART, Rect2(181, 18, 1770, 653), ui.open_new_routes)
+ place_menu_button(start, 0.747)
+ var resume = art_button(ui, home, "HomeContinue", "继续游戏", CONTINUE_ART, Rect2(174, 16, 1823, 659), ui.open_continue_routes)
+ resume.base_tint = Color(0.86, 0.82, 0.75)
+ resume.disabled = not FileAccess.file_exists("user://run_save.json")
+ resume.update_feedback()
+ place_menu_button(resume, 0.87)
+ var settings_button = art_button(ui, home, "HomeSettings", "设置", SETTINGS_ART, Rect2(173, 138, 887, 915), ui.show_settings)
+ settings_button.anchor_left = 1.0
+ settings_button.anchor_right = 1.0
+ settings_button.offset_left = -116
+ settings_button.offset_right = -32
+ settings_button.offset_top = 30
+ settings_button.offset_bottom = 114
+ start.focus_neighbor_bottom = resume.get_path() if not resume.disabled else settings_button.get_path()
+ resume.focus_neighbor_top = start.get_path()
+ resume.focus_neighbor_bottom = settings_button.get_path()
+ settings_button.focus_neighbor_top = resume.get_path() if not resume.disabled else start.get_path()
+ settings_button.focus_neighbor_bottom = start.get_path()
+
+func art_button(ui: Control, parent: Control, node_name: String, _caption: String, source: Texture2D, region: Rect2, action: Callable) -> TextureButton:
+ var atlas = AtlasTexture.new()
+ atlas.atlas = source
+ # Exclude transparent export margins while leaving the original PNG untouched.
+ atlas.region = region
+ var control = MENU_BUTTON.new()
+ control.name = node_name
+ control.texture_normal = atlas
+ control.pressed.connect(ui.settings.play_click)
+ control.pressed.connect(action)
+ parent.add_child(control)
+ return control
+
+func place_menu_button(control: Control, vertical_anchor: float) -> void:
+ control.anchor_left = 0.5
+ control.anchor_right = 0.5
+ control.anchor_top = vertical_anchor
+ control.anchor_bottom = vertical_anchor
+ control.offset_left = -146
+ control.offset_right = 146
+ control.offset_top = -72
+ control.offset_bottom = 36

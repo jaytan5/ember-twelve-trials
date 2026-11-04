@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "fang"
-title = "血色獠牙"
-description = "每场战斗开始时获得 2 力量。"
+title = "进阶宝石"
+description = "狂刃：每场战斗开始获得 2 力量；铁壁：每场战斗开始获得 4 护甲；蚀毒：每场战斗首次施毒额外施加 3 层毒素。"
 starter = false
-effects = {"start_strength": 2}
+effects = {"route_bonuses": {"fury": {"start_strength": 2}, "bastion": {"start_block": 4}, "venom": {"first_poison": 3}}}

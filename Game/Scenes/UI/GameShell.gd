@@ -11,6 +11,8 @@ const MUTED = Color("94a6bd")
 const GOLD = Color("e7b777")
 const GREEN = Color("75cbb3")
 const RED = Color("f08e85")
+const READING_FONT = preload("res://Game/Assets/Fonts/MiSans-Regular.ttf")
+const DISPLAY_FONT = preload("res://Game/Assets/Fonts/方圆体-标题.tres")
 var mainmenu_view_component = preload("res://Game/Scenes/MainMenu/MainMenuView.tscn").instantiate()
 var battle_view_component = preload("res://Game/Scenes/Battle/BattleView.tscn").instantiate()
 var map_view_component = preload("res://Game/Scenes/Map/MapView.tscn").instantiate()
@@ -24,17 +26,22 @@ var game = Run.new()
 var deck_manager = DeckManager.new()
 var layout: VBoxContainer
 var modal: Control
-var screen = "home"
+var screen = "title"
 var resuming = false
 var on_menu: bool:
- get: return screen in ["home", "routes"]
+ get: return screen in ["title", "home", "routes"]
  set(value): screen = "routes" if value else "run"
 var selected_route = "venom"
 var selected_difficulty = "easy"
 var message = ""
 var busy = false
+var battle_animator = preload("res://Game/Scenes/Battle/BattleAnimator.gd").new()
+var game_cursor = preload("res://Game/Scenes/UI/GameCursor.gd").new()
+signal combat_animation_finished
 
 func _ready() -> void:
+ add_child(battle_animator)
+ add_child(game_cursor)
  add_child(settings)
  add_child(home_view_component)
  add_child(settings_view_component)
@@ -44,10 +51,9 @@ func _ready() -> void:
  add_child(card_view_component)
  add_child(enemy_view_component)
  add_child(ui_view_component)
- var font = SystemFont.new()
- font.font_names = PackedStringArray(["Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "sans-serif"])
  var skin = Theme.new()
- skin.default_font = font
+ skin.default_font = READING_FONT
+ skin.set_font("font", "Button", DISPLAY_FONT)
  skin.default_font_size = 17
  skin.set_color("font_color", "Label", TEXT)
  skin.set_color("font_color", "Button", TEXT)
@@ -78,12 +84,14 @@ func label(text_value: String, size_value: int = 17, color: Color = TEXT) -> Lab
  var node = Label.new()
  node.text = text_value
  node.add_theme_font_size_override("font_size", size_value)
+ if size_value >= 22: node.add_theme_font_override("font", DISPLAY_FONT)
  node.add_theme_color_override("font_color", color)
  node.mouse_filter = Control.MOUSE_FILTER_IGNORE
  return node
 
 func paragraph(text_value: String, size_value: int = 17, color: Color = MUTED) -> Label:
  var node = label(text_value, size_value, color)
+ node.add_theme_font_override("font", READING_FONT)
  node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
  node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  return node
@@ -123,8 +131,10 @@ func spacer(parent: Control) -> void:
  parent.add_child(space)
 
 func render() -> void:
+ settings.set_menu_music_enabled(screen in ["title", "home", "routes"])
  modal = null
  for child in get_children():
+  if child == home_view_component.background: continue
   if not child is Control: continue
   remove_child(child)
   child.queue_free()
@@ -133,6 +143,16 @@ func render() -> void:
  background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
  background.mouse_filter = Control.MOUSE_FILTER_IGNORE
  add_child(background)
+ move_child(background, 0)
+ home_view_component.update_background(self, screen in ["title", "home"])
+ if screen == "title":
+  layout = null
+  home_view_component.build_title(self)
+  return
+ if screen == "home":
+  layout = null
+  home_view_component.build_home(self)
+  return
  var margins = MarginContainer.new()
  margins.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
  margins.add_theme_constant_override("margin_left", 28)
@@ -143,9 +163,7 @@ func render() -> void:
  layout = column(10)
  margins.add_child(layout)
  build_header()
- if screen == "home":
-  home_view_component.build_home(self)
- elif screen == "routes":
+ if screen == "routes":
   build_menu()
  elif screen == "map":
   build_map()
@@ -156,17 +174,16 @@ func render() -> void:
    "relic": build_relic_reward()
    "camp": build_camp()
    "victory", "defeat": build_ending()
+ if screen == "routes": return
  var footer = row()
  footer.add_child(label(message if not message.is_empty() else "四大场景 · 十二道试炼  /  冒险进度自动保存到本机", 13, MUTED))
  spacer(footer)
- footer.add_child(label("EMBER  /  TWELVE", 13, GOLD))
  layout.add_child(footer)
 
 func build_header() -> void:
  var header = row(18)
  var branding = column(0)
- branding.add_child(label("余烬十二关", 29))
- branding.add_child(label("一副卡牌，一条通往王座的路。", 13, MUTED))
+ branding.add_child(label("小泥团，出击！", 29))
  header.add_child(branding)
  spacer(header)
  if screen in ["map", "run"]:
@@ -405,23 +422,62 @@ func build_ending() -> void:
   stats.add_child(label(item, 23, GREEN))
  body.add_child(stats)
  body.add_child(button("查看最终卡组", func(): show_deck("view")))
+ if game.can_retry_battle():
+  var retry = button("重新开始本小关", retry_current_battle, true)
+  retry.name = "RetryBattle"
+  body.add_child(retry)
+  body.add_child(paragraph("恢复至本关开战时的生命、药水、手牌与敌人状态。" if game.s.has("battle_checkpoint") else "此旧存档没有开战记录：保留现有卡组与资源，满血重新开始本关。", 15))
+ elif not win:
+  body.add_child(paragraph("传奇难度无法重试小关，只能从第一关重新冒险。", 15, RED))
  body.add_child(button("返回主界面", return_home, true))
  center.add_child(tile)
  layout.add_child(center)
 
+func retry_current_battle() -> void:
+ if busy or not game.retry_battle(): return
+ screen = "run"
+ message = "已重新开始第 %d 关。" % game.s.stage
+ commit()
+
 func play_card(index: int) -> void:
- if busy: return
- if game.play(index):
-  message = "已出牌。注意剩余能量和敌方意图。" if game.shows_intents() else "已出牌。注意剩余能量、护甲和敌人状态。"
-  commit()
+ if busy or screen != "run" or is_instance_valid(modal) or not game.can_play(index): return
+ await animate_combat_action("card", index)
 
 func end_player_turn() -> void:
- if busy or game.s.phase != "battle": return
+ if busy or screen != "run" or is_instance_valid(modal) or game.s.phase != "battle": return
+ await animate_combat_action("end_turn")
+
+func use_battle_potion() -> void:
+ if busy or game.s.phase != "battle" or game.s.potions <= 0 or game.s.hp >= game.s.max_hp: return
+ await animate_combat_action("potion")
+
+func animate_combat_action(action: String, index: int = -1) -> void:
+ # Resolve on an isolated copy; live state, RNG, saving and reward screens wait.
+ var prepared = Run.new()
+ prepared.s = game.s.duplicate(true)
+ prepared.rng.state = game.rng.state
+ prepared.capture_combat_events = true
+ match action:
+  "card":
+   if not prepared.play(index): return
+  "end_turn": prepared.end_turn()
+  "potion":
+   if not prepared.use_potion(): return
  busy = true
- game.end_turn()
- message = "敌方行动结束，轮到你了。" if game.s.phase == "battle" else "战斗已结束。"
- commit()
+ var input_shield = Control.new()
+ input_shield.name = "CombatInputShield"
+ input_shield.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+ input_shield.mouse_filter = Control.MOUSE_FILTER_STOP
+ input_shield.mouse_default_cursor_shape = Control.CURSOR_WAIT
+ add_child(input_shield)
+ await battle_animator.play_events(self, prepared.combat_events, index)
+ game.s = prepared.s
+ game.rng.state = prepared.rng.state
  busy = false
+ message = "敌方行动结束，轮到你了。" if action == "end_turn" else "已出牌。" if action == "card" else "已使用治疗药水。"
+ if game.s.phase != "battle": message = "战斗已结束。"
+ commit()
+ combat_animation_finished.emit()
 
 func persist() -> void:
  if game.s.is_empty(): return
@@ -474,7 +530,7 @@ func show_deck(mode: String) -> void:
  if mode == "remove": heading = "选择一张卡移除 · 花费 40 金币"
  var content = open_modal(heading)
  if mode == "upgrade": content.add_child(paragraph("点击卡牌查看升级前后变化，再确认锻造。", 16))
- elif mode == "remove": content.add_child(paragraph("点击卡牌后确认移除。卡组至少保留 5 张。", 16))
+ elif mode == "remove": content.add_child(paragraph("点击卡牌后确认移除。卡组至少保留 15 张。", 16))
  var scroll = ScrollContainer.new()
  scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
  scroll.custom_minimum_size.y = 490
@@ -554,19 +610,31 @@ func show_stage(stage: int) -> void:
 
 func show_help() -> void:
  var content = open_modal("玩法与状态说明", Vector2(1000, 730))
- var text_value = "【新增效果】\n厚积薄发：消耗全部当前能量，下回合额外获得等量能量。冰冻：跳过下一次敌方行动（毒照常结算，行动顺序不前进）。金钟罩：抵挡一次正伤害，连续攻击只挡一段，可叠加次数，跨回合保留。碎甲击：移除护甲并造成等量伤害，不受力量或易伤加成。\n\n【冒险流程】\n从主界面选择新冒险或继续冒险，确认路线后进入关卡地图。继续冒险锁定存档路线和难度。四大场景共 12 关依次推进，每两场普通战斗后挑战 Boss（第 3 / 6 / 9 / 12 关）。生命跨关保留，护甲和战斗状态重置；每关结束可补给。\n\n【战斗】\n每回合通常有 3 能量。首回合抽5张，之后每回合抽2张，手牌上限10张。先点敌人选目标，再点击卡牌打出。数字 1–9、0 出牌，左右方向键切换目标，空格结束回合。未用的能量不保留，剩余手牌保留；满手牌时停止抽牌，未抽的牌留在牌库；抽牌堆耗尽时洗入弃牌堆。\n\n【护甲与伤害】\n护甲抵挡普通伤害，在你下回合开始时清空；「固守」本场每回合保留剩余护甲至上限，多张取最高上限。力量增加每段攻击伤害。毒素无视护甲，在该敌人行动前造成等于层数的伤害，再减少 1 层。\n\n【其他状态】\n虚弱：攻击伤害降低 25%。易伤：受到的普通伤害增加 50%。持续回合数在敌方行动后减少。反伤：每次受到攻击时反击，即使伤害被护甲完全抵挡。\n\n【成长与存档】\n能力牌与急救使用后本场移出，下场恢复；其他已打出的牌进入弃牌堆，可再次抽到。营火免费休息与升级二选一；商店独立开放。每次操作自动保存，退出窗口后可继续。开始新冒险会替换旧存档。"
+ var text_value = "【新增效果】\n厚积薄发：消耗全部当前能量，下回合额外获得等量能量。冰冻：跳过下一次敌方行动（毒照常结算，行动顺序不前进）。金钟罩：抵挡一次正伤害，连续攻击只挡一段，可叠加次数，跨回合保留。碎甲击：移除护甲并造成等量伤害，不受力量或易伤加成。\n\n【冒险流程】\n从主界面选择新冒险或继续冒险，确认路线后进入关卡地图。继续冒险锁定存档路线和难度。四大场景共 12 关依次推进，每两场普通战斗后挑战 Boss（第 3 / 6 / 9 / 12 关）。生命跨关保留，护甲和战斗状态重置；每关结束可补给。\n\n【战斗】\n每回合通常有 3 能量。首回合抽5张，之后每回合抽2张，手牌上限10张。先点敌人选目标，再点击卡牌打出。数字 1–9、0 出牌，左右方向键切换目标，空格结束回合。未用的能量不保留，剩余手牌保留；满手牌时停止抽牌，未抽的牌留在牌库；抽牌堆耗尽时洗入弃牌堆。\n\n【护甲与伤害】\n护甲抵挡普通伤害，在你下回合开始时清空；「固守」本场每回合保留剩余护甲至上限，多张取最高上限。力量增加每段攻击伤害。毒素无视护甲，在该敌人行动前造成等于层数的伤害，再减少 1 层。\n\n【其他状态】\n虚弱：攻击伤害降低 30%。易伤：受到的普通伤害增加 20%。两者本场持续、不衰减，重复施加不叠加。反伤：每次受到攻击时反击，即使伤害被护甲完全抵挡。\n\n【成长与存档】\n能力牌与急救使用后本场移出，下场恢复；其他已打出的牌进入弃牌堆，可再次抽到。营火免费休息与升级二选一；商店独立开放。每次操作自动保存，退出窗口后可继续。开始新冒险会替换旧存档。"
  text_value += "\n\n【治疗与延迟效果】\n卸力、急救、全才可直接恢复生命；汲取仅恢复上一轮敌方攻击造成的未恢复伤势。棘甲反伤仅持续至下个玩家回合开始，其他反伤能力持续整场。厚积薄发、毒素回收提供下回合额外能量；催化翻倍最多新增12层，升级18层。"
- text_value += "\n\n【路线核心】\n蚀毒：叠毒侵蚀，或用毒爆消耗全部毒层，按倍率造成无视护甲的伤害（不受力量、易伤影响）。淬毒使每张攻击牌结算后向命中且存活的敌人施加等量毒素，多段只触发一次。毒素回收需要目标至少 4 层毒。\n铁壁：护甲转单体或全体伤害；也能叠反伤，使用反击风暴主动输出，保留反伤继续反击。\n狂刃：力量强化每段攻击；嗜战使每张攻击牌结算后获得等量狂怒，怒吼与血性冲锋也可积攒。怒斩清空狂怒获得加伤，再触发嗜战。狂怒跨回合保留，这些路线状态跨战斗清空。\n\n【卡组管理】\n出战卡组 5–30 张，备用卡库不参与抽牌。战斗外打开右上角设置菜单中的卡组，可把卡牌拖到另一侧，或点击后选择移入。出战满 30 张时，新获得的卡自动进入备用卡库并打开管理界面；先拖出旧卡，再拖入新卡。换牌免费，卡牌不会被删除。图鉴可查看全部 47 种牌和升级版。"
+ text_value += "\n\n【路线核心】\n蚀毒：叠毒侵蚀，或用毒爆消耗全部毒层，按倍率造成无视护甲的伤害（不受力量、易伤影响）。淬毒使每张攻击牌结算后向命中且存活的敌人施加等量毒素，多段只触发一次。毒素回收需要目标至少 4 层毒。\n铁壁：护甲转单体或全体伤害；也能叠反伤，使用反击风暴主动输出，保留反伤继续反击。\n狂刃：力量强化每段攻击。嗜血使下一回合所有对敌伤害附带75%吸血，按实际扣除的敌方生命逐段向下取整治疗；持续至再下一回合开始，包含毒素和反伤。怒吼下回合增加临时力量，仅持续该回合。暴力执法生效后，生命严格低于25%时，每段对敌伤害有50%（升级60%）几率翻倍；治疗使生命回到门槛以上后立即停止暴击。顺劈斩每段重新随机选择存活敌人。这些状态下场清空。\n\n【卡组管理】\n出战卡组 15–30 张，备用卡库不参与抽牌。战斗外打开右上角设置菜单中的卡组，可把卡牌拖到另一侧，或点击后选择移入。出战满 30 张时，新获得的卡自动进入备用卡库并打开管理界面；先拖出旧卡，再拖入新卡。换牌免费，卡牌不会被删除。图鉴可查看全部 47 种牌和升级版。"
  var scroll = ScrollContainer.new()
  scroll.custom_minimum_size.y = 590
  scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
  scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
- text_value = "【难度】\n简单：显示下次攻击的单段伤害、连击次数和总伤害，也预告防御与蓄力。预告计入敌人的力量和虚弱，实际生命损失还会受到你的护甲影响。\n中等：隐藏所有行动预告，保留基础数值。\n困难：隐藏预告；敌人生命 +35%，攻击、防御、蓄力 +25%，向上取整。行动模式和连击次数不变。\n难度在新冒险开始前选择，本局固定；旧版存档按简单难度继续，已发生的行动仍显示在战斗记录中。\n\n" + text_value
+ text_value = "【难度】\n轻松：显示下次攻击的单段伤害、连击次数和总伤害，也预告防御与蓄力。预告计入敌人的力量和虚弱，实际生命损失还会受到你的护甲影响。\n标准：隐藏所有行动预告，保留基础数值。\n勇者：隐藏预告；敌人生命 +35%，攻击、防御、蓄力 +25%，向上取整。行动模式和连击次数不变。\n轻松、标准、勇者战败后均可重新开始本小关。传奇沿用勇者数值，但战败不能重试，只能从头开始。\n难度在新冒险开始前选择，本局固定；旧版存档按轻松难度继续，已发生的行动仍显示在战斗记录中。\n\n" + text_value
  var text_label = paragraph(text_value, 18, TEXT)
  scroll.add_child(text_label)
  content.add_child(scroll)
 
+func _input(event: InputEvent) -> void:
+ if screen != "title": return
+ var start_pressed = (event is InputEventKey and event.pressed and not event.echo) or (event is InputEventMouseButton and event.pressed) or (event is InputEventScreenTouch and event.pressed) or (event is InputEventJoypadButton and event.pressed)
+ if not start_pressed: return
+ # Consume the opening action so it cannot also activate a newly revealed menu.
+ get_viewport().set_input_as_handled()
+ screen = "home"
+ render()
+
 func _unhandled_key_input(event: InputEvent) -> void:
+ if busy:
+  get_viewport().set_input_as_handled()
+  return
  if not event is InputEventKey or not event.pressed or event.echo: return
  if is_instance_valid(modal):
   if event.keycode == KEY_ESCAPE:
@@ -605,6 +673,9 @@ func open_continue_routes() -> void:
  if not game.load_run():
   message = "存档无法读取。可以开始新冒险。"
   render()
+  var body = open_modal("无法继续游戏", Vector2(550, 270))
+  body.add_child(paragraph(message, 18))
+  body.add_child(button("开始新的游戏", open_new_routes, true))
   return
  resuming = true
  selected_route = game.s.route

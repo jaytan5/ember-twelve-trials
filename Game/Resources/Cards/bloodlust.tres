@@ -12,4 +12,4 @@ cost = 0
 target = false
 exhaust = false
 effects = {"energy": 1, "self_damage": 5}
-upgrade = {"self_damage": 4}
+upgrade = {"energy": 2, "self_damage": 8}

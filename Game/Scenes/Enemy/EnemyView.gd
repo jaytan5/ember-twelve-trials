@@ -7,6 +7,7 @@ func enemy_view(ui: Control, index: int) -> Button:
  var selected: bool = index == ui.game.s.target and alive
  var tint = ui.GOLD if e.boss else ui.GREEN
  var tile = Button.new()
+ tile.name = "EnemyPanel%d" % index
  tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  tile.custom_minimum_size.y = 190
  tile.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -16,6 +17,7 @@ func enemy_view(ui: Control, index: int) -> Button:
  tile.disabled = not alive
  tile.pressed.connect(ui.settings.play_click)
  tile.pressed.connect(func():
+  if ui.busy: return
   ui.game.select_target(index)
   ui.message = "目标已锁定：" + e.name
   ui.commit())
@@ -44,13 +46,15 @@ func enemy_view(ui: Control, index: int) -> Button:
  var name_label = ui.label(("◆ " if e.boss else "") + e.name + ("  ‹ 目标 ›" if selected else ""), 18, tint if selected else ui.TEXT)
  name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
  content.add_child(name_label)
- content.add_child(ui.health_bar(e.hp, e.max_hp, ui.RED))
+ var health = ui.health_bar(e.hp, e.max_hp, ui.RED)
+ health.name = "EnemyHealth%d" % index
+ content.add_child(health)
  var statuses: Array[String] = []
  if e.get("frozen", 0) > 0: statuses.append("冰冻 %d" % e.frozen)
  if e.block > 0: statuses.append("护甲 %d" % e.block)
  if e.poison > 0: statuses.append("毒 %d" % e.poison)
- if e.weak > 0: statuses.append("虚弱 %d" % e.weak)
- if e.vulnerable > 0: statuses.append("易伤 %d" % e.vulnerable)
+ if e.weak > 0: statuses.append("虚弱 -30%")
+ if e.vulnerable > 0: statuses.append("易伤 +20%")
  if e.strength > 0: statuses.append("力量 +%d" % e.strength)
  var status = ui.label(" · ".join(statuses) if not statuses.is_empty() else "无状态", 14, ui.MUTED)
  status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

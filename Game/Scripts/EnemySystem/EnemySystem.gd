@@ -12,8 +12,6 @@ static func resolve_turn(run) -> void:
   if e.hp <= 0: continue
   if e.get("frozen", 0) > 0:
    e.frozen -= 1
-   e.weak = maxi(0, e.weak - 1)
-   e.vulnerable = maxi(0, e.vulnerable - 1)
    run.note("%s 被冰冻，跳过本次行动。" % e.name)
    continue
   var intent = run.intent_for(e)
@@ -30,11 +28,11 @@ static func resolve_turn(run) -> void:
     run.note("%s 发动攻击，你失去 %d 生命。" % [e.name, total])
    "defend":
     e.block += intent.amount
+    run.record_combat_event(i, e.hp, e.hp, "guard")
     run.note("%s 获得 %d 护甲。" % [e.name, intent.amount])
    "buff":
     e.strength += intent.amount
+    run.record_combat_event(i, e.hp, e.hp, "buff")
     run.note("%s 的力量 +%d。" % [e.name, intent.amount])
   e.step += 1
-  e.weak = maxi(0, e.weak - 1)
-  e.vulnerable = maxi(0, e.vulnerable - 1)
   if run.s.hp <= 0: break

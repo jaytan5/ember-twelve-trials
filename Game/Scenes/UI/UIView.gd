@@ -6,6 +6,8 @@ func health_bar(ui: Control, hp: int, maximum: int, tint: Color, width: int = 0)
  holder.custom_minimum_size = Vector2(width, 23)
  holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
  var bar = ProgressBar.new()
+ bar.name = "HealthFill"
+ bar.step = 0.01
  bar.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
  bar.max_value = maximum
  bar.value = hp
@@ -15,6 +17,7 @@ func health_bar(ui: Control, hp: int, maximum: int, tint: Color, width: int = 0)
  bar.add_theme_stylebox_override("fill", ui.box(Color(tint, 0.55), Color.TRANSPARENT, 6, 0))
  holder.add_child(bar)
  var caption = ui.label("%d / %d" % [hp, maximum], 14)
+ caption.name = "HealthCaption"
  caption.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
  caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
  caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

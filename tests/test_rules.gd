@@ -12,7 +12,7 @@ func check(ok: bool, title: String) -> void:
 
 func _init() -> void:
  for id in Data.CARDS:
-  check(Data.describe(Data.card(id)) != Data.describe(Data.card(id + "+")), "upgrade improves " + id)
+  check(Data.describe(Data.card(id)) != Data.describe(Data.card(id + "+")) or Data.card(id + "+").cost < Data.card(id).cost, "upgrade improves effect or cost " + id)
  for route in Data.ROUTES:
   var g = Run.new()
   g.new_run(route, 42)
@@ -74,14 +74,14 @@ func test_damage() -> void:
  g.s.energy = 0
  var before = g.s.duplicate(true)
  check(not g.play(0) and g.s == before, "unaffordable card does not mutate state")
- g.s.enemies[0].weak = 2
- g.s.enemies[0].vulnerable = 2
+ g.s.enemies[0].weak = 1
+ g.s.enemies[0].vulnerable = 1
  g.s.energy = 1
  g.play(0)
- check(g.s.enemies[0].hp == 12, "vulnerable rounds damage up")
+ check(g.s.enemies[0].hp == 14, "twenty percent vulnerable rounds damage up")
  var hp: int = g.s.hp
  g.end_turn()
- check(g.s.hp == hp - 4 and g.s.enemies[0].weak == 1, "weak attack and decay")
+ check(g.s.hp == hp - 4 and g.s.enemies[0].weak == 1, "thirty percent weakness persists")
  g.s.hp = 1
  g.s.hand = ["bloodlust"]
  g.play(0)
@@ -274,9 +274,12 @@ func score_card(g, c: Dictionary) -> float:
  if c.has("all_thorns_damage"): score += g.total_thorns() * c.all_thorns_damage * g.living().size()
  if c.has("poison_burst"): score += mini(e.poison * c.poison_burst, e.hp) - mini(e.poison * 1.5, e.hp)
  if c.has("coating"): score += c.coating * 8
- if c.has("fury_engine"): score += c.fury_engine * 7
- if c.has("fury"): score += c.fury * 1.5
- if c.has("fury_burst"): score += g.s.fury * c.fury_burst
+ if c.has("next_lifesteal"): score += 8 if g.s.hp < g.s.max_hp * 0.7 else 1
+ if c.has("next_strength"): score += c.next_strength * 3
+ if c.has("low_hp_crit"): score += 8 if g.s.low_hp_crit < c.low_hp_crit else -100
+ if c.has("random_damage"): score += (c.random_damage + g.s.strength) * c.hits
+ if c.has("lost_hp_damage"): score += (g.s.max_hp - g.s.hp) * c.lost_hp_damage / 100.0 + g.s.strength
+ if c.has("self_damage") and g.s.hp <= c.self_damage: score = -1000
  if c.has("next_energy"): score += c.next_energy * 3 - (c.get("poison_cost", 0) * 1.5)
  if c.has("next_block"): score += c.next_block * 0.5
  if c.has("next_draw"): score += c.next_draw * 2
@@ -298,7 +301,6 @@ func test_expanded_cards() -> void:
    probe.s.hand = [id + suffix]
    probe.s.enemies[0].poison = 10
    probe.s.thorns = 4
-   probe.s.fury = 5
    check(probe.play(0), "all card variants execute: " + id + suffix)
  check(counts == {"neutral":17, "venom":10, "bastion":10, "fury":10}, "exact 17/10/10/10 card counts")
  var g = durable_run()
@@ -338,18 +340,11 @@ func test_expanded_cards() -> void:
  g.play(0)
  check(g.s.enemies[0].hp == 992 and g.s.enemies[1].hp == 992 and g.s.block == 11, "half-armor AOE rounds down without consuming armor")
  g = durable_run("fury")
- g.s.hand = ["battle_trance", "warcry", "rage_slash", "triple+"]
- g.play(0)
- g.play(0)
- check(g.s.fury == 2 and g.s.fury_engine == 1, "warcry gains rage, skills do not trigger trance")
- g.play(0)
- check(g.s.enemies[0].hp == 987 and g.s.fury == 1, "rage slash spends all rage before trance adds one")
- g.play(0)
- check(g.s.enemies[0].hp == 969 and g.s.fury == 2, "strength per hit, trance per card")
- g.end_turn()
- check(g.s.fury == 2 and g.s.fury_engine == 1, "rage persists across turns")
+ g.s.hand = ["battle_trance", "warcry", "rage_slash"]
+ for _i in range(3): g.play(0)
+ check(g.s.next_lifesteal == 75 and g.s.next_strength == 3 and g.s.low_hp_crit == 50, "new route abilities queue and activate")
  g.start_battle()
- check(g.s.fury == 0 and g.s.fury_engine == 0 and g.s.coating == 0, "route statuses reset between encounters")
+ check(g.s.lifesteal == 0 and g.s.next_lifesteal == 0 and g.s.low_hp_crit == 0 and g.s.next_strength == 0, "route statuses reset between encounters")
  g = durable_run()
  g.s.hand = ["sunder"]
  g.s.enemies[0].block = 90
@@ -449,7 +444,7 @@ func test_balance_rules() -> void:
   g.s.block = 20
   g.save_run(path)
   var copy = Run.new()
-  check(copy.load_run(path) and copy.s.version == 5, "balance save migration version %d" % version)
+  check(copy.load_run(path) and copy.s.version == 7, "balance save migration version %d" % version)
   check(copy.s.exhaust == ["mend", "coating"] and copy.s.discard.count("focus+") == 2, "migration preserves copies and activates only abilities")
   copy.end_turn()
   check(copy.s.block == 14 and not copy.s.keep_block, "legacy one-turn hold honored once")
@@ -501,8 +496,8 @@ func test_deck_management() -> void:
  active.sort()
  check(piles == active and piles.size() == 30, "only equipped 30 cards enter next battle")
  g.enter_camp()
- while g.s.deck.size() > 5: g.move_card("deck", 0, "reserve")
- check(not g.move_card("deck", 0, "reserve") and g.s.deck.size() == 5, "minimum deck enforced")
+ while g.s.deck.size() > 15: g.move_card("deck", 0, "reserve")
+ check(not g.move_card("deck", 0, "reserve") and g.s.deck.size() == 15, "minimum deck enforced")
  # Legacy save: no new keys and more than 30 owned cards; keep in-progress battle.
  g = durable_run()
  var original_hand = g.s.hand.duplicate()
@@ -510,15 +505,15 @@ func test_deck_management() -> void:
  g.s.version = 1
  for key in ["reserve", "fury", "fury_engine", "coating", "next_block", "next_draw", "last_acquired_zone", "difficulty"]: g.s.erase(key)
  g.save_run(path)
- check(copy.load_run(path) and copy.s.version == 5 and copy.s.deck.size() == 30 and copy.s.reserve.size() == 4, "legacy oversized deck migrates without losing copies")
- check(copy.s.hand == original_hand and copy.s.fury == 0 and copy.s.coating == 0, "legacy current combat preserved")
+ check(copy.load_run(path) and copy.s.version == 7 and copy.s.deck.size() == 30 and copy.s.reserve.size() == 4, "legacy oversized deck migrates without losing copies")
+ check(copy.s.hand == original_hand and not copy.s.has("fury") and copy.s.coating == 0, "legacy current combat preserved")
  copy.end_turn()
  check(copy.s.phase == "battle", "legacy battle resumes")
  DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 func test_difficulties() -> void:
  var g = Run.new()
- for difficulty in ["easy", "normal", "hard"]:
+ for difficulty in ["easy", "normal", "hard", "legendary"]:
   g.new_run("venom", 55, difficulty)
   check(g.s.difficulty == difficulty and g.shows_intents() == (difficulty == "easy"), "difficulty and preview policy: " + difficulty)
   for stage in range(1, 13):
@@ -527,8 +522,8 @@ func test_difficulties() -> void:
    for i in range(base.size()):
     var original: Dictionary = base[i]
     var enemy: Dictionary = scaled[i]
-    var hp_scale = 1.35 if difficulty == "hard" else 1.0
-    var action_scale = 1.25 if difficulty == "hard" else 1.0
+    var hp_scale = 1.35 if difficulty in ["hard", "legendary"] else 1.0
+    var action_scale = 1.25 if difficulty in ["hard", "legendary"] else 1.0
     check(enemy.hp == int(ceil(original.hp * hp_scale)) and enemy.max_hp == enemy.hp, "enemy health scale floor %d %s" % [stage, difficulty])
     for j in range(original.pattern.size()):
      check(enemy.pattern[j].amount == int(ceil(original.pattern[j].amount * action_scale)), "attack defense buff scaling")
@@ -538,7 +533,7 @@ func test_difficulties() -> void:
   enemy.strength = 2
   enemy.weak = 1
   if difficulty == "easy":
-   check(g.visible_intent_text(enemy) == "连续攻击 6 ×2（共 12）", "easy preview accounts for strength weak and multihit")
+   check(g.visible_intent_text(enemy) == "连续攻击 5 ×2（共 10）", "easy preview accounts for strength weak and multihit")
    enemy.step = 1
    check(g.visible_intent_text(enemy) == "防御 +9 护甲", "easy defense preview")
    enemy.step = 2
@@ -549,7 +544,7 @@ func test_difficulties() -> void:
     check(g.visible_intent_text(enemy) == "行动未知", "hidden action text identical for all actions")
   var hp: int = g.s.hp
   g.end_turn()
-  check(g.s.hp == hp - (8 if difficulty == "hard" else 6), "actual attack uses scaled value")
+  check(g.s.hp == hp - (8 if difficulty in ["hard", "legendary"] else 6), "actual attack uses scaled value")
   check(g.s.log.any(func(line): return "发动攻击" in line), "completed enemy actions remain in battle log")
   g.s.stage = 3
   g.start_battle()
@@ -604,9 +599,9 @@ func test_revision_rules() -> void:
  g.s.hand = ["expose", "disarm", "quick", "brace"]
  g.s.hp = 20
  g.play(0)
- check(g.s.enemies[0].hp == 999 and g.s.enemies[0].vulnerable == 2, "expose deals one before vulnerability")
+ check(g.s.enemies[0].hp == 999 and g.s.enemies[0].vulnerable == 1, "expose deals one before vulnerability")
  g.play(0)
- check(g.s.hp == 23 and g.s.block == 0 and g.s.enemies[0].weak == 2, "disarm directly heals three and applies weakness")
+ check(g.s.hp == 23 and g.s.block == 0 and g.s.enemies[0].weak == 1, "disarm directly heals three and applies weakness")
  g.s.enemies[0].vulnerable = 0
  g.play(0)
  check(g.s.enemies[0].hp == 997, "quick two one-damage hits")
@@ -626,8 +621,9 @@ func test_revision_rules() -> void:
  g.draw_cards(8)
  check(not g.s.hand.has("mend"), "mend cannot reappear on reshuffle")
  g.s.deck = ["mend", "strike", "guard", "focus", "quick"]
+ while g.s.deck.size() < 15: g.s.deck.append("strike")
  g.start_battle()
- check(g.s.hand.has("mend") and g.s.exhaust.is_empty(), "consumable returns next encounter")
+ check((g.s.hand + g.s.draw).has("mend") and g.s.exhaust.is_empty(), "consumable returns next encounter")
  g = durable_run("fury")
  g.s.strength = 50
  g.s.enemies[0].vulnerable = 3
@@ -717,7 +713,7 @@ func test_revision_rules() -> void:
  g.s.shop_cards = ["feint+", "prepare", "rally"]
  g.save_run(save_path)
  check(restored.load_run(save_path), "old save with deleted cards migrates")
- check(restored.s.deck == ["disarm+", "stockpile", "expose", "aegis+", "strike"], "old owned cards map to replacements retaining upgrades")
- check(restored.s.hand.size() == 10 and restored.s.draw.size() == g.s.draw.size() + 2, "legacy hand overflow preserved in draw pile")
+ check(restored.s.deck.slice(0, 5) == ["disarm+", "stockpile", "expose", "aegis+", "strike"] and restored.s.deck.size() == 15, "old owned cards map to replacements retaining upgrades and minimum")
+ check(restored.s.hand.size() == 10 and restored.s.draw.size() == g.s.draw.size() + 12, "legacy hand overflow and supplemented cards preserved in draw pile")
  check(restored.s.reward_cards == ["disarm", "stockpile+", "aegis"] and restored.s.shop_cards == ["expose+", "aegis", "stockpile"], "legacy offers also migrate")
  DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path))

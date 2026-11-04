@@ -7,6 +7,7 @@ func _initialize() -> void:
  call_deferred("run")
 
 func settle() -> void:
+ while is_instance_valid(ui) and ui.busy: await process_frame
  for _i in range(5): await process_frame
 
 func capture(name_value: String) -> void:
@@ -14,13 +15,13 @@ func capture(name_value: String) -> void:
  if DisplayServer.get_name() != "headless":
   await RenderingServer.frame_post_draw
   root.get_texture().get_image().save_png("res://test-results/" + name_value + ".png")
- check_bounds(ui.layout)
+ check_bounds(ui.layout if is_instance_valid(ui.layout) else ui.find_child("HomeScreen", true, false))
  if is_instance_valid(ui.modal): check_bounds(ui.modal)
  print("UI SCREEN: ", name_value)
 
 func check_bounds(node: Node) -> void:
  if node is Button and node.get_meta("card_view", false): check_card_contents(node, node.get_global_rect())
- if node is Control and node.visible and (node is Button or node is Label):
+ if node is Control and node.visible and (node is BaseButton or node is Label):
   var rect: Rect2 = node.get_global_rect()
   var clipped = false
   var parent = node.get_parent()
@@ -28,7 +29,7 @@ func check_bounds(node: Node) -> void:
    if parent is ScrollContainer: clipped = true
    parent = parent.get_parent()
   if not clipped and (rect.end.y > ui.size.y + 2 or rect.end.x > ui.size.x + 2):
-   printerr("OVERFLOW: ", node.text, " rect ", rect, " canvas ", ui.size)
+   printerr("OVERFLOW: ", node.name, " rect ", rect, " canvas ", ui.size)
    errors += 1
  for child in node.get_children(): check_bounds(child)
 
@@ -59,6 +60,10 @@ func run() -> void:
  root.size = Vector2i(1600, 900)
  ui = Main.instantiate()
  root.add_child(ui)
+ var opening_key = InputEventKey.new()
+ opening_key.keycode = KEY_ENTER
+ opening_key.pressed = true
+ root.push_input(opening_key)
  await capture("01-home")
  await test_navigation()
  ui.game.new_run("venom", 18)
@@ -121,13 +126,18 @@ func run() -> void:
  for route in ["neutral", "venom", "bastion", "fury"]:
   ui.show_catalog(route)
   await capture("catalog-" + route)
+ for id in ["battle_trance", "rage_slash", "whirlwind", "warcry"]:
+  ui.show_catalog_card(id, "fury")
+  await capture("revision-detail-" + id)
  ui.show_catalog_card("coating", "venom")
  await capture("catalog-upgrade")
  ui.close_modal()
  ui.game.new_run("fury", 24)
  ui.game.s.hand = ["battle_trance+", "warcry", "rage_slash+", "blood_charge", "blizzard+"]
- ui.game.s.fury = 8
- ui.game.s.fury_engine = 2
+ ui.game.s.lifesteal = 75
+ ui.game.s.low_hp_crit = 60
+ ui.game.s.next_strength = 4
+ ui.game.s.hp = 18
  ui.game.s.next_draw = 2
  ui.game.s.next_block = 11
  ui.game.s.next_energy = 3
@@ -247,7 +257,7 @@ func test_navigation() -> void:
  expect(ui.screen == "routes" and ui.resuming, "continue also opens route confirmation")
  for route in ["venom", "bastion", "fury"]:
   expect(ui.find_child("Route_" + route, true, false).disabled, "saved route locked: " + route)
- for difficulty in ["easy", "normal", "hard"]:
+ for difficulty in ["easy", "normal", "hard", "legendary"]:
   expect(ui.find_child("Difficulty_" + difficulty, true, false).disabled, "saved difficulty locked: " + difficulty)
  await capture("navigation-continue")
  await click_node(ui.find_child("ConfirmRoute", true, false))
@@ -373,7 +383,7 @@ func test_deck_drag() -> void:
  ui.close_modal()
 
 func test_difficulty_ui() -> void:
- for difficulty in ["easy", "normal", "hard"]:
+ for difficulty in ["easy", "normal", "hard", "legendary"]:
   ui.on_menu = true
   ui.render()
   await settle()

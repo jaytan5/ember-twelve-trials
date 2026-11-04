@@ -5,11 +5,11 @@
 [resource]
 script = ExtResource("1")
 id = "battle_trance"
-title = "嗜战"
+title = "嗜血"
 kind = "能力"
 route = "fury"
-cost = 2
+cost = 3
 target = false
 exhaust = true
-effects = {"fury_engine": 1}
-upgrade = {"fury_engine": 2}
+effects = {"next_lifesteal": 75}
+upgrade = {"cost": 2}

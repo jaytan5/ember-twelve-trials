@@ -108,26 +108,49 @@ func build_hero(ui: Control) -> Control:
  identity.add_child(ui.label(ui.Data.ROUTES[s.route].name + " · " + ui.game.difficulty_info().name, 15, ui.GREEN))
  heading.add_child(identity)
  info.add_child(heading)
- info.add_child(ui.health_bar(s.hp, s.max_hp, ui.GREEN, 230))
- info.add_child(ui.label("能量 %d / %d    护甲 %d" % [s.energy, s.energy_max, s.block], 20, ui.GOLD))
- var status = "力量 %d · 反伤 %d（临时 %d）\n金钟罩 %d · 汲取可治伤势 %d" % [s.strength, ui.game.total_thorns(), s.temp_thorns, s.barrier, s.recoverable_hp]
- if s.route == "fury": status += "\n狂怒 %d · 嗜战 %d" % [s.fury, s.fury_engine]
- elif s.route == "bastion": status += "\n留甲上限 %d" % s.retain_cap
- else: status += "\n淬毒 %d" % s.coating
- if s.next_block > 0 or s.next_draw > 0 or s.next_energy > 0:
-  status += "\n下回合：甲 %d / 抽 %d / 能量 +%d" % [s.next_block, s.next_draw, s.next_energy]
+ var health = ui.health_bar(s.hp, s.max_hp, ui.GREEN, 230)
+ health.name = "HeroHealth"
+ info.add_child(health)
+ var energy_text = "能量 %d / %d" % [s.energy, s.energy_max]
+ if s.block > 0: energy_text += "    护甲 %d" % s.block
+ info.add_child(ui.label(energy_text, 20, ui.GOLD))
+ var status = "\n".join(active_status_lines(s))
  var status_scroll = ScrollContainer.new()
  status_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
  status_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
  status_scroll.custom_minimum_size.y = 76
  var status_label = ui.paragraph(status, 14, ui.MUTED)
- status_label.tooltip_text = "汲取仅治疗上一轮敌方攻击造成的未恢复伤势；卸力、急救、全才可直接治疗。临时反伤在下回合开始清零。"
+ status_label.name = "HeroStatuses"
+ status_label.visible = not status.is_empty()
+ status_label.tooltip_text = "临时反伤在下回合开始清零。"
+ if has_leech(s): status_label.tooltip_text = "汲取仅治疗上一轮敌方攻击造成的未恢复伤势；卸力、急救、全才可直接治疗。" + status_label.tooltip_text
  status_label.mouse_filter = Control.MOUSE_FILTER_PASS
  status_scroll.add_child(status_label)
  info.add_child(status_scroll)
- var potion = ui.button("药水 ×%d  ·  恢复 20 生命" % s.potions, func():
-  if ui.game.use_potion(): ui.commit())
+ var potion = ui.button("药水 ×%d  ·  恢复 20 生命" % s.potions, ui.use_battle_potion)
  potion.add_theme_font_size_override("font_size", 14)
  potion.disabled = s.potions <= 0 or s.hp >= s.max_hp
  info.add_child(potion)
  return player
+
+func has_leech(s: Dictionary) -> bool:
+ return "leech" in s.get("deck", []) or "leech+" in s.get("deck", [])
+
+func active_status_lines(s: Dictionary) -> Array[String]:
+ var lines: Array[String] = []
+ if s.strength != 0: lines.append("力量 %d" % s.strength)
+ if s.thorns > 0: lines.append("反伤 %d" % s.thorns)
+ if s.temp_thorns > 0: lines.append("临时反伤 %d" % s.temp_thorns)
+ if s.barrier > 0: lines.append("金钟罩 %d" % s.barrier)
+ if s.recoverable_hp > 0 and has_leech(s): lines.append("汲取可恢复：%d 生命" % s.recoverable_hp)
+ if s.lifesteal > 0: lines.append("吸血 %d%%" % s.lifesteal)
+ if s.next_lifesteal > 0: lines.append("下回合吸血 %d%%" % s.next_lifesteal)
+ if s.low_hp_crit > 0: lines.append("暴力执法 %d%%%s" % [s.low_hp_crit, "（生效中）" if s.hp * 4 < s.max_hp else "（需生命低于25%）"])
+ if s.temporary_strength > 0: lines.append("本回合临时力量 +%d" % s.temporary_strength)
+ if s.next_strength > 0: lines.append("下回合力量 +%d（仅一回合）" % s.next_strength)
+ if s.retain_cap > 0: lines.append("留甲上限 %d" % s.retain_cap)
+ if s.coating > 0: lines.append("淬毒 %d" % s.coating)
+ if s.next_block > 0: lines.append("下回合护甲 +%d" % s.next_block)
+ if s.next_draw > 0: lines.append("下回合抽牌 +%d" % s.next_draw)
+ if s.next_energy > 0: lines.append("下回合能量 +%d" % s.next_energy)
+ return lines

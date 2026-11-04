@@ -4,6 +4,8 @@ var master_volume: float = 0.8
 var effects_volume: float = 0.7
 var fullscreen: bool = false
 var player: AudioStreamPlayer
+var menu_music_player: AudioStreamPlayer
+const MENU_MUSIC = preload("res://Game/Assets/Audio/BGM/The+World-Saving+Heroic+Quest.ogg")
 const SETTINGS_PATH = "user://settings.cfg"
 
 func _ready() -> void:
@@ -25,7 +27,23 @@ func _ready() -> void:
   pcm.encode_s16(i * 2, int(sin(TAU * 660.0 * t) * envelope * 4500.0))
  sample.data = pcm
  player.stream = sample
+ # 菜单音乐独立于按钮音效，由总音量统一控制。
+ menu_music_player = AudioStreamPlayer.new()
+ menu_music_player.name = "MenuBGM"
+ menu_music_player.bus = "Master"
+ menu_music_player.volume_db = -12.0
+ var music = MENU_MUSIC.duplicate() as AudioStreamOggVorbis
+ music.loop = true
+ music.loop_offset = 0.0
+ menu_music_player.stream = music
+ add_child(menu_music_player)
  load_settings()
+
+func set_menu_music_enabled(enabled: bool) -> void:
+ if enabled:
+  if not menu_music_player.playing: menu_music_player.play()
+ else:
+  menu_music_player.stop()
 
 func load_settings(path: String = SETTINGS_PATH) -> void:
  var config = ConfigFile.new()

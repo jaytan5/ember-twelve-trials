@@ -11,5 +11,5 @@ route = "neutral"
 cost = 1
 target = true
 exhaust = false
-effects = {"damage": 1, "vulnerable": 2}
-upgrade = {"damage": 2, "vulnerable": 3}
+effects = {"damage": 1, "vulnerable": 1}
+upgrade = {"damage": 2, "vulnerable": 1}

@@ -17,19 +17,21 @@ static func play(run, index: int) -> bool:
  if c.kind == "能力" or c.get("exhaust", false): run.s.exhaust.append(id)
  else: run.s.discard.append(id)
  run.s.played += 1
+ run.s.turn_cards_played += 1
  run.note("打出 %s%s。" % [c.name, " → " + run.s.enemies[target].name if c.get("target", false) else ""])
  if c.has("self_damage"): run.take_player_damage(c.self_damage, true)
  if run.s.hp <= 0:
   run.s.phase = "defeat"
-  run.note("燃血耗尽了最后的生命。")
+  run.note("自伤耗尽了最后的生命。")
   return true
  if c.has("block"): run.s.block += c.block
  
  if c.has("thorns"): run.s.thorns += c.thorns
  if c.has("temp_thorns"): run.s.temp_thorns += c.temp_thorns
  if c.has("coating"): run.s.coating += c.coating
- if c.has("fury"): run.s.fury += c.fury
- if c.has("fury_engine"): run.s.fury_engine += c.fury_engine
+ if c.has("next_lifesteal"): run.s.next_lifesteal = maxi(run.s.next_lifesteal, c.next_lifesteal)
+ if c.has("low_hp_crit"): run.s.low_hp_crit = maxi(run.s.low_hp_crit, c.low_hp_crit)
+ if c.has("next_strength"): run.s.next_strength += c.next_strength
  if c.has("next_block"): run.s.next_block += c.next_block
  if c.has("next_draw"): run.s.next_draw += c.next_draw
  if c.has("next_energy"): run.s.next_energy += c.next_energy
@@ -44,10 +46,18 @@ static func play(run, index: int) -> bool:
   run.hit_enemy(target, int(floor(removed * c.armor_damage)), true)
  if c.has("damage"):
   var damage: int = c.damage + run.s.strength + (run.s.block if c.get("block_damage", false) else 0)
-  if c.has("fury_burst"):
-   damage += run.s.fury * c.fury_burst
-   run.s.fury = 0
   for _hit in range(c.get("hits", 1)): run.hit_enemy(target, damage)
+ if c.has("lost_hp_damage"):
+  var damage = int(floor((run.s.max_hp - run.s.hp) * c.lost_hp_damage / 100.0)) + run.s.strength
+  run.hit_enemy(target, damage)
+ if c.has("random_damage"):
+  targets = []
+  for _hit in range(c.hits):
+   var available = run.living()
+   if available.is_empty(): break
+   var random_target: int = available[run.rng.randi_range(0, available.size() - 1)]
+   if random_target not in targets: targets.append(random_target)
+   run.hit_enemy(random_target, c.random_damage + run.s.strength)
  if c.has("all_damage"):
   for t in targets: run.hit_enemy(t, c.all_damage + run.s.strength + int(floor(run.s.block * c.get("block_ratio", 0.0))))
  if c.has("all_thorns_damage"):
@@ -62,17 +72,17 @@ static func play(run, index: int) -> bool:
   for t in targets: run.poison_enemy(t, c.all_poison)
  if c.has("multiply_poison"):
   run.s.enemies[target].poison += mini(run.s.enemies[target].poison * (c.multiply_poison - 1), c.poison_growth_cap)
- if c.has("weak"): run.s.enemies[target].weak += c.weak
- if c.has("vulnerable"): run.s.enemies[target].vulnerable += c.vulnerable
+ if c.has("weak"): run.s.enemies[target].weak = 1
+ if c.has("vulnerable"): run.s.enemies[target].vulnerable = 1
  if c.has("strength"): run.s.strength += c.strength
  if c.has("heal"): run.heal_player(c.heal)
  if c.has("heal_recent"): run.heal_player(mini(c.heal_recent, run.s.recoverable_hp))
  if c.has("draw"): run.draw_cards(c.draw)
  if c.kind == "攻击":
   if run.s.coating > 0:
-   var coated_targets: Array = targets if c.has("all_damage") else [target]
+   var coated_targets: Array = targets if c.has("all_damage") or c.has("random_damage") else [target]
    for t in coated_targets: run.poison_enemy(t, run.s.coating)
-  run.s.fury += run.s.fury_engine
+ run.resolve_combo_relic()
  run.check_outcome()
  if run.s.phase == "battle" and run.s.enemies[run.s.target].hp <= 0: run.s.target = run.living()[0]
  return true

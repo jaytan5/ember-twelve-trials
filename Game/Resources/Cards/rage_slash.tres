@@ -5,11 +5,11 @@
 [resource]
 script = ExtResource("1")
 id = "rage_slash"
-title = "怒斩"
-kind = "攻击"
+title = "暴力执法"
+kind = "能力"
 route = "fury"
 cost = 2
-target = true
-exhaust = false
-effects = {"damage": 6, "fury_burst": 3}
-upgrade = {"damage": 9, "fury_burst": 4}
+target = false
+exhaust = true
+effects = {"low_hp_crit": 50}
+upgrade = {"low_hp_crit": 60}
