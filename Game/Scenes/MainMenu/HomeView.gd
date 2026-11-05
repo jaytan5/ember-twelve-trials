@@ -3,9 +3,13 @@ extends Node
 const BACKGROUND_VIDEO = preload("res://Game/Assets/Videos/MainMenu/开篇循环背景动画.ogv")
 const TITLE_LOGO = preload("res://Game/Assets/UI/Titles/小泥团出击-透明Logo.png")
 const MENU_BUTTON = preload("res://Game/Scenes/MainMenu/HomeMenuButton.gd")
-const START_ART = preload("res://Game/Assets/UI/MainMenu/开始游戏.png")
-const CONTINUE_ART = preload("res://Game/Assets/UI/MainMenu/继续游戏.png")
-const SETTINGS_ART = preload("res://Game/Assets/UI/MainMenu/设置齿轮.png")
+const START_ART = preload("res://Game/Assets/UI/MainMenu/圆角立体版/主按钮_红金.png")
+const CONTINUE_ART = preload("res://Game/Assets/UI/MainMenu/圆角立体版/次按钮_古铜棕.png")
+const SETTINGS_ART = preload("res://Game/Assets/UI/MainMenu/圆角立体版/设置_圆齿轮.png")
+# These regions include the alpha-faded contact shadows, not the export margins.
+const START_REGION = Rect2(137, 99, 1890, 560)
+const CONTINUE_REGION = Rect2(127, 94, 1916, 568)
+const SETTINGS_REGION = Rect2(127, 106, 980, 1020)
 var background: Control
 var video: VideoStreamPlayer
 var shade: ColorRect
@@ -78,14 +82,13 @@ func add_logo(parent: Control) -> void:
 func build_home(ui: Control) -> void:
  var home = create_canvas(ui, "HomeScreen")
  add_logo(home)
- var start = art_button(ui, home, "HomeNew", "开始游戏", START_ART, Rect2(181, 18, 1770, 653), ui.open_new_routes)
+ var start = art_button(ui, home, "HomeNew", "开始游戏", START_ART, START_REGION, ui.open_new_routes)
  place_menu_button(start, 0.747)
- var resume = art_button(ui, home, "HomeContinue", "继续游戏", CONTINUE_ART, Rect2(174, 16, 1823, 659), ui.open_continue_routes)
- resume.base_tint = Color(0.86, 0.82, 0.75)
+ var resume = art_button(ui, home, "HomeContinue", "继续游戏", CONTINUE_ART, CONTINUE_REGION, ui.open_continue_routes)
  resume.disabled = not FileAccess.file_exists("user://run_save.json")
  resume.update_feedback()
  place_menu_button(resume, 0.87)
- var settings_button = art_button(ui, home, "HomeSettings", "设置", SETTINGS_ART, Rect2(173, 138, 887, 915), ui.show_settings)
+ var settings_button = art_button(ui, home, "HomeSettings", "", SETTINGS_ART, SETTINGS_REGION, ui.show_settings)
  settings_button.anchor_left = 1.0
  settings_button.anchor_right = 1.0
  settings_button.offset_left = -116
@@ -98,7 +101,7 @@ func build_home(ui: Control) -> void:
  settings_button.focus_neighbor_top = resume.get_path() if not resume.disabled else start.get_path()
  settings_button.focus_neighbor_bottom = start.get_path()
 
-func art_button(ui: Control, parent: Control, node_name: String, _caption: String, source: Texture2D, region: Rect2, action: Callable) -> TextureButton:
+func art_button(ui: Control, parent: Control, node_name: String, caption: String, source: Texture2D, region: Rect2, action: Callable) -> TextureButton:
  var atlas = AtlasTexture.new()
  atlas.atlas = source
  # Exclude transparent export margins while leaving the original PNG untouched.
@@ -106,9 +109,14 @@ func art_button(ui: Control, parent: Control, node_name: String, _caption: Strin
  var control = MENU_BUTTON.new()
  control.name = node_name
  control.texture_normal = atlas
+ var hit_mask = BitMap.new()
+ # Soft shadows remain visible but are not part of the clickable silhouette.
+ hit_mask.create_from_image_alpha(atlas.get_image(), 0.5)
+ control.texture_click_mask = hit_mask
  control.pressed.connect(ui.settings.play_click)
  control.pressed.connect(action)
  parent.add_child(control)
+ control.set_caption(caption)
  return control
 
 func place_menu_button(control: Control, vertical_anchor: float) -> void:
@@ -116,7 +124,7 @@ func place_menu_button(control: Control, vertical_anchor: float) -> void:
  control.anchor_right = 0.5
  control.anchor_top = vertical_anchor
  control.anchor_bottom = vertical_anchor
- control.offset_left = -146
- control.offset_right = 146
- control.offset_top = -72
- control.offset_bottom = 36
+ control.offset_left = -152
+ control.offset_right = 152
+ control.offset_top = -42
+ control.offset_bottom = 48
