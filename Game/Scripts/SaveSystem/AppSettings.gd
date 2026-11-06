@@ -1,7 +1,11 @@
 extends Node
 ## Device preferences are independent of adventure saves.
-var master_volume: float = 0.8
-var effects_volume: float = 0.7
+const DEFAULT_MASTER_VOLUME = 0.8
+const DEFAULT_MUSIC_VOLUME = 1.0
+const DEFAULT_EFFECTS_VOLUME = 0.7
+var master_volume: float = DEFAULT_MASTER_VOLUME
+var music_volume: float = DEFAULT_MUSIC_VOLUME
+var effects_volume: float = DEFAULT_EFFECTS_VOLUME
 var fullscreen: bool = false
 var player: AudioStreamPlayer
 var menu_music_player: AudioStreamPlayer
@@ -9,10 +13,8 @@ const MENU_MUSIC = preload("res://Game/Assets/Audio/BGM/The+World-Saving+Heroic+
 const SETTINGS_PATH = "user://settings.cfg"
 
 func _ready() -> void:
- if AudioServer.get_bus_index("Effects") < 0:
-  AudioServer.add_bus()
-  AudioServer.set_bus_name(AudioServer.bus_count - 1, "Effects")
-  AudioServer.set_bus_send(AudioServer.bus_count - 1, "Master")
+ _ensure_audio_bus("Music")
+ _ensure_audio_bus("Effects")
  player = AudioStreamPlayer.new()
  player.bus = "Effects"
  add_child(player)
@@ -27,10 +29,10 @@ func _ready() -> void:
   pcm.encode_s16(i * 2, int(sin(TAU * 660.0 * t) * envelope * 4500.0))
  sample.data = pcm
  player.stream = sample
- # 菜单音乐独立于按钮音效，由总音量统一控制。
+ # 背景音乐走独立总线，可分别调节背景音乐音量与总音量。
  menu_music_player = AudioStreamPlayer.new()
  menu_music_player.name = "MenuBGM"
- menu_music_player.bus = "Master"
+ menu_music_player.bus = "Music"
  menu_music_player.volume_db = -12.0
  var music = MENU_MUSIC.duplicate() as AudioStreamOggVorbis
  music.loop = true
@@ -38,6 +40,12 @@ func _ready() -> void:
  menu_music_player.stream = music
  add_child(menu_music_player)
  load_settings()
+
+func _ensure_audio_bus(bus_name: String) -> void:
+ if AudioServer.get_bus_index(bus_name) >= 0: return
+ AudioServer.add_bus()
+ AudioServer.set_bus_name(AudioServer.bus_count - 1, bus_name)
+ AudioServer.set_bus_send(AudioServer.bus_count - 1, "Master")
 
 func set_menu_music_enabled(enabled: bool) -> void:
  if enabled:
@@ -48,8 +56,9 @@ func set_menu_music_enabled(enabled: bool) -> void:
 func load_settings(path: String = SETTINGS_PATH) -> void:
  var config = ConfigFile.new()
  if config.load(path) == OK:
-  master_volume = clampf(float(config.get_value("audio", "master", 0.8)), 0.0, 1.0)
-  effects_volume = clampf(float(config.get_value("audio", "effects", 0.7)), 0.0, 1.0)
+  master_volume = clampf(float(config.get_value("audio", "master", DEFAULT_MASTER_VOLUME)), 0.0, 1.0)
+  music_volume = clampf(float(config.get_value("audio", "music", DEFAULT_MUSIC_VOLUME)), 0.0, 1.0)
+  effects_volume = clampf(float(config.get_value("audio", "effects", DEFAULT_EFFECTS_VOLUME)), 0.0, 1.0)
   fullscreen = bool(config.get_value("display", "fullscreen", false))
  apply_audio()
  apply_display()
@@ -57,18 +66,21 @@ func load_settings(path: String = SETTINGS_PATH) -> void:
 func save_settings(path: String = SETTINGS_PATH) -> Error:
  var config = ConfigFile.new()
  config.set_value("audio", "master", master_volume)
+ config.set_value("audio", "music", music_volume)
  config.set_value("audio", "effects", effects_volume)
  config.set_value("display", "fullscreen", fullscreen)
  return config.save(path)
 
 func set_volume(channel: String, value: float) -> void:
- if channel == "master": master_volume = clampf(value, 0.0, 1.0)
- else: effects_volume = clampf(value, 0.0, 1.0)
+ match channel:
+  "master": master_volume = clampf(value, 0.0, 1.0)
+  "music": music_volume = clampf(value, 0.0, 1.0)
+  "effects": effects_volume = clampf(value, 0.0, 1.0)
  apply_audio()
  save_settings()
 
 func apply_audio() -> void:
- for entry in [["Master", master_volume], ["Effects", effects_volume]]:
+ for entry in [["Master", master_volume], ["Music", music_volume], ["Effects", effects_volume]]:
   var index = AudioServer.get_bus_index(entry[0])
   if index < 0: continue
   AudioServer.set_bus_volume_db(index, linear_to_db(maxf(entry[1], 0.0001)))
@@ -80,6 +92,15 @@ func apply_display() -> void:
 
 func set_fullscreen(enabled: bool) -> void:
  fullscreen = enabled
+ apply_display()
+ save_settings()
+
+func reset_defaults() -> void:
+ master_volume = DEFAULT_MASTER_VOLUME
+ music_volume = DEFAULT_MUSIC_VOLUME
+ effects_volume = DEFAULT_EFFECTS_VOLUME
+ fullscreen = false
+ apply_audio()
  apply_display()
  save_settings()
 

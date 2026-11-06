@@ -204,18 +204,21 @@ func test_retry_ui_and_fonts() -> void:
  var displayed = collect_text(ui.find_child("TalentScreen", true, false))
  for removed in ["YOUR PATH", "选择一条战斗路线。以", "12 场战斗", "4 位 Boss", "3 条成长路线", "4 档难度", "路线决定起始卡组和奖励池", "建议先试", "EMBER", "选择起始路线和本局难度。", "一副卡牌，一条通往王座的路。"]:
   check(not removed in displayed, "removed route decoration: " + removed)
- check(ui.find_child("TalentTitle", true, false) != null and ui.find_child("SettingsButton", true, false) == null, "talent art replaces the old shell header")
+ check(ui.find_child("TalentFrame", true, false) != null and ui.find_child("TitleCopy", true, false).text == "选择你的天赋路线" and ui.find_child("SettingsButton", true, false) == null, "approved talent art replaces the old shell header")
  var cursor: Image = ui.game_cursor.texture.get_image()
  check(cursor.get_size() == Vector2i(48, 48) and cursor.detect_alpha() != Image.ALPHA_NONE and cursor.get_pixel(0, 0).a == 0, "sword cursor uses compact transparent PNG")
  ui.show_settings()
  await settle()
+ ui.settings_view_component.show_legal_details(ui)
+ await settle()
  var notice: Label = ui.find_child("AssetsNotice", true, false)
- check("美术及音乐资产由 AI 生成" in notice.text and notice.get_theme_font_size("font_size") == 12, "settings shows AI asset notice as small print")
+ check(is_instance_valid(notice) and "美术及音乐资产由 AI 生成" in notice.text and notice.get_theme_font_size("font_size") == 18, "settings details preserve readable AI asset notice")
  await capture("settings-asset-notice")
  ui.close_modal()
 
 func collect_text(node: Node) -> String:
- var result: String = node.text + "\n" if node is Label or node is Button else ""
+ var has_text = node is Label or node is Button or node.get_script() == preload("res://Game/Scenes/MainMenu/Components/TalentText.gd")
+ var result: String = node.text + "\n" if has_text else ""
  for child in node.get_children(): result += collect_text(child)
  return result
 

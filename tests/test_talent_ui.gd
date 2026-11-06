@@ -45,23 +45,6 @@ func capture(name_value: String) -> void:
   await RenderingServer.frame_post_draw
   root.get_texture().get_image().save_png("res://test-results/talent-"+name_value+".png")
 
-func check_live_glow(control: Control, label_value: String) -> void:
- if DisplayServer.get_name() == "headless": return
- await create_timer(0.2).timeout
- await RenderingServer.frame_post_draw
- var bounds = Rect2i(control.get_global_rect().grow(18))
- var first = root.get_texture().get_image().get_region(bounds)
- await create_timer(0.65).timeout
- await RenderingServer.frame_post_draw
- var second = root.get_texture().get_image().get_region(bounds)
- var changed = 0
- for y in range(0,first.get_height(),2):
-  for x in range(0,first.get_width(),2):
-   var a = first.get_pixel(x,y)
-   var b = second.get_pixel(x,y)
-   if absf(a.r-b.r)+absf(a.g-b.g)+absf(a.b-b.b) > 0.025: changed += 1
- expect(changed > 20,"live breathing glow changes visible pixels: " + label_value)
-
 func run() -> void:
  root.size = Vector2i(1600,900)
  ui = MAIN.instantiate()
@@ -70,7 +53,9 @@ func run() -> void:
  await settle()
  var screen = ui.find_child("TalentScreen",true,false)
  expect(ui.layout == null and screen != null,"talents use an independent full-screen scene")
- expect(screen.get_children().filter(func(child): return child is BaseButton).size() == 9,"nine standalone interactive modules")
+ expect(screen.design.get_children().filter(func(child): return child is BaseButton).size() == 9,"nine standalone interactive modules")
+ expect(screen.get_node("TalentBackground").texture.resource_path.ends_with("定稿_v2/背景_村庄庭院.png"),"approved graduated-blur background is used")
+ expect(screen.design.get_node("TalentCharacter").texture.resource_path.ends_with("人物_含随身投影.png"),"character and ground shadow remain an independent layer")
  expect(ui.find_child("SettingsButton",true,false) == null,"old shell header removed from talent screen")
  var venom = ui.find_child("Route_venom",true,false)
  var fury = ui.find_child("Route_fury",true,false)
@@ -82,7 +67,7 @@ func run() -> void:
   await click(button)
   expect(ui.selected_route == route,"real card click chooses "+route)
   expect(screen.route_buttons.values().filter(func(item): return item.button_pressed).size() == 1,"one selected route")
-  expect(button.outline_material.get_shader_parameter("highlight"),"selected route has outline: "+route)
+  expect(button.get_node("SelectionGlow").visible,"selected route has its own inset outline: "+route)
   expect(button.get_node("SelectionBadge").visible,"chosen route has an explicit selection marker")
   expect(screen.route_buttons.values().filter(func(item): return item.get_node("SelectionBadge").visible).size() == 1,"only chosen route shows its badge")
   # Clicking through a transparent corner must not change selection or focus a card.
@@ -94,33 +79,41 @@ func run() -> void:
   await click(ui.find_child("Difficulty_"+difficulty,true,false))
   expect(ui.selected_difficulty == difficulty,"real difficulty click: "+difficulty)
   expect(screen.difficulty_buttons.values().filter(func(item): return item.button_pressed).size() == 1,"one selected difficulty")
-  expect(screen.difficulty_buttons.values().filter(func(item): return item.get_node("SelectionBadge").visible).size() == 1,"only chosen difficulty shows its check")
+  expect(screen.difficulty_buttons.values().filter(func(item): return item.texture_normal == item.selected_texture).size() == 1,"only chosen difficulty uses red artwork with its check")
   await capture("difficulty-"+difficulty)
  venom.grab_focus()
  await create_timer(0.2).timeout
- expect(not venom.outline_material.get_shader_parameter("highlight"),"keyboard focus does not imitate a selected route")
+ expect(not venom.get_node("SelectionGlow").visible,"keyboard focus does not imitate a selected route")
  expect(not venom.get_node("SelectionBadge").visible,"focus does not move selected badge")
  await key(KEY_RIGHT)
  expect(root.gui_get_focus_owner() == fury,"keyboard follows visual card order")
  await key(KEY_ENTER)
  expect(ui.selected_route == "fury","keyboard confirms route")
  await create_timer(0.2).timeout
- expect(fury.scale.x > venom.scale.x+0.04,"selected card is visibly larger")
- expect(fury.self_modulate.r > venom.self_modulate.r+0.18,"selected card is visibly brighter")
- expect(venom.outline_material.get_shader_parameter("saturation") < 0.7,"unselected artwork is subdued")
+ expect(fury.size.x > fury.normal_rect.size.x+5,"selected card uses the approved slightly larger size")
+ expect(venom.self_modulate.r >= 0.99,"unselected artwork retains approved material colors")
  for button in screen.route_buttons.values():
-  expect(button.get_node("RouteDescription").text.replace("\n", "").length() == 8,"eight-character description is independent text: " + button.name)
+  expect(button.tooltip_text.is_empty(),"card hover shows no small tooltip: " + button.name)
+  expect(button.get_node("RouteName").text.length() == 2,"route name is independent native text")
  for button in screen.difficulty_buttons.values():
   expect(button.get_node("DifficultyName").text.length() == 2,"difficulty uses independent crisp text: " + button.name)
- await check_live_glow(fury,"route")
- await check_live_glow(screen.difficulty_buttons[ui.selected_difficulty],"difficulty")
- await capture("premium-3d")
+ if DisplayServer.get_name() != "headless":
+  for copy in ui.find_children("*","Control",true,false):
+   if copy.get_script() == preload("res://Game/Scenes/MainMenu/Components/TalentText.gd"):
+    expect(copy.ink_bounds.get_center().distance_to(copy.size*0.5) < 0.1,"actual glyph ink stays centered: "+copy.name)
+ screen.select_difficulty("normal")
+ fury.release_focus()
+ var away = InputEventMouseMotion.new()
+ away.position = Vector2(1580,10)
+ root.push_input(away)
+ await create_timer(0.15).timeout
+ await capture("approved-v2")
  expect(ui.find_child("ConfirmRoute",true,false).caption.text == "开始冒险","new adventure caption is exact")
  for dimensions in [Vector2i(1280,720),Vector2i(1024,768)]:
   root.size = dimensions
   await settle()
   var bounds = Rect2(Vector2.ZERO,ui.size)
-  for child in screen.get_children():
+  for child in screen.design.get_children():
    if child is BaseButton:
     expect(bounds.encloses(child.get_global_rect()),"module stays in canvas: "+child.name+str(dimensions))
   await capture("scaled-%dx%d" % [dimensions.x,dimensions.y])

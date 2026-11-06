@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="goldRim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff0b8"/>
+      <stop offset="0.22" stop-color="#efc45e"/>
+      <stop offset="0.58" stop-color="#bf7b25"/>
+      <stop offset="0.82" stop-color="#f2cf74"/>
+      <stop offset="1" stop-color="#8d4c1b"/>
+    </linearGradient>
+    <radialGradient id="enamel" cx="34%" cy="24%" r="82%">
+      <stop offset="0" stop-color="#c85239"/>
+      <stop offset="0.48" stop-color="#9e3528"/>
+      <stop offset="1" stop-color="#67261d"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="32" cy="38" rx="23" ry="21" fill="#24130e" opacity="0.42"/>
+  <circle cx="32" cy="30" r="26" fill="#4b2818"/>
+  <circle cx="32" cy="29" r="24" fill="url(#goldRim)" stroke="#603516" stroke-width="1.4"/>
+  <circle cx="32" cy="29" r="19.2" fill="#7b411c" stroke="#ffe3a0" stroke-width="1.1"/>
+  <circle cx="32" cy="29" r="16.5" fill="url(#enamel)" stroke="#61271c" stroke-width="1.2"/>
+  <path d="M21 20 C24 16.5 28 14.8 32 14.8" fill="none" stroke="#ffdca0" stroke-width="1.2" stroke-linecap="round" opacity="0.72"/>
+  <path d="M24 21 L40 37 M40 21 L24 37" fill="none" stroke="#542117" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 1.4)"/>
+  <path d="M24 20 L40 36 M40 20 L24 36" fill="none" stroke="#f4d58d" stroke-width="7.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24 20 L40 36 M40 20 L24 36" fill="none" stroke="#fff1d0" stroke-width="4.3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

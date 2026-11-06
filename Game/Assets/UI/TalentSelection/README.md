@@ -1,4 +1,12 @@
-# 天赋选择页：Premium Stylized 3D
+# 天赋选择页：已接入确认版 v2（2026-11-06）
+
+当前界面使用 [定稿_v2/接入说明.md](定稿_v2/接入说明.md) 中的分层方案：渐变虚化背景、独立人物与随身投影、框架、三类卡包、木托盘、普通／选中按钮。原生文字按字形边界居中，带少量暖棕投影；三类选中光晕内缘向内缩进 10 像素，藏在卡包下方。
+
+当前入口仍为 `Game/Scenes/MainMenu/Components/TalentScreen.tscn`。它使用专用的 `TalentArtButton.gd` 和 `TalentText.gd`，保留选择、返回、确认与续玩锁定。原主页、其他菜单及共享 ArtButton 不受这次样式替换影响。
+
+## 以下为旧 Premium Stylized 3D 方案记录
+
+下面的旧素材、旧 modules.json、SelectionOutline 动态效果与复现命令保留用于历史回看，不再是当前天赋页的生产资源。
 
 只修改天赋选择页；主页 HomeView、HomeMenuButton、视频、Logo 和原主页按钮保持原样。
 
