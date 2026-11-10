@@ -6,6 +6,6 @@
 script = ExtResource("1")
 id = "shell"
 title = "连击齿轮"
-description = "每回合打出第 3、6、9 张卡牌后，对随机存活敌人造成 6 点伤害；每回合最多触发 3 次。"
+description = "每回合打出第 2、4、6 张卡牌后，对随机存活敌人造成 6 点伤害；每回合最多触发 3 次。"
 starter = false
 effects = {"combo_damage": 6}

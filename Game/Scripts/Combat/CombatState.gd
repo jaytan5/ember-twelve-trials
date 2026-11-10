@@ -8,6 +8,7 @@ const SaveSystem = preload("res://Game/Scripts/SaveSystem/SaveSystem.gd")
 const RewardSystem = preload("res://Game/Scripts/LevelSystem/RewardSystem.gd")
 const DECK_LIMIT = 30
 const DECK_MIN = 15
+const POTION_LIMIT = 2
 var s: Dictionary = {}
 var rng = RandomNumberGenerator.new()
 var capture_combat_events = false
@@ -21,10 +22,10 @@ func new_run(route: String, seed_value: int = 0, difficulty: String = "easy") ->
  rng.randomize()
  if seed_value != 0: rng.seed = seed_value
  var r: Dictionary = Data.ROUTES[route]
- s = {"version":7, "route":route, "difficulty":difficulty if Data.DIFFICULTIES.has(difficulty) else "easy", "stage":1, "phase":"battle", "hp":r.hp, "max_hp":r.hp,
+ s = {"version":8, "route":route, "difficulty":difficulty if Data.DIFFICULTIES.has(difficulty) else "easy", "stage":1, "phase":"battle", "hp":r.hp, "max_hp":r.hp,
  "gold":65, "deck":Array(Data.CONFIG.initial_common).duplicate(),
  "relics":[r.relic], "potions":2, "wins":0, "played":0, "damage_total":0, "log":[],
- "reward_cards":[], "relic_choices":[], "shop_cards":[], "shop_sold":[], "shop_healed":false, "shop_removed":false,
+ "reward_cards":[], "relic_choices":[], "shop_cards":[], "shop_sold":[], "shop_healed":false,
  "last_gold":0, "boss_reward_taken":false, "camp_used":false, "trophy":"", "reserve":[], "last_acquired_zone":"deck"}
  s.deck.append_array(r.cards)
  start_battle()
@@ -52,9 +53,11 @@ func start_battle() -> void:
  s.strength = relic_bonus("start_strength")
  s.thorns = relic_bonus("start_thorns")
  s.barrier = 0
+ s.barrier_reflects = []
  s.lifesteal = 0
  s.next_lifesteal = 0
  s.low_hp_crit = 0
+ s.low_hp_crit_threshold = 30
  s.next_strength = 0
  s.temporary_strength = 0
  s.coating = 0
@@ -117,7 +120,7 @@ func begin_turn() -> void:
  s.next_strength = 0
  draw_cards((Data.CONFIG.initial_hand if s.turn == 1 else Data.CONFIG.turn_draw) + relic_bonus("turn_draw") + s.next_draw)
  s.next_draw = 0
- if not s.fate_triggered and s.hp > 0 and s.hp * 10 < s.max_hp * 3 and relic_bonus("low_hp_energy") > 0:
+ if not s.fate_triggered and s.hp > 0 and s.hp * 2 < s.max_hp and relic_bonus("low_hp_energy") > 0:
   s.fate_triggered = true
   draw_cards(relic_bonus("low_hp_draw"))
   s.energy += relic_bonus("low_hp_energy")
@@ -126,7 +129,7 @@ func begin_turn() -> void:
 
 func resolve_combo_relic() -> void:
  var damage = relic_bonus("combo_damage")
- if damage <= 0 or s.hp <= 0 or s.turn_cards_played % 3 != 0 or s.turn_cards_played > 9: return
+ if damage <= 0 or s.hp <= 0 or s.turn_cards_played <= 0 or s.turn_cards_played % 2 != 0 or s.turn_cards_played > 6: return
  var targets = living()
  if targets.is_empty(): return
  var target: int = targets[rng.randi_range(0, targets.size() - 1)]
@@ -151,7 +154,7 @@ func hit_enemy(index: int, amount: int, direct: bool = false) -> void:
  if e.hp <= 0: return
  var before: int = e.hp
  var damage = maxi(0, amount)
- if damage > 0 and s.low_hp_crit > 0 and s.hp * 4 < s.max_hp and rng.randf() < s.low_hp_crit / 100.0:
+ if damage > 0 and s.low_hp_crit > 0 and s.hp * 100 < s.max_hp * s.low_hp_crit_threshold and rng.randf() < s.low_hp_crit / 100.0:
   damage *= 2
   note("暴击！伤害翻倍。")
  if not direct and e.vulnerable > 0: damage = int(ceil(damage * 1.2))
@@ -302,7 +305,6 @@ func enter_camp() -> void:
  s.shop_cards = roll_cards(Data.REWARD.choices)
  s.shop_sold = []
  s.shop_healed = false
- s.shop_removed = false
 
 func rest() -> void:
  if s.phase != "camp" or s.camp_used: return
@@ -334,16 +336,9 @@ func buy_heal() -> bool:
  return true
 
 func buy_potion() -> bool:
- if s.phase != "camp" or s.gold < 25 or s.potions >= 3: return false
+ if s.phase != "camp" or s.gold < 25 or s.potions >= POTION_LIMIT: return false
  s.gold -= 25
  s.potions += 1
- return true
-
-func remove_card(index: int) -> bool:
- if s.phase != "camp" or s.gold < 40 or s.shop_removed or s.deck.size() <= DECK_MIN or index < 0 or index >= s.deck.size(): return false
- s.gold -= 40
- s.deck.remove_at(index)
- s.shop_removed = true
  return true
 
 func use_potion() -> bool:
@@ -407,13 +402,18 @@ func relic_bonus(effect: String) -> int:
 func energy_cost(c: Dictionary) -> int:
  return s.energy if c.cost < 0 else c.cost
 
-func take_player_damage(amount: int, bypass_armor: bool = false) -> int:
+func take_player_damage(amount: int, bypass_armor: bool = false, attacker: int = -1) -> int:
  if amount <= 0: return 0
  var before: int = s.hp
  if s.barrier > 0:
   s.barrier -= 1
+  var reflect = int(s.barrier_reflects.pop_front()) if not s.barrier_reflects.is_empty() else 0
   note("金钟罩抵挡了 %d 点伤害。" % amount)
   record_combat_event(-1, before, before, "blocked")
+  if reflect > 0 and attacker >= 0 and attacker < s.enemies.size() and s.enemies[attacker].hp > 0:
+   var reflected = int(floor(amount * reflect / 100.0))
+   note("金钟罩反弹 %d 点伤害。" % reflected)
+   hit_enemy(attacker, reflected)
   return 0
  var absorbed = 0 if bypass_armor else mini(s.block, amount)
  s.block -= absorbed

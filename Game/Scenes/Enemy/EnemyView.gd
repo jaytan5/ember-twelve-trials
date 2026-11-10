@@ -53,8 +53,8 @@ func enemy_view(ui: Control, index: int) -> Button:
  if e.get("frozen", 0) > 0: statuses.append("冰冻 %d" % e.frozen)
  if e.block > 0: statuses.append("护甲 %d" % e.block)
  if e.poison > 0: statuses.append("毒 %d" % e.poison)
- if e.weak > 0: statuses.append("虚弱 -30%")
- if e.vulnerable > 0: statuses.append("易伤 +20%")
+ if e.weak > 0: statuses.append("虚弱 -30%% · %d 回合" % e.weak)
+ if e.vulnerable > 0: statuses.append("易伤 +20%% · %d 回合" % e.vulnerable)
  if e.strength > 0: statuses.append("力量 +%d" % e.strength)
  var status = ui.label(" · ".join(statuses) if not statuses.is_empty() else "无状态", 14, ui.MUTED)
  status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

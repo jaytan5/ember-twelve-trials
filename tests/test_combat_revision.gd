@@ -88,19 +88,19 @@ func test_strength() -> void:
  var g = fresh()
  g.s.strength = 2
  play(g, "warcry")
- check(g.s.strength == 2 and g.s.next_strength == 3 and g.s.block == 0, "warcry queues strength without armor or immediate buff")
+ check(g.s.strength == 2 and g.s.next_strength == 6 and g.s.block == 0, "warcry queues strength without armor or immediate buff")
  g.end_turn()
- check(g.s.strength == 5 and g.s.temporary_strength == 3, "warcry grants temporary strength next turn")
+ check(g.s.strength == 8 and g.s.temporary_strength == 6, "warcry grants temporary strength next turn")
  play(g, "rage")
  g.end_turn()
  check(g.s.strength == 4 and g.s.temporary_strength == 0, "expires without removing permanent strength gained during buff")
  play(g, "warcry+")
  play(g, "warcry")
  g.end_turn()
- check(g.s.strength == 11 and g.s.temporary_strength == 7, "queued warcries stack; upgrade adds four")
+ check(g.s.strength == 19 and g.s.temporary_strength == 15, "queued warcries stack; upgrade adds nine")
  play(g, "warcry")
  g.end_turn()
- check(g.s.strength == 7 and g.s.temporary_strength == 3, "consecutive queued rounds replace expiring portion")
+ check(g.s.strength == 10 and g.s.temporary_strength == 6, "consecutive queued rounds replace expiring portion")
  g.end_turn()
  check(g.s.strength == 4, "last temporary strength expires")
 
@@ -113,11 +113,11 @@ func test_critical() -> void:
  play(g, "rage_slash")
  check(g.s.low_hp_crit == 60, "critical rates take maximum rather than stack")
  g.s.low_hp_crit = 100
- g.s.hp = 20
+ g.s.hp = 36
  var rng_before: int = g.rng.state
  g.hit_enemy(0, 8)
- check(g.s.enemies[0].hp == 992 and g.rng.state == rng_before, "exactly twenty-five percent does not crit or consume RNG")
- g.s.hp = 19
+ check(g.s.enemies[0].hp == 992 and g.rng.state == rng_before, "exactly forty-five percent does not crit or consume RNG")
+ g.s.hp = 35
  g.hit_enemy(0, 8, true)
  check(g.s.enemies[0].hp == 976, "direct damage can crit below strict health threshold")
  g.s.enemies[0].block = 10
@@ -129,7 +129,7 @@ func test_critical() -> void:
  g.s.lifesteal = 75
  g.hit_enemy(0, 8)
  g.hit_enemy(0, 8)
- check(g.s.hp == 28 and g.s.enemies[0].hp == 976, "lifesteal crossing health threshold disables subsequent hit crit")
+ check(g.s.hp == 34 and g.s.enemies[0].hp == 968, "both hits crit while below thirty percent before each hit")
  for chance in [50, 60]:
   g = fresh()
   g.s.hp = 19
@@ -156,18 +156,18 @@ func test_attacks() -> void:
   g = fresh()
   g.s.block = 99
   play(g, "execute" + suffix)
-  check(g.s.hp == 70 and g.s.block == 99 and g.s.enemies[0].hp == (965 if suffix == "" else 955), "execute pays ten life before dealing damage " + suffix)
+  check(g.s.hp == 70 and g.s.block == 99 and g.s.enemies[0].hp == (955 if suffix == "" else 945), "execute loses ten life after a nonlethal attack " + suffix)
   g = fresh()
   g.s.hp = 10
   play(g, "execute" + suffix)
-  check(g.s.hp == 0 and g.s.phase == "defeat" and g.s.enemies[0].hp == 1000, "lethal execute cost prevents attack")
+  check(g.s.hp == 0 and g.s.phase == "defeat" and g.s.enemies[0].hp == (955 if suffix == "" else 945), "nonlethal execute attack resolves before lethal life loss")
   g = fresh()
   play(g, "bloodlust" + suffix)
   check(g.s.hp == (75 if suffix == "" else 72) and g.s.energy == (31 if suffix == "" else 32), "bloodlust energy and life cost " + suffix)
   for id in ["cleave", "triple", "whirlwind"]:
    g = fresh()
    var hits: int = {"cleave":2, "triple":3, "whirlwind":3}[id] + (1 if suffix == "+" else 0)
-   var base_damage: int = {"cleave":3, "triple":4, "whirlwind":6}[id]
+   var base_damage: int = {"cleave":4, "triple":6, "whirlwind":6}[id]
    g.s.strength = 2
    play(g, id + suffix)
    check(2000 - g.s.enemies[0].hp - g.s.enemies[1].hp == (base_damage + 2) * hits, "each upgraded multiattack adds one hit, same per-hit damage " + id + suffix)
@@ -188,7 +188,7 @@ func test_debuffs() -> void:
  play(g, "expose+")
  play(g, "disarm")
  play(g, "disarm+")
- check(g.s.enemies[0].vulnerable == 1 and g.s.enemies[0].weak == 1, "permanent debuffs do not stack")
+ check(g.s.enemies[0].vulnerable == 2 and g.s.enemies[0].weak == 2, "debuff refresh keeps longer duration without stacking")
  check(g.attack_value(g.s.enemies[0], Data.attack(10)) == 7, "weak lowers attack by thirty percent")
  var before: int = g.s.enemies[0].hp
  g.hit_enemy(0, 10)
@@ -196,17 +196,20 @@ func test_debuffs() -> void:
  g.s.enemies[0].pattern = [Data.attack(10), Data.defend(0), Data.buff(0)]
  for _i in range(3):
   g.end_turn()
-  check(g.s.enemies[0].vulnerable == 1 and g.s.enemies[0].weak == 1, "attack defense and buff do not decay debuffs")
+  var remaining = maxi(0, 1 - _i)
+  check(g.s.enemies[0].vulnerable == remaining and g.s.enemies[0].weak == remaining, "debuffs decay after each enemy phase")
+ play(g, "disarm+")
+ play(g, "expose+")
  g.s.enemies[0].frozen = 1
  g.end_turn()
- check(g.s.enemies[0].vulnerable == 1 and g.s.enemies[0].weak == 1, "freeze does not decay debuffs")
+ check(g.s.enemies[0].vulnerable == 1 and g.s.enemies[0].weak == 1, "frozen round also consumes one round of debuffs")
 
 func test_decks_and_saves() -> void:
  var g = fresh()
  g.enter_camp()
  while g.s.deck.size() > 15: check(g.move_card("deck", 0, "reserve"), "can remove to fifteen")
  var before = g.s.duplicate(true)
- check(not g.move_card("deck", 0, "reserve") and not g.remove_card(0) and g.s == before, "fifteen-card boundary blocks transfer and shop removal")
+ check(not g.move_card("deck", 0, "reserve") and not g.has_method("remove_card") and g.s == before, "fifteen-card boundary blocks transfer; permanent removal is unavailable")
  g.s.deck.pop_back()
  g.next_stage()
  check(g.s.phase == "camp" and g.s.stage == 1, "invalid fourteen-card deck cannot enter battle")

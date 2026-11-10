@@ -13,6 +13,7 @@ const GREEN = Color("75cbb3")
 const RED = Color("f08e85")
 const READING_FONT = preload("res://Game/Assets/Fonts/MiSans-Regular.ttf")
 const DISPLAY_FONT = preload("res://Game/Assets/Fonts/方圆体-标题.tres")
+const NEW_ADVENTURE_DIALOG = preload("res://Game/Scenes/UI/NewAdventureDialog.gd")
 var mainmenu_view_component = preload("res://Game/Scenes/MainMenu/MainMenuView.tscn").instantiate()
 var battle_view_component = preload("res://Game/Scenes/Battle/BattleView.tscn").instantiate()
 var map_view_component = preload("res://Game/Scenes/Map/MapView.tscn").instantiate()
@@ -206,9 +207,7 @@ func start_new() -> void:
  commit()
 
 func confirm_new_run() -> void:
- var content = open_modal("开始新的冒险？", Vector2(550, 270))
- content.add_child(paragraph("新的冒险会替换本地的上一局存档。", 18))
- content.add_child(button("确认开始「%s」· %s难度" % [Data.ROUTES[selected_route].name, Data.DIFFICULTIES[selected_difficulty].name], start_new, true))
+ NEW_ADVENTURE_DIALOG.show(self)
 
 func build_map() -> void:
  map_view_component.build_map(self)
@@ -325,17 +324,14 @@ func build_camp() -> void:
    commit())
  heal.disabled = s.gold < 30 or s.shop_healed or s.hp >= s.max_hp
  services.add_child(heal)
- var potion = button("药水 +1（%d/3）\n25 金币" % s.potions, func():
+ var potion = button("药水 +1（%d/2）\n25 金币" % s.potions, func():
   if game.buy_potion():
    message = "补充了一瓶治疗药水。"
    commit())
- potion.disabled = s.gold < 25 or s.potions >= 3
+ potion.disabled = s.gold < 25 or s.potions >= game.POTION_LIMIT
  services.add_child(potion)
- var remove = button("永久删牌\n40 金币", func(): show_deck("remove"))
- remove.disabled = s.gold < 40 or s.shop_removed or s.deck.size() <= 5
- services.add_child(remove)
  shop_box.add_child(services)
- shop_box.add_child(paragraph("治疗和删牌每关各限一次；药水最多携带 3 瓶。药水战斗中使用，不消耗能量。", 14))
+ shop_box.add_child(paragraph("治疗每关限一次；药水最多携带 2 瓶。药水战斗中使用，不消耗能量。", 14))
  content.add_child(shop)
  layout.add_child(content)
  layout.add_child(button("前往第 %d 关 · %s  →" % [s.stage + 1, Data.STAGE_NAMES[s.stage]], func():
@@ -494,8 +490,13 @@ func open_modal(title_value: String, dimensions: Vector2 = Vector2(1030, 700)) -
   remove_child(modal)
   modal.queue_free()
  modal = Control.new()
+ # Selected route artwork has its own Z order; all modal content must cover it.
+ modal.z_as_relative = false
+ modal.z_index = 100
+ modal.focus_mode = Control.FOCUS_ALL
  modal.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
  add_child(modal)
+ modal.grab_focus()
  var dim = ColorRect.new()
  dim.color = Color(0.015, 0.025, 0.05, 0.9)
  dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -526,12 +527,11 @@ func show_deck(mode: String) -> void:
  if mode == "view":
   show_deck_manager()
   return
+ if mode != "upgrade": return
  var heading = "永久卡组 · %d 张" % game.s.deck.size()
  if mode == "upgrade": heading = "选择一张卡升级 · 营火免费锻造"
- if mode == "remove": heading = "选择一张卡移除 · 花费 40 金币"
  var content = open_modal(heading)
  if mode == "upgrade": content.add_child(paragraph("点击卡牌查看升级前后变化，再确认锻造。", 16))
- elif mode == "remove": content.add_child(paragraph("点击卡牌后确认移除。卡组至少保留 15 张。", 16))
  var scroll = ScrollContainer.new()
  scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
  scroll.custom_minimum_size.y = 490
@@ -543,7 +543,6 @@ func show_deck(mode: String) -> void:
   var id: String = game.s.deck[i]
   var action = func(): show_card_info(id)
   if mode == "upgrade": action = func(): confirm_deck_change(i, "upgrade")
-  if mode == "remove": action = func(): confirm_deck_change(i, "remove")
   var view = card_view(id, action, "", mode == "upgrade" and id.ends_with("+"))
   view.custom_minimum_size.x = 225
   grid.add_child(view)
@@ -551,20 +550,18 @@ func show_deck(mode: String) -> void:
  content.add_child(scroll)
 
 func confirm_deck_change(index: int, mode: String) -> void:
+ if mode != "upgrade": return
  var id: String = game.s.deck[index]
- var content = open_modal("确认升级" if mode == "upgrade" else "确认移除", Vector2(730, 490))
+ var content = open_modal("确认升级", Vector2(730, 490))
  var cards = row(20)
  cards.add_child(card_view(id, func(): pass))
- if mode == "upgrade":
-  cards.add_child(label("→", 30, GOLD))
-  cards.add_child(card_view(id + "+", func(): pass))
- else:
-  cards.add_child(paragraph("永久移除这张卡，花费 40 金币。\n更精简的卡组能更稳定地抽到核心卡牌。", 18))
+ cards.add_child(label("→", 30, GOLD))
+ cards.add_child(card_view(id + "+", func(): pass))
  content.add_child(cards)
- content.add_child(button("确认锻造" if mode == "upgrade" else "确认移除 · 40 金币", func():
-  var success = game.upgrade_card(index) if mode == "upgrade" else game.remove_card(index)
+ content.add_child(button("确认锻造", func():
+  var success = game.upgrade_card(index)
   if success:
-   message = "卡牌已升级。" if mode == "upgrade" else "卡牌已移除。"
+   message = "卡牌已升级。"
    commit(), true))
  content.add_child(button("返回卡组", func(): show_deck(mode)))
 
@@ -611,9 +608,9 @@ func show_stage(stage: int) -> void:
 
 func show_help() -> void:
  var content = open_modal("玩法与状态说明", Vector2(1000, 730))
- var text_value = "【新增效果】\n厚积薄发：消耗全部当前能量，下回合额外获得等量能量。冰冻：跳过下一次敌方行动（毒照常结算，行动顺序不前进）。金钟罩：抵挡一次正伤害，连续攻击只挡一段，可叠加次数，跨回合保留。碎甲击：移除护甲并造成等量伤害，不受力量或易伤加成。\n\n【冒险流程】\n从主界面选择新冒险或继续冒险，确认路线后进入关卡地图。继续冒险锁定存档路线和难度。四大场景共 12 关依次推进，每两场普通战斗后挑战 Boss（第 3 / 6 / 9 / 12 关）。生命跨关保留，护甲和战斗状态重置；每关结束可补给。\n\n【战斗】\n每回合通常有 3 能量。首回合抽5张，之后每回合抽2张，手牌上限10张。先点敌人选目标，再点击卡牌打出。数字 1–9、0 出牌，左右方向键切换目标，空格结束回合。未用的能量不保留，剩余手牌保留；满手牌时停止抽牌，未抽的牌留在牌库；抽牌堆耗尽时洗入弃牌堆。\n\n【护甲与伤害】\n护甲抵挡普通伤害，在你下回合开始时清空；「固守」本场每回合保留剩余护甲至上限，多张取最高上限。力量增加每段攻击伤害。毒素无视护甲，在该敌人行动前造成等于层数的伤害，再减少 1 层。\n\n【其他状态】\n虚弱：攻击伤害降低 30%。易伤：受到的普通伤害增加 20%。两者本场持续、不衰减，重复施加不叠加。反伤：每次受到攻击时反击，即使伤害被护甲完全抵挡。\n\n【成长与存档】\n能力牌与急救使用后本场移出，下场恢复；其他已打出的牌进入弃牌堆，可再次抽到。营火免费休息与升级二选一；商店独立开放。每次操作自动保存，退出窗口后可继续。开始新冒险会替换旧存档。"
+ var text_value = "【新增效果】\n厚积薄发：消耗全部当前能量，下回合额外获得等量能量。冰冻：跳过下一次敌方行动（毒照常结算，行动顺序不前进）。金钟罩：抵挡一次正伤害，连续攻击只挡一段，可叠加次数，跨回合保留；升级后反弹所挡伤害的50%。碎甲击：移除护甲并造成等量伤害，不受力量或易伤加成。\n\n【冒险流程】\n从主界面选择新冒险或继续冒险，确认路线后进入关卡地图。继续冒险锁定存档路线和难度。四大场景共 12 关依次推进，每两场普通战斗后挑战 Boss（第 3 / 6 / 9 / 12 关）。生命跨关保留，护甲和战斗状态重置；每关结束可补给。\n\n【战斗】\n每回合通常有 3 能量。首回合抽5张，之后每回合抽2张，手牌上限10张。先点敌人选目标，再点击卡牌打出。数字 1–9、0 出牌，左右方向键切换目标，空格结束回合。未用的能量不保留，剩余手牌保留；满手牌时停止抽牌，未抽的牌留在牌库；抽牌堆耗尽时洗入弃牌堆。\n\n【护甲与伤害】\n护甲抵挡普通伤害，在你下回合开始时清空；「固守」本场每回合保留剩余护甲至上限，多张取最高上限。力量增加每段攻击伤害。毒素无视护甲，在该敌人行动前造成等于层数的伤害，再减少 1 层。\n\n【其他状态】\n虚弱：攻击伤害降低 30%。易伤：受到的普通伤害增加 20%。两者基础持续1回合，升级持续2回合；敌方阶段结束减少1回合，重复施加取较长剩余时间。反伤：每次受到攻击时反击，即使伤害被护甲完全抵挡。\n\n【成长与存档】\n能力牌与急救使用后本场移出，下场恢复；其他已打出的牌进入弃牌堆，可再次抽到。营火免费休息与升级二选一；商店独立开放。每次操作自动保存，退出窗口后可继续。开始新冒险会替换旧存档。"
  text_value += "\n\n【治疗与延迟效果】\n卸力、急救、全才可直接恢复生命；汲取仅恢复上一轮敌方攻击造成的未恢复伤势。棘甲反伤仅持续至下个玩家回合开始，其他反伤能力持续整场。厚积薄发、毒素回收提供下回合额外能量；催化翻倍最多新增12层，升级18层。"
- text_value += "\n\n【路线核心】\n蚀毒：叠毒侵蚀，或用毒爆消耗全部毒层，按倍率造成无视护甲的伤害（不受力量、易伤影响）。淬毒使每张攻击牌结算后向命中且存活的敌人施加等量毒素，多段只触发一次。毒素回收需要目标至少 4 层毒。\n铁壁：护甲转单体或全体伤害；也能叠反伤，使用反击风暴主动输出，保留反伤继续反击。\n狂刃：力量强化每段攻击。嗜血使下一回合所有对敌伤害附带75%吸血，按实际扣除的敌方生命逐段向下取整治疗；持续至再下一回合开始，包含毒素和反伤。怒吼下回合增加临时力量，仅持续该回合。暴力执法生效后，生命严格低于25%时，每段对敌伤害有50%（升级60%）几率翻倍；治疗使生命回到门槛以上后立即停止暴击。顺劈斩每段重新随机选择存活敌人。这些状态下场清空。\n\n【卡组管理】\n出战卡组 15–30 张，备用卡库不参与抽牌。战斗外打开右上角设置菜单中的卡组，可把卡牌拖到另一侧，或点击后选择移入。出战满 30 张时，新获得的卡自动进入备用卡库并打开管理界面；先拖出旧卡，再拖入新卡。换牌免费，卡牌不会被删除。图鉴可查看全部 47 种牌和升级版。"
+ text_value += "\n\n【路线核心】\n蚀毒：叠毒侵蚀，或用毒爆消耗全部毒层，按倍率造成无视护甲的伤害（不受力量、易伤影响）。淬毒使每张攻击牌结算后向命中且存活的敌人施加等量毒素，多段只触发一次。毒素回收需要目标至少 4 层毒。\n铁壁：护甲转单体或全体伤害；也能叠反伤，使用反击风暴主动输出，保留反伤继续反击。\n狂刃：力量强化每段攻击。嗜血使下一回合所有对敌伤害附带75%吸血，按实际扣除的敌方生命逐段向下取整治疗；持续至再下一回合开始，包含毒素和反伤。怒吼下回合增加6（升级9）临时力量，仅持续该回合。暴力执法生效后，生命严格低于30%（升级45%）时，每段对敌伤害有50%（升级60%）几率翻倍；治疗使生命回到门槛以上后立即停止暴击。顺劈斩每段重新随机选择存活敌人。这些状态下场清空。\n\n【卡组管理】\n出战卡组 15–30 张，备用卡库不参与抽牌。战斗外打开右上角设置菜单中的卡组，可把卡牌拖到另一侧，或点击后选择移入。出战满 30 张时，新获得的卡自动进入备用卡库并打开管理界面；先拖出旧卡，再拖入新卡。换牌免费，卡牌不会被删除。图鉴可查看全部 47 种牌和升级版。"
  var scroll = ScrollContainer.new()
  scroll.custom_minimum_size.y = 590
  scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL

@@ -21,7 +21,7 @@ static func resolve_turn(run) -> void:
     var total = 0
     for _h in range(intent.hits):
      if e.hp <= 0 or run.s.hp <= 0: break
-     var loss = run.take_player_damage(damage)
+     var loss = run.take_player_damage(damage, false, i)
      run.s.recoverable_hp += loss
      total += loss
      if run.total_thorns() > 0: run.hit_enemy(i, run.total_thorns())
@@ -36,3 +36,7 @@ static func resolve_turn(run) -> void:
     run.note("%s 的力量 +%d。" % [e.name, intent.amount])
   e.step += 1
   if run.s.hp <= 0: break
+ # Durations count complete rounds, including defense, buffs and frozen turns.
+ for enemy in run.s.enemies:
+  enemy.weak = maxi(0, enemy.weak - 1)
+  enemy.vulnerable = maxi(0, enemy.vulnerable - 1)

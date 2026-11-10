@@ -145,7 +145,7 @@ func active_status_lines(s: Dictionary) -> Array[String]:
  if s.recoverable_hp > 0 and has_leech(s): lines.append("汲取可恢复：%d 生命" % s.recoverable_hp)
  if s.lifesteal > 0: lines.append("吸血 %d%%" % s.lifesteal)
  if s.next_lifesteal > 0: lines.append("下回合吸血 %d%%" % s.next_lifesteal)
- if s.low_hp_crit > 0: lines.append("暴力执法 %d%%%s" % [s.low_hp_crit, "（生效中）" if s.hp * 4 < s.max_hp else "（需生命低于25%）"])
+ if s.low_hp_crit > 0: lines.append("暴力执法 %d%%%s" % [s.low_hp_crit, "（生效中）" if s.hp * 100 < s.max_hp * s.low_hp_crit_threshold else "（需生命低于%d%%）" % s.low_hp_crit_threshold])
  if s.temporary_strength > 0: lines.append("本回合临时力量 +%d" % s.temporary_strength)
  if s.next_strength > 0: lines.append("下回合力量 +%d（仅一回合）" % s.next_strength)
  if s.retain_cap > 0: lines.append("留甲上限 %d" % s.retain_cap)

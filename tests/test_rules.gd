@@ -69,7 +69,7 @@ func test_damage() -> void:
  g.new_run("fury", 12)
  g.s.hand = ["cleave"]
  g.play(0)
- check(g.s.enemies[0].hp == 24, "strength adds to each hit")
+ check(g.s.enemies[0].hp == 22, "strength adds to each hit")
  g.s.hand = ["strike"]
  g.s.energy = 0
  var before = g.s.duplicate(true)
@@ -78,10 +78,10 @@ func test_damage() -> void:
  g.s.enemies[0].vulnerable = 1
  g.s.energy = 1
  g.play(0)
- check(g.s.enemies[0].hp == 14, "twenty percent vulnerable rounds damage up")
+ check(g.s.enemies[0].hp == 12, "twenty percent vulnerable rounds damage up")
  var hp: int = g.s.hp
  g.end_turn()
- check(g.s.hp == hp - 4 and g.s.enemies[0].weak == 1, "thirty percent weakness persists")
+ check(g.s.hp == hp - 4 and g.s.enemies[0].weak == 0, "one-round weakness expires after enemy phase")
  g.s.hp = 1
  g.s.hand = ["bloodlust"]
  g.play(0)
@@ -127,9 +127,9 @@ func test_flow() -> void:
   check(g.s.phase == "reward", "reward phase")
   if stage % 3 == 0:
    check(g.s.reward_cards.all(func(id): return id.ends_with("+")), "boss upgraded rewards")
-  var old_size: int = g.s.deck.size()
+  var old_size: int = g.s.deck.size() + g.s.reserve.size()
   g.take_card(0)
-  check(g.s.deck.size() == old_size + 1, "reward card added")
+  check(g.s.deck.size() + g.s.reserve.size() == old_size + 1, "reward card added to equipped deck or reserve")
   if stage % 3 == 0:
    check(g.s.phase == "relic" and g.s.relic_choices.size() == 3, "boss relic phase")
    var old_relics: int = g.s.relics.size()
@@ -141,9 +141,9 @@ func test_flow() -> void:
   check(g.s.gold == 255, "shop cost")
   g.s.hp = 10
   check(g.buy_heal() and g.s.hp == 34 and not g.buy_heal(), "heal once")
-  g.s.potions = 2
+  g.s.potions = 1
   check(g.buy_potion() and not g.buy_potion(), "potion capacity")
-  check(g.remove_card(g.s.deck.size() - 1) and not g.remove_card(0), "removal once")
+  check(not g.has_method("remove_card"), "permanent card removal is unavailable")
   if stage == 1:
    check(g.upgrade_card(0) and g.s.deck[0].ends_with("+"), "upgrade")
    var hp: int = g.s.hp
@@ -223,7 +223,7 @@ func simulate(route: String, seed_value: int):
     if g.s.potions < 2: g.buy_potion()
     if g.s.gold >= 40:
      var idx = g.s.deck.find("strike")
-     if idx >= 0: g.remove_card(idx)
+     if idx >= 0: g.move_card("deck", idx, "reserve")
     for i in range(g.s.shop_cards.size()):
      if draft_score(g, g.s.shop_cards[i]) > 8 and g.s.deck.size() < 18: g.buy_card(i)
     g.next_stage()
@@ -342,7 +342,7 @@ func test_expanded_cards() -> void:
  g = durable_run("fury")
  g.s.hand = ["battle_trance", "warcry", "rage_slash"]
  for _i in range(3): g.play(0)
- check(g.s.next_lifesteal == 75 and g.s.next_strength == 3 and g.s.low_hp_crit == 50, "new route abilities queue and activate")
+ check(g.s.next_lifesteal == 75 and g.s.next_strength == 6 and g.s.low_hp_crit == 50, "new route abilities queue and activate")
  g.start_battle()
  check(g.s.lifesteal == 0 and g.s.next_lifesteal == 0 and g.s.low_hp_crit == 0 and g.s.next_strength == 0, "route statuses reset between encounters")
  g = durable_run()
@@ -444,7 +444,7 @@ func test_balance_rules() -> void:
   g.s.block = 20
   g.save_run(path)
   var copy = Run.new()
-  check(copy.load_run(path) and copy.s.version == 7, "balance save migration version %d" % version)
+  check(copy.load_run(path) and copy.s.version == 8, "balance save migration version %d" % version)
   check(copy.s.exhaust == ["mend", "coating"] and copy.s.discard.count("focus+") == 2, "migration preserves copies and activates only abilities")
   copy.end_turn()
   check(copy.s.block == 14 and not copy.s.keep_block, "legacy one-turn hold honored once")
@@ -505,7 +505,7 @@ func test_deck_management() -> void:
  g.s.version = 1
  for key in ["reserve", "fury", "fury_engine", "coating", "next_block", "next_draw", "last_acquired_zone", "difficulty"]: g.s.erase(key)
  g.save_run(path)
- check(copy.load_run(path) and copy.s.version == 7 and copy.s.deck.size() == 30 and copy.s.reserve.size() == 4, "legacy oversized deck migrates without losing copies")
+ check(copy.load_run(path) and copy.s.version == 8 and copy.s.deck.size() == 30 and copy.s.reserve.size() == 4, "legacy oversized deck migrates without losing copies")
  check(copy.s.hand == original_hand and not copy.s.has("fury") and copy.s.coating == 0, "legacy current combat preserved")
  copy.end_turn()
  check(copy.s.phase == "battle", "legacy battle resumes")
@@ -700,6 +700,7 @@ func test_revision_rules() -> void:
  # Stable RNG state prevents save/reload from rerolling later rewards.
  var save_path = "res://test-results/revision-save.json"
  g.s.barrier = 2
+ g.s.barrier_reflects = [0, 0]
  g.s.enemies[0].frozen = 1
  g.s.next_energy = 5
  g.save_run(save_path)

@@ -17,7 +17,7 @@ func load_run(path: String = "user://run_save.json") -> bool:
  if not FileAccess.file_exists(path): return false
  var parsed = normalize_numbers(JSON.parse_string(FileAccess.get_file_as_string(path)))
  if not parsed is Dictionary: return false
- if parsed.get("version", 0) not in [1, 2, 3, 4, 5, 6, 7]: return false
+ if parsed.get("version", 0) not in [1, 2, 3, 4, 5, 6, 7, 8]: return false
  if not parsed.has("difficulty"): parsed.difficulty = "easy"
  if not Data.DIFFICULTIES.has(parsed.difficulty): return false
  for key in ["route", "stage", "phase", "hp", "max_hp", "deck", "relics", "enemies", "hand", "draw", "discard", "exhaust", "log", "gold"]:
@@ -62,15 +62,30 @@ func load_run(path: String = "user://run_save.json") -> bool:
  while s.hand.size() > Data.CONFIG.hand_limit: s.draw.append(s.hand.pop_back())
  for enemy in s.enemies:
   if not enemy.has("frozen"): enemy.frozen = 0
-  enemy.weak = 1 if enemy.get("weak", 0) > 0 else 0
-  enemy.vulnerable = 1 if enemy.get("vulnerable", 0) > 0 else 0
  if not s.has("turn_cards_played"): s.turn_cards_played = 0
  if not s.has("fate_triggered"): s.fate_triggered = false
- s.version = 7
+ migrate_balance_state(s)
+ var checkpoint: Dictionary = s.get("battle_checkpoint", {})
+ if checkpoint.has("state"): migrate_balance_state(checkpoint.state)
  rng.randomize()
  if s.has("rng_state"): rng.state = int(s.rng_state)
  s.erase("rng_state")
  return true
+
+func migrate_balance_state(state: Dictionary) -> void:
+ state.potions = clampi(int(state.get("potions", 0)), 0, 2)
+ state.erase("shop_removed")
+ if not state.has("low_hp_crit_threshold"):
+  state.low_hp_crit_threshold = 45 if state.get("low_hp_crit", 0) >= 60 else 30
+ if not state.has("barrier_reflects"): state.barrier_reflects = []
+ var charges = maxi(0, int(state.get("barrier", 0)))
+ while state.barrier_reflects.size() < charges: state.barrier_reflects.append(0)
+ if state.barrier_reflects.size() > charges: state.barrier_reflects.resize(charges)
+ for enemy in state.get("enemies", []):
+  for status in ["weak", "vulnerable"]:
+   var duration = maxi(0, int(enemy.get(status, 0)))
+   enemy[status] = mini(duration, 1) if state.get("version", 0) < 8 else duration
+ state.version = 8
 
 func normalize_numbers(value: Variant) -> Variant:
  # This schema uses whole numbers only; JSON decodes every number as a float.

@@ -11,5 +11,5 @@ route = "fury"
 cost = 3
 target = true
 exhaust = false
-effects = {"self_damage": 10, "damage": 35}
-upgrade = {"damage": 45}
+effects = {"self_damage_unless_kill": 10, "damage": 45}
+upgrade = {"damage": 55}

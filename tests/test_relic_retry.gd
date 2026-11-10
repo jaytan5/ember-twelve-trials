@@ -50,7 +50,7 @@ func test_gear() -> void:
  for i in range(1, 13):
   g.s.hand = ["guard"]
   check(g.play(0), "gear accepts card " + str(i))
-  check(2000 - g.s.enemies[0].hp - g.s.enemies[1].hp == mini(i / 3, 3) * 6, "gear triggers only at 3/6/9; no strength bonus " + str(i))
+  check(2000 - g.s.enemies[0].hp - g.s.enemies[1].hp == mini(i / 2, 3) * 6, "gear triggers only at 2/4/6; no strength bonus " + str(i))
  check(g.combat_events.size() == 3, "gear damage uses normal animation event queue")
  g.end_turn()
  g.s.energy = 20
@@ -61,7 +61,7 @@ func test_gear() -> void:
  var before: int = g.s.turn_cards_played
  check(not g.play(9) and g.s.turn_cards_played == before, "rejected cards do not count")
  g = fixture("fury", ["shell"])
- g.s.turn_cards_played = 2
+ g.s.turn_cards_played = 1
  g.s.hand = ["strike"]
  g.s.enemies[0].hp = 1
  g.play(0)
@@ -74,7 +74,7 @@ func test_gear() -> void:
  g.play(0)
  check(g.s.phase == "defeat" and g.s.enemies[1].hp == enemy_hp, "lethal self damage prevents gear damage")
  g = fixture("venom", ["shell"])
- g.s.turn_cards_played = 2
+ g.s.turn_cards_played = 1
  g.s.hand = ["guard"]
  g.save_run("user://gear-check.json")
  var loaded = Run.new()
@@ -83,14 +83,14 @@ func test_gear() -> void:
 func test_charm() -> void:
  var g = fixture("venom", ["spikes"])
  g.s.max_hp = 100
- g.s.hp = 30
+ g.s.hp = 50
  g.s.hand = []
  g.begin_turn()
- check(not g.s.fate_triggered and g.s.energy == 3 and g.s.hand.size() == 2, "exactly thirty percent does not trigger charm")
- g.s.hp = 29
+ check(not g.s.fate_triggered and g.s.energy == 3 and g.s.hand.size() == 2, "exactly fifty percent does not trigger charm")
+ g.s.hp = 49
  g.s.hand = []
  g.begin_turn()
- check(g.s.fate_triggered and g.s.energy == 6 and g.s.hand.size() == 4, "below thirty percent gives two extra cards and three energy")
+ check(g.s.fate_triggered and g.s.energy == 6 and g.s.hand.size() == 4, "below fifty percent gives two extra cards and three energy")
  g.save_run("user://charm-check.json")
  var loaded = Run.new()
  loaded.load_run("user://charm-check.json")
@@ -101,7 +101,7 @@ func test_charm() -> void:
  check(loaded.s.fate_triggered and loaded.s.hand.size() == 7 and loaded.s.energy == 6, "new battle resets charm and supports low HP opening")
  g = fixture("venom", ["spikes"])
  g.s.max_hp = 100
- g.s.hp = 25
+ g.s.hp = 35
  g.heal_player(20)
  g.begin_turn()
  check(not g.s.fate_triggered, "recovery before next turn avoids charm trigger")
@@ -156,5 +156,5 @@ func test_retry() -> void:
  legacy.check_outcome()
  legacy.save_run("user://legacy-retry-check.json")
  var migrated = Run.new()
- check(migrated.load_run("user://legacy-retry-check.json") and migrated.s.version == 7, "v6 migration initializes new relic state")
+ check(migrated.load_run("user://legacy-retry-check.json") and migrated.s.version == 8, "v6 migration initializes current relic state")
  check(migrated.retry_battle() and migrated.s.hp == migrated.s.max_hp and migrated.s.phase == "battle", "legacy defeat lacking snapshot can restart stage")

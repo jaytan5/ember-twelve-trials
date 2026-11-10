@@ -30,14 +30,18 @@ static func play(run, index: int) -> bool:
  if c.has("temp_thorns"): run.s.temp_thorns += c.temp_thorns
  if c.has("coating"): run.s.coating += c.coating
  if c.has("next_lifesteal"): run.s.next_lifesteal = maxi(run.s.next_lifesteal, c.next_lifesteal)
- if c.has("low_hp_crit"): run.s.low_hp_crit = maxi(run.s.low_hp_crit, c.low_hp_crit)
+ if c.has("low_hp_crit"):
+  run.s.low_hp_crit = maxi(run.s.low_hp_crit, c.low_hp_crit)
+  run.s.low_hp_crit_threshold = maxi(run.s.low_hp_crit_threshold, c.low_hp_crit_threshold)
  if c.has("next_strength"): run.s.next_strength += c.next_strength
  if c.has("next_block"): run.s.next_block += c.next_block
  if c.has("next_draw"): run.s.next_draw += c.next_draw
  if c.has("next_energy"): run.s.next_energy += c.next_energy
  if c.has("energy"): run.s.energy += c.energy
  if c.has("retain_cap"): run.s.retain_cap = maxi(run.s.retain_cap, c.retain_cap)
- if c.has("barrier"): run.s.barrier += c.barrier
+ if c.has("barrier"):
+  run.s.barrier += c.barrier
+  for _charge in range(c.barrier): run.s.barrier_reflects.append(int(c.get("barrier_reflect", 0)))
  if c.has("freeze_all"):
   for t in targets: run.s.enemies[t].frozen = maxi(run.s.enemies[t].get("frozen", 0), c.freeze_all)
  if c.has("armor_damage"):
@@ -72,8 +76,8 @@ static func play(run, index: int) -> bool:
   for t in targets: run.poison_enemy(t, c.all_poison)
  if c.has("multiply_poison"):
   run.s.enemies[target].poison += mini(run.s.enemies[target].poison * (c.multiply_poison - 1), c.poison_growth_cap)
- if c.has("weak"): run.s.enemies[target].weak = 1
- if c.has("vulnerable"): run.s.enemies[target].vulnerable = 1
+ if c.has("weak"): run.s.enemies[target].weak = maxi(run.s.enemies[target].weak, c.weak)
+ if c.has("vulnerable"): run.s.enemies[target].vulnerable = maxi(run.s.enemies[target].vulnerable, c.vulnerable)
  if c.has("strength"): run.s.strength += c.strength
  if c.has("heal"): run.heal_player(c.heal)
  if c.has("heal_recent"): run.heal_player(mini(c.heal_recent, run.s.recoverable_hp))
@@ -82,6 +86,8 @@ static func play(run, index: int) -> bool:
   if run.s.coating > 0:
    var coated_targets: Array = targets if c.has("all_damage") or c.has("random_damage") else [target]
    for t in coated_targets: run.poison_enemy(t, run.s.coating)
+ if c.has("self_damage_unless_kill") and run.s.enemies[target].hp > 0:
+  run.take_player_damage(c.self_damage_unless_kill, true)
  run.resolve_combo_relic()
  run.check_outcome()
  if run.s.phase == "battle" and run.s.enemies[run.s.target].hp <= 0: run.s.target = run.living()[0]

@@ -12,4 +12,4 @@ cost = 1
 target = true
 exhaust = false
 effects = {"heal": 3, "weak": 1}
-upgrade = {"heal": 5, "weak": 1}
+upgrade = {"heal": 5, "weak": 2}

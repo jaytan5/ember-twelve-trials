@@ -40,13 +40,15 @@ BossData继承EnemyData，LevelData直接引用其敌人资源。
 
 heal：直接回血；armor_damage：移除护甲后伤害倍率；store_energy：X能量转下回合；stored_bonus：升级额外能量；freeze_all：冻结下一次敌方行动；barrier：抵挡次数；exhaust：使用后本场移出。
 
-金钟罩先于护甲抵挡正伤害，包括自伤；重复使用增加次数。冻结不累加，毒素仍按回合结算。全才伤害在本牌增加力量之前结算。
+金钟罩先于护甲抵挡正伤害，包括自伤；重复使用增加次数。`barrier_reflects` 按施放顺序记录各次护罩的反弹比例，升级为50%，反弹给传入 `take_player_damage` 的实际攻击者，自伤不反弹。冻结不累加，毒素仍按回合结算。全才伤害在本牌增加力量之前结算。
+
+`weak`、`vulnerable` 记录剩余回合，基础1、升级2，敌方阶段结束统一递减，防御、蓄力与冰冻均计时；重复施加取较长剩余时间。`low_hp_crit_threshold` 记录暴力执法的30%／45%生命门槛，每段重新判断。`self_damage_unless_kill` 在破阵攻击结算后检查目标，存活才扣10生命。药水规则上限2瓶，永久删牌接口与商店入口已移除。
 
 ## 导航与显示
 
 GameShell 的 screen 状态分别为 title（启动时的纯背景、Logo 与开始提示）、home（开始菜单）、routes（路线确认）、map（四场景地图）、run（战斗/奖励/补给/结局）。HomeView、MainMenuView、MapView、BattleView 和 SettingsView 分别负责视图。title 不创建页眉、页脚或菜单，_input 消耗首次按键/点击/触摸/手柄按键后切换 home，保留背景视频和音乐进度；返回主界面直接进入 home。
 
-新冒险创建战斗状态后先显示地图；点击当前关卡只切换视图，不重新洗牌或调用 start_battle。营火完成后由 next_stage 初始化下一关，再显示地图。继续冒险读取后锁定路线与难度，确认后回到地图。地图与弹窗阻止战斗快捷键。
+新冒险创建战斗状态后先显示地图；点击当前关卡只切换视图，不重新洗牌或调用 start_battle。营火完成后由 next_stage 初始化下一关，再显示地图。继续冒险读取后锁定路线与难度，确认后回到地图。地图与弹窗阻止战斗快捷键。弹窗使用绝对 `z_index=100` 并接收焦点，覆盖选中卡包和难度按钮的局部层级。
 
 默认窗口为 1280×720，逻辑画布为 1600×900，canvas_items + keep 保持 16:9；非 16:9 窗口留边。头像用 AtlasTexture 引用现有主角四视图，不改动原始图片。基础声音设置写入 settings.cfg，与 run_save.json 独立。
 
@@ -56,9 +58,11 @@ GameShell 的 screen 状态分别为 title（启动时的纯背景、Logo 与开
 
 遗物沿用 fang/shell/spikes 的稳定 ID，分别更新为进阶宝石、连击齿轮、逆命护符，已有存档保留持有关系。`relic_bonus()` 同时计算通用与当前路线的 `route_bonuses`。开战护甲在首个 `begin_turn()` 清理旧护甲之后发放，避免被首回合清零；首次毒加成沿用整场共用的 first_poison。
 
-`turn_cards_played` 仅在成功出牌后计数，begin_turn 清零；卡牌效果结束且角色存活时处理连击齿轮，再统一检查胜负。齿轮走 hit_enemy，因此使用已有伤害动画队列。`fate_triggered` 在 start_battle 重置，begin_turn 检查生命严格低于30%，一次发放额外抽牌与能量；两字段均随存档保存。
+`turn_cards_played` 仅在成功出牌后计数，begin_turn 清零；第2、4、6张卡牌效果结束且角色存活时处理连击齿轮，再统一检查胜负。齿轮走 hit_enemy，因此使用已有伤害动画队列。`fate_triggered` 在 start_battle 重置，begin_turn 检查生命严格低于50%，一次发放额外抽牌与能量；两字段均随存档保存。
 
 存档 v7 在 start_battle 完成首回合初始化后保存 `battle_checkpoint`（无嵌套快照的完整开战状态，以及用字符串保存的 RNG state）。前三档仅在 defeat 可恢复该快照，界面提交恢复结果后保存；legendary 的 allow_retry=false，规则层也禁止调用重试。新关覆盖快照，界面动画的隔离副本会携带它，战败动画播放完成后才展示重试按钮。v1–v6 存档缺少开战快照时保留现有资源、满血重建本关，下一关起使用完整快照。旧战斗中已经产生的属性不追溯扣回，新遗物的开战效果在下一次开战时生效。
+
+当前存档v8：加载主状态与开战快照时统一迁移药水上限、暴力执法门槛、护罩反弹队列、旧持续状态；v8的2回合状态与混合护罩队列读写保持原样。
 
 ## 天赋页独立美术组件
 
