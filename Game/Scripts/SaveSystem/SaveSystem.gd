@@ -63,7 +63,6 @@ func load_run(path: String = "user://run_save.json") -> bool:
  for enemy in s.enemies:
   if not enemy.has("frozen"): enemy.frozen = 0
  if not s.has("turn_cards_played"): s.turn_cards_played = 0
- if not s.has("fate_triggered"): s.fate_triggered = false
  migrate_balance_state(s)
  var checkpoint: Dictionary = s.get("battle_checkpoint", {})
  if checkpoint.has("state"): migrate_balance_state(checkpoint.state)
@@ -73,6 +72,37 @@ func load_run(path: String = "user://run_save.json") -> bool:
  return true
 
 func migrate_balance_state(state: Dictionary) -> void:
+ if not state.has("fate_triggers"):
+  state.fate_triggers = 1 if state.get("fate_triggered", false) else 0
+ state.erase("fate_triggered")
+ # Keep legacy extra copies in reserve, but equip at most one ability.
+ var unique_equipped = false
+ if not state.has("reserve"): state.reserve = []
+ var equipped: Array = []
+ for id in state.get("deck", []):
+  if id.trim_suffix("+") == "rage_slash":
+   if unique_equipped:
+    state.reserve.append(id)
+    continue
+   unique_equipped = true
+  equipped.append(id)
+ state.deck = equipped
+ while state.deck.size() < DECK_MIN:
+  state.deck.append("strike" if state.deck.size() % 2 == 0 else "guard")
+ var owns_unique = false
+ for id in state.deck + state.reserve:
+  if id.trim_suffix("+") == "rage_slash": owns_unique = true
+ if owns_unique:
+  for zone in ["reward_cards", "shop_cards"]:
+   var cards: Array = []
+   var sold: Array = []
+   for i in range(state.get(zone, []).size()):
+    var id: String = state[zone][i]
+    if id.trim_suffix("+") == "rage_slash": continue
+    if zone == "shop_cards" and i in state.get("shop_sold", []): sold.append(cards.size())
+    cards.append(id)
+   state[zone] = cards
+   if zone == "shop_cards": state.shop_sold = sold
  state.potions = clampi(int(state.get("potions", 0)), 0, 2)
  state.erase("shop_removed")
  if not state.has("low_hp_crit_threshold"):

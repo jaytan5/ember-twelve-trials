@@ -149,7 +149,7 @@ func test_attacks() -> void:
   var g = fresh()
   g.s.hp = 49
   play(g, "blood_charge" + suffix)
-  check(g.s.enemies[0].hp == (985 if suffix == "" else 982) and g.s.energy == 28, "lost health damage percentage and rounding " + suffix)
+  check(g.s.enemies[0].hp == (983 if suffix == "" else 980) and g.s.energy == 28, "lost health damage percentage and rounding " + suffix)
   g = fresh()
   play(g, "blood_charge" + suffix)
   check(g.s.enemies[0].hp == 1000, "full health has zero lost-health base damage")
@@ -192,7 +192,7 @@ func test_debuffs() -> void:
  check(g.attack_value(g.s.enemies[0], Data.attack(10)) == 7, "weak lowers attack by thirty percent")
  var before: int = g.s.enemies[0].hp
  g.hit_enemy(0, 10)
- check(g.s.enemies[0].hp == before - 12, "vulnerability raises normal damage by twenty percent")
+ check(g.s.enemies[0].hp == before - 13, "vulnerability raises normal damage by thirty percent")
  g.s.enemies[0].pattern = [Data.attack(10), Data.defend(0), Data.buff(0)]
  for _i in range(3):
   g.end_turn()

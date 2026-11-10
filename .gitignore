@@ -1,4 +1,5 @@
 .godot/
 .test_profile/
+.test-user/
 test-results/
 *.tmp

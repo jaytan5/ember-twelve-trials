@@ -190,9 +190,9 @@ func test_retry_ui_and_fonts() -> void:
    press.pressed = false
    root.push_input(press)
    await settle()
-   check(ui.game.s == before and ui.screen == "run" and ui.find_child("HeroPanel", true, false) != null, "retry click restores opening battle " + difficulty)
+   check(ui.game.s.hp == before.hp and ui.game.s.hand.size() == before.hand.size() and ui.game.s.draw != before.draw and ui.screen == "run" and ui.find_child("HeroPanel", true, false) != null, "retry click restores opening battle " + difficulty)
    var saved = ui.Run.new()
-   check(saved.load_run() and saved.s == before, "retry saves restored state " + difficulty)
+   check(saved.load_run() and saved.s == ui.game.s, "retry saves restored state " + difficulty)
  ui.return_home()
  ui.open_new_routes()
  await settle()

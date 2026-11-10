@@ -6,6 +6,6 @@
 script = ExtResource("1")
 id = "spikes"
 title = "逆命护符"
-description = "每场战斗限一次：自己回合开始时，若生命低于 50%，抽 2 张牌并获得 3 点能量。"
+description = "每场战斗限 3 次：自己回合开始时，若生命低于 50%，抽 2 张牌并获得 3 点能量。"
 starter = false
 effects = {"low_hp_draw": 2, "low_hp_energy": 3}

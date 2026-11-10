@@ -60,7 +60,7 @@ static func card(raw_id: String) -> Dictionary:
   for key in c.upgrade: c[key] = c.upgrade[key]
  return c
 
-static func describe(c: Dictionary) -> String:
+static func describe(c: Dictionary, compact: bool = false) -> String:
  var parts: Array[String] = []
  if c.has("armor_damage"): parts.append("移除目标全部护甲，造成移除量 ×%s 的伤害（不受力量、易伤加成）" % str(c.armor_damage))
  if c.has("poison_cost"): parts.append("需消耗目标 %d 层毒素" % c.poison_cost)
@@ -94,7 +94,8 @@ static func describe(c: Dictionary) -> String:
  if c.has("barrier_reflect"): parts.append("并反弹此次伤害的 %d%%" % c.barrier_reflect)
  if c.has("heal_recent"): parts.append("治疗上轮伤势 %d" % c.heal_recent)
  if c.has("weak"): parts.append("施加虚弱：攻击伤害 -30%%，持续 %d 回合" % c.weak)
- if c.has("vulnerable"): parts.append("施加易伤：受到普通伤害 +20%%，持续 %d 回合" % c.vulnerable)
+ if c.has("vulnerable"): parts.append("施加易伤：受到普通伤害 +30%%，持续 %d 回合" % c.vulnerable)
+ if c.id.trim_suffix("+") == "rage_slash": parts.append("唯一：限1张" if compact else "唯一：卡组限 1 张；拥有后不再出现在选牌和商店")
  if c.has("next_energy"): parts.append("下回合额外获得 %d 能量" % c.next_energy)
  if c.has("temp_thorns"): parts.append("反伤 +%d，持续至下回合开始" % c.temp_thorns)
  if c.has("energy"): parts.append("获得 %d 能量" % c.energy)

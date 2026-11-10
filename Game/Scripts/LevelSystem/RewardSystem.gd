@@ -5,6 +5,7 @@ static func roll_cards(run, count: int, upgraded: bool = false) -> Array:
  var pool: Array = []
  for id in Data.CARDS:
   if id in Data.REWARD.excluded_cards: continue
+  if not run.can_acquire_card(id): continue
   if Data.CARDS[id].route == run.s.route or Data.CARDS[id].route == "neutral": pool.append(id)
  run.shuffle_list(pool)
  var result: Array = []

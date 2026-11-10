@@ -16,6 +16,7 @@ func show_screen(host: Control, notice: String = "", keep_scroll: bool = false) 
  var body = ui.open_modal("卡组管理  /  已拥有 %d 张" % (s.deck.size() + s.reserve.size()), Vector2(1280, 810))
  var editable: bool = ui.game.can_edit_deck()
  var instruction = "悬停卡名查看详情；拖动或点击换牌。出战 15–30 张；备用卡不参与抽牌。"
+ if ui.game.can_retry_battle(): instruction += "\n调整完成后关闭此窗口，点击重新开始本小关；将按新卡组重新抽牌。"
  if not editable: instruction = "悬停卡名查看详情。战斗期间仅查看；战后选牌、遗物或营火阶段可以调整。"
  body.add_child(ui.paragraph(instruction, 17))
  if notice != "": body.add_child(ui.paragraph(notice, 16, ui.GOLD))

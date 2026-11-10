@@ -69,7 +69,7 @@ func start_battle() -> void:
  s.recoverable_hp = 0
  s.keep_block = false
  s.first_poison = true
- s.fate_triggered = false
+ s.fate_triggers = 0
  s.turn_cards_played = 0
  s.turn = 0
  s.target = 0
@@ -88,15 +88,18 @@ func can_retry_battle() -> bool:
 
 func retry_battle() -> bool:
  if not can_retry_battle(): return false
+ var deck: Array = s.deck.duplicate()
+ var reserve: Array = s.reserve.duplicate()
  var checkpoint: Dictionary = s.get("battle_checkpoint", {})
  if not checkpoint.is_empty():
   s = checkpoint.state.duplicate(true)
-  rng.state = int(checkpoint.rng_state)
-  s.battle_checkpoint = checkpoint.duplicate(true)
  else:
   # Older saves have no opening snapshot. Keep owned resources and restart at full HP.
   s.hp = s.max_hp
-  start_battle()
+ s.deck = deck
+ s.reserve = reserve
+ # Keep the current RNG progression so each retry shuffles a fresh opening.
+ start_battle()
  return true
 
 func begin_turn() -> void:
@@ -120,11 +123,11 @@ func begin_turn() -> void:
  s.next_strength = 0
  draw_cards((Data.CONFIG.initial_hand if s.turn == 1 else Data.CONFIG.turn_draw) + relic_bonus("turn_draw") + s.next_draw)
  s.next_draw = 0
- if not s.fate_triggered and s.hp > 0 and s.hp * 2 < s.max_hp and relic_bonus("low_hp_energy") > 0:
-  s.fate_triggered = true
+ if s.fate_triggers < 3 and s.hp > 0 and s.hp * 2 < s.max_hp and relic_bonus("low_hp_energy") > 0:
+  s.fate_triggers += 1
   draw_cards(relic_bonus("low_hp_draw"))
   s.energy += relic_bonus("low_hp_energy")
-  note("逆命护符：抽取 2 张牌，获得 3 点能量（本场已触发）。")
+  note("逆命护符：抽取 2 张牌，获得 3 点能量（本场 %d/3 次）。" % s.fate_triggers)
  note("回合 %d：抽牌，恢复能量。" % s.turn)
 
 func resolve_combo_relic() -> void:
@@ -157,7 +160,7 @@ func hit_enemy(index: int, amount: int, direct: bool = false) -> void:
  if damage > 0 and s.low_hp_crit > 0 and s.hp * 100 < s.max_hp * s.low_hp_crit_threshold and rng.randf() < s.low_hp_crit / 100.0:
   damage *= 2
   note("暴击！伤害翻倍。")
- if not direct and e.vulnerable > 0: damage = int(ceil(damage * 1.2))
+ if not direct and e.vulnerable > 0: damage = int(ceil(damage * 1.3))
  if not direct:
   var absorbed = mini(e.block, damage)
   e.block -= absorbed
@@ -323,6 +326,7 @@ func upgrade_card(index: int) -> bool:
 
 func buy_card(index: int) -> bool:
  if s.phase != "camp" or index < 0 or index >= s.shop_cards.size() or index in s.shop_sold or s.gold < Data.REWARD.shop_price: return false
+ if not can_acquire_card(s.shop_cards[index]): return false
  s.gold -= Data.REWARD.shop_price
  acquire_card(s.shop_cards[index])
  s.shop_sold.append(index)
@@ -355,17 +359,27 @@ func next_stage() -> void:
  start_battle()
 
 func acquire_card(id: String) -> void:
+ if not can_acquire_card(id): return
  s.last_acquired_zone = "deck" if s.deck.size() < DECK_LIMIT else "reserve"
  s[s.last_acquired_zone].append(id)
 
+func can_acquire_card(id: String) -> bool:
+ if id.trim_suffix("+") != "rage_slash": return true
+ for owned in s.deck + s.reserve:
+  if owned.trim_suffix("+") == "rage_slash": return false
+ return true
+
 func can_edit_deck() -> bool:
- return s.get("phase", "") in ["camp", "reward", "relic"]
+ return s.get("phase", "") in ["camp", "reward", "relic"] or can_retry_battle()
 
 func can_move_card(source: String, index: int, destination: String) -> bool:
  if not can_edit_deck() or source not in ["deck", "reserve"] or destination not in ["deck", "reserve"] or source == destination: return false
  if index < 0 or index >= s[source].size(): return false
  if destination == "deck" and s.deck.size() >= DECK_LIMIT: return false
  if source == "deck" and s.deck.size() <= DECK_MIN: return false
+ if destination == "deck" and s[source][index].trim_suffix("+") == "rage_slash":
+  for id in s.deck:
+   if id.trim_suffix("+") == "rage_slash": return false
  return true
 
 func move_card(source: String, index: int, destination: String) -> bool:

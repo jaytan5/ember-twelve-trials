@@ -78,7 +78,7 @@ func test_damage() -> void:
  g.s.enemies[0].vulnerable = 1
  g.s.energy = 1
  g.play(0)
- check(g.s.enemies[0].hp == 12, "twenty percent vulnerable rounds damage up")
+ check(g.s.enemies[0].hp == 11, "thirty percent vulnerable rounds damage up")
  var hp: int = g.s.hp
  g.end_turn()
  check(g.s.hp == hp - 4 and g.s.enemies[0].weak == 0, "one-round weakness expires after enemy phase")
