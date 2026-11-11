@@ -23,4 +23,3 @@ func health_bar(ui: Control, hp: int, maximum: int, tint: Color, width: int = 0)
  caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
  holder.add_child(caption)
  return holder
-

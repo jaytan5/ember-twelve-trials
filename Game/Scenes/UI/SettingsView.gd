@@ -20,15 +20,37 @@ const MUTED_INK = Color("80664e")
 const RED = Color("9e3528")
 
 func show_game_menu(ui: Control) -> void:
- var body = ui.open_modal("冒险菜单", Vector2(540, 670))
+ var art = load("res://Game/Scenes/UI/AdventureUI.gd")
+ var body = art.begin(ui, "冒险菜单", Vector2(780, 622), SETTINGS_EMBLEM)
+ var paper = art.paper(ui)
+ paper.size_flags_vertical = Control.SIZE_EXPAND_FILL
+ body.add_child(paper)
+ var content = ui.column(16)
+ paper.add_child(content)
+ var context = "%s  ·  %s难度  /  第 %d 关" % [ui.Data.ROUTES[ui.game.s.route].name, ui.game.difficulty_info().name, ui.game.s.stage]
+ content.add_child(art.note(ui, context, 18))
+ content.add_child(art.divider(ui))
+ var grid = GridContainer.new()
+ grid.columns = 2
+ grid.add_theme_constant_override("h_separation", 22)
+ grid.add_theme_constant_override("v_separation", 14)
+ grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
  for item in [["关卡地图", ui.open_map], ["卡组", ui.show_deck_manager], ["图鉴", ui.show_catalog], ["玩法", ui.show_help], ["保存", ui.manual_save], ["声音与显示", ui.show_settings]]:
-  var action = ui.button(item[0], item[1])
+  var action = art.button(ui, item[0], item[1], false, Vector2(280, 68))
   action.name = "Menu_" + str(item[0])
-  body.add_child(action)
- body.add_child(ui.button("返回主界面", ui.return_home))
- var back = ui.button("返回", ui.close_modal, true)
+  grid.add_child(action)
+ content.add_child(grid)
+ content.add_child(art.divider(ui))
+ var hint = art.note(ui, "冒险会自动保存，也可以在这里手动保存。", 16)
+ hint.size_flags_vertical = Control.SIZE_EXPAND_FILL
+ content.add_child(hint)
+ var actions = ui.row(18)
+ actions.alignment = BoxContainer.ALIGNMENT_CENTER
+ actions.add_child(art.button(ui, "返回主界面", ui.return_home, false, Vector2(280, 68)))
+ var back = art.button(ui, "返回冒险", ui.close_modal, true, Vector2(280, 68))
  back.name = "MenuReturn"
- body.add_child(back)
+ actions.add_child(back)
+ body.add_child(actions)
 
 func show_settings(ui: Control) -> void:
  var body = _begin_modal(ui, "基础设置", Vector2(1120, 760))
@@ -130,7 +152,7 @@ func show_legal_details(ui: Control) -> void:
  footer.add_child(back_button)
  content.add_child(footer)
 
-func _begin_modal(ui: Control, title: String, dimensions: Vector2) -> VBoxContainer:
+func _begin_modal(ui: Control, title: String, dimensions: Vector2, emblem: Texture2D = SETTINGS_EMBLEM, close_action: Callable = Callable()) -> VBoxContainer:
  var body = ui.open_modal(title, dimensions)
  var frame = body.get_parent() as PanelContainer
  if is_instance_valid(frame):
@@ -141,10 +163,10 @@ func _begin_modal(ui: Control, title: String, dimensions: Vector2) -> VBoxContai
   body.remove_child(old_heading)
   old_heading.queue_free()
 
- body.add_child(_title_bar(ui, title))
+ body.add_child(_title_bar(ui, title, emblem, close_action))
  return body
 
-func _title_bar(ui: Control, title: String) -> PanelContainer:
+func _title_bar(ui: Control, title: String, icon: Texture2D = SETTINGS_EMBLEM, close_action: Callable = Callable()) -> PanelContainer:
  var plaque = PanelContainer.new()
  plaque.custom_minimum_size.y = 72
  plaque.add_theme_stylebox_override("panel", _style(RED, GOLD_LIGHT, 18, 8, 3, 6))
@@ -154,7 +176,7 @@ func _title_bar(ui: Control, title: String) -> PanelContainer:
  plaque.add_child(row)
 
  var emblem = TextureRect.new()
- emblem.texture = SETTINGS_EMBLEM
+ emblem.texture = icon
  emblem.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
  emblem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
  emblem.custom_minimum_size = Vector2(54, 54)
@@ -179,11 +201,11 @@ func _title_bar(ui: Control, title: String) -> PanelContainer:
  close_button.ignore_texture_size = true
  close_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
  close_button.custom_minimum_size = Vector2(54, 54)
- close_button.tooltip_text = "关闭设置"
+ close_button.tooltip_text = "关闭" + title
  close_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
  close_button.focus_mode = Control.FOCUS_ALL
  close_button.pressed.connect(ui.settings.play_click)
- close_button.pressed.connect(ui.close_modal)
+ close_button.pressed.connect(close_action if close_action.is_valid() else ui.close_modal)
  close_button.mouse_entered.connect(func(): close_button.self_modulate = Color(1.12, 1.08, 1.0))
  close_button.mouse_exited.connect(func(): close_button.self_modulate = Color.WHITE)
  row.add_child(close_button)

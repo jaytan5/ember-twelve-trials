@@ -14,6 +14,7 @@ const RED = Color("f08e85")
 const READING_FONT = preload("res://Game/Assets/Fonts/MiSans-Regular.ttf")
 const DISPLAY_FONT = preload("res://Game/Assets/Fonts/方圆体-标题.tres")
 const NEW_ADVENTURE_DIALOG = preload("res://Game/Scenes/UI/NewAdventureDialog.gd")
+const ADVENTURE_UI = preload("res://Game/Scenes/UI/AdventureUI.gd")
 var mainmenu_view_component = preload("res://Game/Scenes/MainMenu/MainMenuView.tscn").instantiate()
 var battle_view_component = preload("res://Game/Scenes/Battle/BattleView.tscn").instantiate()
 var map_view_component = preload("res://Game/Scenes/Map/MapView.tscn").instantiate()
@@ -336,10 +337,30 @@ func build_camp() -> void:
  layout.add_child(content)
  layout.add_child(button("前往第 %d 关 · %s  →" % [s.stage + 1, Data.STAGE_NAMES[s.stage]], func():
   if not s.camp_used and (s.hp < s.max_hp or has_upgradeable()):
-   var dialog = open_modal("营火机会还未使用", Vector2(600, 290))
-   dialog.add_child(paragraph("你仍可以免费休息或升级一张牌。也可以直接出发。", 18))
-   dialog.add_child(button("直接进入下一关", advance, true))
+   show_unused_camp_warning()
   else: advance(), true))
+
+func show_unused_camp_warning() -> void:
+ var body = ADVENTURE_UI.begin(self, "营火机会还未使用", Vector2(780, 418), ADVENTURE_UI.CAMP_ICON)
+ modal.name = "UnusedCampDialog"
+ var paper = ADVENTURE_UI.paper(self, 22)
+ paper.size_flags_vertical = Control.SIZE_EXPAND_FILL
+ body.add_child(paper)
+ var content = column(16)
+ paper.add_child(content)
+ content.add_child(ADVENTURE_UI.heading(self, "休整之后，再出发。", 27))
+ content.add_child(paragraph("你仍可以免费休息或升级一张牌。\n也可以保留当前状态，直接进入下一关。", 21, ADVENTURE_UI.WOOD))
+ content.add_child(ADVENTURE_UI.note(self, "每关一次免费机会，休息与锻造二选一。", 16))
+ var actions = row(18)
+ actions.alignment = BoxContainer.ALIGNMENT_CENTER
+ var back = ADVENTURE_UI.button(self, "返回营火", close_modal, true, Vector2(280, 68))
+ back.name = "ReturnToCamp"
+ actions.add_child(back)
+ var proceed = ADVENTURE_UI.button(self, "直接进入下一关", advance, false, Vector2(280, 68))
+ proceed.name = "ContinueWithoutCamp"
+ actions.add_child(proceed)
+ body.add_child(actions)
+ back.grab_focus.call_deferred()
 
 func has_upgradeable() -> bool:
  for id in game.s.deck:
@@ -371,37 +392,63 @@ func show_deck_manager() -> void:
  deck_manager.show_screen(self)
 
 func show_catalog(route_filter: String = "neutral") -> void:
- var body = open_modal("卡牌图鉴  /  通用 %d 种 · 每条路线 10 种" % Data.card_count("neutral"), Vector2(1240, 820))
+ var body = ADVENTURE_UI.begin(self, "卡牌图鉴", Vector2(1280, 820))
+ var paper = ADVENTURE_UI.paper(self, 18)
+ paper.size_flags_vertical = Control.SIZE_EXPAND_FILL
+ body.add_child(paper)
+ var content = column(12)
+ paper.add_child(content)
  var tabs = row(14)
  for id in ["neutral", "venom", "bastion", "fury"]:
-  tabs.add_child(button("通用 · %d" % Data.card_count("neutral") if id == "neutral" else Data.ROUTES[id].name + " · 10", func(): show_catalog(id), id == route_filter))
- body.add_child(tabs)
- if route_filter != "neutral": body.add_child(paragraph(Data.ROUTES[route_filter].tag + "；卡名带 + 为升级版，点击卡牌可查看基础与升级效果。", 16))
- else: body.add_child(paragraph("所有路线共享的攻击、防御、过牌与补给。点击查看升级效果；图鉴不会直接授予卡牌。", 16))
+  var tab = ADVENTURE_UI.button(self, "通用 · %d" % Data.card_count("neutral") if id == "neutral" else Data.ROUTES[id].name + " · 10", func(): show_catalog(id), id == route_filter, Vector2(170, 48))
+  tab.name = "CatalogTab_" + id
+  tabs.add_child(tab)
+ spacer(tabs)
+ tabs.add_child(ADVENTURE_UI.badge(self, "共 %d 种卡牌" % Data.CARDS.size()))
+ content.add_child(tabs)
+ if route_filter != "neutral": content.add_child(ADVENTURE_UI.note(self, Data.ROUTES[route_filter].tag + "；卡名带 + 为升级版，点击可查看升级效果。", 16))
+ else: content.add_child(ADVENTURE_UI.note(self, "所有路线共享的攻击、防御、过牌与补给。点击查看升级效果；图鉴不会直接授予卡牌。", 16))
+ content.add_child(ADVENTURE_UI.divider(self))
  var scroll = ScrollContainer.new()
- scroll.custom_minimum_size.y = 590
+ scroll.name = "CatalogScroll"
+ scroll.custom_minimum_size.y = 470
  scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+ scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+ ADVENTURE_UI.scroll_skin(self, scroll)
  var grid = GridContainer.new()
  grid.columns = 4
  grid.add_theme_constant_override("h_separation", 14)
  grid.add_theme_constant_override("v_separation", 14)
- for id in Data.CARDS:
-  if Data.CARDS[id].route != route_filter: continue
-  var view = card_view(id, func(): show_catalog_card(id, route_filter))
-  view.custom_minimum_size = Vector2(275, 270)
+ for id in Data.sorted_card_ids(route_filter):
+  var view = ADVENTURE_UI.card(self, id, func(): show_catalog_card(id, route_filter), Vector2(273, 304))
+  view.name = "CatalogCard_" + id
   grid.add_child(view)
  scroll.add_child(grid)
- body.add_child(scroll)
+ content.add_child(scroll)
+ var footer = row()
+ footer.add_child(label("卡牌图鉴仅供查阅；不改变当前卡组。", 16, ADVENTURE_UI.PAPER))
+ spacer(footer)
+ footer.add_child(ADVENTURE_UI.button(self, "返回冒险", close_modal, false, Vector2(205, 52)))
+ body.add_child(footer)
 
 func show_catalog_card(id: String, route_filter: String) -> void:
- var body = open_modal("卡牌详情与升级", Vector2(850, 560))
+ var body = ADVENTURE_UI.begin(self, "卡牌详情与升级", Vector2(1000, 650))
+ var paper = ADVENTURE_UI.paper(self)
+ paper.size_flags_vertical = Control.SIZE_EXPAND_FILL
+ body.add_child(paper)
  var pair = row(22)
+ pair.alignment = BoxContainer.ALIGNMENT_CENTER
+ paper.add_child(pair)
  for version in [id, id + "+"]:
-  var view = card_view(version, func(): pass)
-  view.custom_minimum_size = Vector2(380, 330)
-  pair.add_child(view)
- body.add_child(pair)
- body.add_child(button("返回图鉴", func(): show_catalog(route_filter)))
+  var stack = column(10)
+  stack.add_child(ADVENTURE_UI.heading(self, "升级效果" if version.ends_with("+") else "基础效果", 21))
+  var view = ADVENTURE_UI.card(self, version, func(): pass, Vector2(385, 332))
+  stack.add_child(view)
+  pair.add_child(stack)
+ var actions = row()
+ spacer(actions)
+ actions.add_child(ADVENTURE_UI.button(self, "返回图鉴", func(): show_catalog(route_filter), false, Vector2(230, 60)))
+ body.add_child(actions)
 
 func build_ending() -> void:
  var win: bool = game.s.phase == "victory"
@@ -553,18 +600,40 @@ func show_deck(mode: String) -> void:
 func confirm_deck_change(index: int, mode: String) -> void:
  if mode != "upgrade": return
  var id: String = game.s.deck[index]
- var content = open_modal("确认升级", Vector2(730, 490))
- var cards = row(20)
- cards.add_child(card_view(id, func(): pass))
- cards.add_child(label("→", 30, GOLD))
- cards.add_child(card_view(id + "+", func(): pass))
- content.add_child(cards)
- content.add_child(button("确认锻造", func():
+ var content = ADVENTURE_UI.begin(self, "锻造确认", Vector2(1060, 686))
+ modal.name = "ForgeConfirmation"
+ var paper = ADVENTURE_UI.paper(self)
+ paper.size_flags_vertical = Control.SIZE_EXPAND_FILL
+ content.add_child(paper)
+ var inside = column(14)
+ paper.add_child(inside)
+ inside.add_child(ADVENTURE_UI.note(self, "本次锻造免费，确认后消耗本关营火机会。卡牌升级永久保留。", 17))
+ var cards = row(18)
+ cards.alignment = BoxContainer.ALIGNMENT_CENTER
+ for version in [id, id + "+"]:
+  if version.ends_with("+"):
+   var arrow = label("→", 38, ADVENTURE_UI.GOLD)
+   arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+   cards.add_child(arrow)
+  var stack = column(10)
+  stack.add_child(ADVENTURE_UI.heading(self, "锻造后" if version.ends_with("+") else "当前卡牌", 21))
+  stack.add_child(ADVENTURE_UI.card(self, version, func(): pass, Vector2(386, 323)))
+  cards.add_child(stack)
+ inside.add_child(cards)
+ var actions = row(18)
+ actions.alignment = BoxContainer.ALIGNMENT_CENTER
+ var cancel = ADVENTURE_UI.button(self, "返回选卡", func(): show_deck(mode), false, Vector2(280, 68))
+ cancel.name = "CancelForge"
+ actions.add_child(cancel)
+ var confirm = ADVENTURE_UI.button(self, "确认锻造", func():
   var success = game.upgrade_card(index)
   if success:
    message = "卡牌已升级。"
-   commit(), true))
- content.add_child(button("返回卡组", func(): show_deck(mode)))
+   commit(), true, Vector2(280, 68))
+ confirm.name = "ConfirmForge"
+ actions.add_child(confirm)
+ content.add_child(actions)
+ cancel.grab_focus.call_deferred()
 
 func show_card_info(id: String) -> void:
  var c = Data.card(id)
@@ -608,18 +677,12 @@ func show_stage(stage: int) -> void:
  content.add_child(paragraph("Boss 关：80 金币、恢复 15 生命、升级卡三选一和遗物三选一。第 12 关直接结算通关。" if stage % 3 == 0 else "普通关：30 金币、卡牌三选一，随后进入营火与商店。", 17))
 
 func show_help() -> void:
- var content = open_modal("玩法与状态说明", Vector2(1000, 730))
+ var content = ADVENTURE_UI.begin(self, "玩法与状态说明", Vector2(1220, 800), ADVENTURE_UI.BOOK_ICON)
  var text_value = "【新增效果】\n厚积薄发：消耗全部当前能量，下回合额外获得等量能量。冰冻：跳过下一次敌方行动（毒照常结算，行动顺序不前进）。金钟罩：抵挡一次正伤害，连续攻击只挡一段，可叠加次数，跨回合保留；升级后反弹所挡伤害的50%。碎甲击：移除护甲并造成等量伤害，不受力量或易伤加成。\n\n【冒险流程】\n从主界面选择新冒险或继续冒险，确认路线后进入关卡地图。继续冒险锁定存档路线和难度。四大场景共 12 关依次推进，每两场普通战斗后挑战 Boss（第 3 / 6 / 9 / 12 关）。生命跨关保留，护甲和战斗状态重置；每关结束可补给。\n\n【战斗】\n每回合通常有 3 能量。首回合抽5张，之后每回合抽2张，手牌上限10张。先点敌人选目标，再点击卡牌打出。数字 1–9、0 出牌，左右方向键切换目标，空格结束回合。未用的能量不保留，剩余手牌保留；满手牌时停止抽牌，未抽的牌留在牌库；抽牌堆耗尽时洗入弃牌堆。\n\n【护甲与伤害】\n护甲抵挡普通伤害，在你下回合开始时清空；「固守」本场每回合保留剩余护甲至上限，多张取最高上限。力量增加每段攻击伤害。毒素无视护甲，在该敌人行动前造成等于层数的伤害，再减少 1 层。\n\n【其他状态】\n虚弱：攻击伤害降低 30%。易伤：受到的普通伤害增加 30%。两者基础持续1回合，升级持续2回合；敌方阶段结束减少1回合，重复施加取较长剩余时间。反伤：每次受到攻击时反击，即使伤害被护甲完全抵挡。\n\n【成长与存档】\n能力牌与急救使用后本场移出，下场恢复；其他已打出的牌进入弃牌堆，可再次抽到。营火免费休息与升级二选一；商店独立开放。每次操作自动保存，退出窗口后可继续。开始新冒险会替换旧存档。"
  text_value += "\n\n【治疗与延迟效果】\n卸力、急救、全才可直接恢复生命；汲取仅恢复上一轮敌方攻击造成的未恢复伤势。棘甲反伤仅持续至下个玩家回合开始，其他反伤能力持续整场。厚积薄发、毒素回收提供下回合额外能量；催化翻倍最多新增12层，升级18层。"
  text_value += "\n\n【路线核心】\n蚀毒：叠毒侵蚀，或用毒爆消耗全部毒层，按倍率造成无视护甲的伤害（不受力量、易伤影响）。淬毒使每张攻击牌结算后向命中且存活的敌人施加等量毒素，多段只触发一次。毒素回收需要目标至少 4 层毒。\n铁壁：护甲转单体或全体伤害；也能叠反伤，使用反击风暴主动输出，保留反伤继续反击。\n狂刃：力量强化每段攻击。嗜血使下一回合所有对敌伤害附带75%吸血，按实际扣除的敌方生命逐段向下取整治疗；持续至再下一回合开始，包含毒素和反伤。怒吼下回合增加6（升级9）临时力量，仅持续该回合。暴力执法生效后，生命严格低于30%（升级45%）时，每段对敌伤害有50%（升级60%）几率翻倍；治疗使生命回到门槛以上后立即停止暴击。顺劈斩每段重新随机选择存活敌人。这些状态下场清空。\n\n【卡组管理】\n出战卡组 15–30 张，备用卡库不参与抽牌。战斗外打开右上角设置菜单中的卡组，可把卡牌拖到另一侧，或点击后选择移入。出战满 30 张时，新获得的卡自动进入备用卡库并打开管理界面；先拖出旧卡，再拖入新卡。换牌免费，卡牌不会被删除。图鉴可查看全部 47 种牌和升级版。"
- var scroll = ScrollContainer.new()
- scroll.custom_minimum_size.y = 590
- scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
- scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
  text_value = "【难度】\n轻松：显示下次攻击的单段伤害、连击次数和总伤害，也预告防御与蓄力。预告计入敌人的力量和虚弱，实际生命损失还会受到你的护甲影响。\n标准：隐藏所有行动预告，保留基础数值。\n勇者：隐藏预告；敌人生命 +35%，攻击、防御、蓄力 +25%，向上取整。行动模式和连击次数不变。\n轻松、标准、勇者战败后均可重新开始本小关。传奇沿用勇者数值，但战败不能重试，只能从头开始。\n难度在新冒险开始前选择，本局固定；旧版存档按轻松难度继续，已发生的行动仍显示在战斗记录中。\n\n" + text_value
- var text_label = paragraph(text_value, 18, TEXT)
- scroll.add_child(text_label)
- content.add_child(scroll)
+ ADVENTURE_UI.help_layout(self, content, text_value)
 
 func _input(event: InputEvent) -> void:
  if screen != "title": return
