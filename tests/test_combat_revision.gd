@@ -88,19 +88,17 @@ func test_strength() -> void:
  var g = fresh()
  g.s.strength = 2
  play(g, "warcry")
- check(g.s.strength == 2 and g.s.next_strength == 6 and g.s.block == 0, "warcry queues strength without armor or immediate buff")
- g.end_turn()
- check(g.s.strength == 8 and g.s.temporary_strength == 6, "warcry grants temporary strength next turn")
+ check(g.s.strength == 8 and g.s.next_strength == 0 and g.s.turn_strength == 6 and g.s.block == 0, "warcry grants six strength immediately")
  play(g, "rage")
  g.end_turn()
- check(g.s.strength == 4 and g.s.temporary_strength == 0, "expires without removing permanent strength gained during buff")
+ check(g.s.strength == 4 and g.s.turn_strength == 0, "expires at end of turn without removing permanent strength")
  play(g, "warcry+")
  play(g, "warcry")
+ check(g.s.strength == 19 and g.s.turn_strength == 15, "warcries stack immediately; upgrade adds nine")
  g.end_turn()
- check(g.s.strength == 19 and g.s.temporary_strength == 15, "queued warcries stack; upgrade adds nine")
+ check(g.s.strength == 4 and g.s.turn_strength == 0, "all current-turn warcry strength expires")
  play(g, "warcry")
- g.end_turn()
- check(g.s.strength == 10 and g.s.temporary_strength == 6, "consecutive queued rounds replace expiring portion")
+ check(g.s.strength == 10 and g.s.turn_strength == 6, "next current-turn warcry starts a fresh temporary buff")
  g.end_turn()
  check(g.s.strength == 4, "last temporary strength expires")
 
@@ -113,11 +111,11 @@ func test_critical() -> void:
  play(g, "rage_slash")
  check(g.s.low_hp_crit == 60, "critical rates take maximum rather than stack")
  g.s.low_hp_crit = 100
- g.s.hp = 36
+ g.s.hp = 40
  var rng_before: int = g.rng.state
  g.hit_enemy(0, 8)
- check(g.s.enemies[0].hp == 992 and g.rng.state == rng_before, "exactly forty-five percent does not crit or consume RNG")
- g.s.hp = 35
+ check(g.s.enemies[0].hp == 992 and g.rng.state == rng_before, "exactly fifty percent does not crit or consume RNG")
+ g.s.hp = 39
  g.hit_enemy(0, 8, true)
  check(g.s.enemies[0].hp == 976, "direct damage can crit below strict health threshold")
  g.s.enemies[0].block = 10
@@ -129,7 +127,7 @@ func test_critical() -> void:
  g.s.lifesteal = 75
  g.hit_enemy(0, 8)
  g.hit_enemy(0, 8)
- check(g.s.hp == 34 and g.s.enemies[0].hp == 968, "both hits crit while below thirty percent before each hit")
+ check(g.s.hp == 34 and g.s.enemies[0].hp == 968, "both hits crit while below thirty-five percent before each hit")
  for chance in [50, 60]:
   g = fresh()
   g.s.hp = 19

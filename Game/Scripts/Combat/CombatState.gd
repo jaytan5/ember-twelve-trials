@@ -57,9 +57,11 @@ func start_battle() -> void:
  s.lifesteal = 0
  s.next_lifesteal = 0
  s.low_hp_crit = 0
- s.low_hp_crit_threshold = 30
+ s.low_hp_crit_threshold = 35
  s.next_strength = 0
  s.temporary_strength = 0
+ s.turn_strength = 0
+ s.bombs = []
  s.coating = 0
  s.next_block = 0
  s.next_draw = 0
@@ -152,12 +154,13 @@ func living() -> Array:
   if s.enemies[i].hp > 0: result.append(i)
  return result
 
-func hit_enemy(index: int, amount: int, direct: bool = false) -> void:
+func hit_enemy(index: int, amount: int, direct: bool = false, attack: bool = false) -> void:
  var e: Dictionary = s.enemies[index]
  if e.hp <= 0: return
  var before: int = e.hp
  var damage = maxi(0, amount)
- if damage > 0 and s.low_hp_crit > 0 and s.hp * 100 < s.max_hp * s.low_hp_crit_threshold and rng.randf() < s.low_hp_crit / 100.0:
+ var crit_chance = attack_crit_chance(index, attack)
+ if damage > 0 and crit_chance > 0 and rng.randf() < crit_chance / 100.0:
   damage *= 2
   note("暴击！伤害翻倍。")
  if not direct and e.vulnerable > 0: damage = int(ceil(damage * 1.3))
@@ -175,6 +178,12 @@ func hit_enemy(index: int, amount: int, direct: bool = false) -> void:
   if restored > 0: note("吸血恢复 %d 生命。" % restored)
  if e.hp <= 0: note("击败 %s！" % e.name)
 
+func attack_crit_chance(index: int, attack: bool = true) -> int:
+ var chance = s.low_hp_crit if s.hp * 100 < s.max_hp * s.low_hp_crit_threshold else 0
+ var enemy: Dictionary = s.enemies[index]
+ if attack and enemy.get("mark_turns", 0) > 0: chance += int(enemy.get("mark_crit", 0))
+ return clampi(chance, 0, 100)
+
 func poison_enemy(index: int, amount: int) -> void:
  if s.enemies[index].hp <= 0: return
  if s.first_poison and relic_bonus("first_poison") > 0:
@@ -189,6 +198,8 @@ func can_play(index: int) -> bool:
  if c.has("poison_cost"):
   if s.target < 0 or s.target >= s.enemies.size(): return false
   if s.enemies[s.target].hp <= 0 or s.enemies[s.target].poison < c.poison_cost: return false
+ if c.get("requires_poison", false):
+  if s.target < 0 or s.target >= s.enemies.size() or s.enemies[s.target].hp <= 0 or s.enemies[s.target].poison <= 0: return false
  return not living().is_empty()
 
 func play(index: int) -> bool:
@@ -230,6 +241,7 @@ func encounter_for(stage: int) -> Array:
  return enemies
 
 func visible_intent_text(e: Dictionary) -> String:
+ if e.get("stunned", 0) > 0: return "眩晕 · 本次无法行动"
  if e.get("frozen", 0) > 0: return "冰冻 · 本次无法行动"
  return intent_text(e) if shows_intents() else "行动未知"
 
@@ -243,6 +255,22 @@ func intent_text(e: Dictionary) -> String:
   _: return "蓄力 +%d 力量" % intent.amount
 
 func end_turn() -> void:
+ if s.phase != "battle": return
+ # Timers fire at the end of the following player turn, before any enemy acts.
+ var pending: Array = []
+ for bomb in s.bombs:
+  if bomb.turn > s.turn:
+   pending.append(bomb)
+   continue
+  var targets = living()
+  if targets.is_empty(): break
+  var target: int = bomb.target if bomb.target in targets else targets[0]
+  note("发条炸弹爆炸，对 %s 造成 %d 点基础伤害。" % [s.enemies[target].name, bomb.damage])
+  hit_enemy(target, bomb.damage)
+ s.bombs = pending
+ s.strength -= s.turn_strength
+ s.turn_strength = 0
+ check_outcome()
  if s.phase != "battle": return
  s.recoverable_hp = 0
   # Unplayed cards remain in hand across turns.

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "hunt_mark"
+title = "猎杀标记"
+kind = "技能"
+route = "fury"
+cost = 1
+target = true
+exhaust = false
+effects = {"mark_crit":20,"mark_turns":2}
+upgrade = {"mark_crit":30}

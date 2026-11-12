@@ -11,5 +11,5 @@ route = "fury"
 cost = 1
 target = false
 exhaust = false
-effects = {"next_strength": 6}
-upgrade = {"next_strength": 9}
+effects = {"turn_strength": 6}
+upgrade = {"turn_strength": 9}

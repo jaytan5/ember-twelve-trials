@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "poison_trigger"
+title = "毒性发作"
+kind = "技能"
+route = "venom"
+cost = 1
+target = true
+exhaust = false
+effects = {"trigger_poison":true,"requires_poison":true}
+upgrade = {"preserve_poison":true}

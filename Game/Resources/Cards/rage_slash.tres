@@ -11,5 +11,5 @@ route = "fury"
 cost = 2
 target = false
 exhaust = true
-effects = {"low_hp_crit": 50, "low_hp_crit_threshold": 30}
-upgrade = {"low_hp_crit": 60, "low_hp_crit_threshold": 45}
+effects = {"low_hp_crit": 50, "low_hp_crit_threshold": 35}
+upgrade = {"low_hp_crit": 60, "low_hp_crit_threshold": 50}

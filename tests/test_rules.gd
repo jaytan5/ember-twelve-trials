@@ -276,6 +276,7 @@ func score_card(g, c: Dictionary) -> float:
  if c.has("coating"): score += c.coating * 8
  if c.has("next_lifesteal"): score += 8 if g.s.hp < g.s.max_hp * 0.7 else 1
  if c.has("next_strength"): score += c.next_strength * 3
+ if c.has("turn_strength"): score += c.turn_strength * 3
  if c.has("low_hp_crit"): score += 8 if g.s.low_hp_crit < c.low_hp_crit else -100
  if c.has("random_damage"): score += (c.random_damage + g.s.strength) * c.hits
  if c.has("lost_hp_damage"): score += (g.s.max_hp - g.s.hp) * c.lost_hp_damage / 100.0 + g.s.strength
@@ -302,7 +303,7 @@ func test_expanded_cards() -> void:
    probe.s.enemies[0].poison = 10
    probe.s.thorns = 4
    check(probe.play(0), "all card variants execute: " + id + suffix)
- check(counts == {"neutral":17, "venom":10, "bastion":10, "fury":10}, "exact 17/10/10/10 card counts")
+ check(counts == {"neutral":20, "venom":12, "bastion":12, "fury":12}, "exact 20/12/12/12 card counts")
  var g = durable_run()
  g.s.hand = ["detonate"]
  g.s.enemies[0].poison = 7
@@ -342,7 +343,7 @@ func test_expanded_cards() -> void:
  g = durable_run("fury")
  g.s.hand = ["battle_trance", "warcry", "rage_slash"]
  for _i in range(3): g.play(0)
- check(g.s.next_lifesteal == 75 and g.s.next_strength == 6 and g.s.low_hp_crit == 50, "new route abilities queue and activate")
+ check(g.s.next_lifesteal == 75 and g.s.turn_strength == 6 and g.s.next_strength == 0 and g.s.low_hp_crit == 50, "route abilities queue lifesteal and grant current-turn strength")
  g.start_battle()
  check(g.s.lifesteal == 0 and g.s.next_lifesteal == 0 and g.s.low_hp_crit == 0 and g.s.next_strength == 0, "route statuses reset between encounters")
  g = durable_run()
@@ -650,7 +651,16 @@ func test_revision_rules() -> void:
  g.s.hand = ["stockpile"]
  check(g.play(0) and g.s.next_energy == 0 and g.s.energy == 0, "X zero allowed without free base energy")
  g.s.hand = ["stockpile+"]
- check(g.play(0) and g.s.next_energy == 1, "upgraded X grants its documented extra one")
+ check(g.play(0) and g.s.next_energy == 0 and g.s.energy == 1, "upgraded X zero returns one immediately without next-turn bonus")
+ g.s.energy = 4
+ g.s.hand = ["stockpile+"]
+ check(g.play(0) and g.s.next_energy == 4 and g.s.energy == 1, "upgraded X stores original energy and immediately returns one")
+ g.s.hand = ["guard"]
+ check(g.play(0) and g.s.energy == 0, "returned energy is spendable during the casting turn")
+ g.end_turn()
+ check(g.s.energy == 7 and g.s.next_energy == 0, "upgraded X grants only stored X next turn")
+ g.end_turn()
+ check(g.s.energy == 3, "upgraded stored energy does not repeat")
  g = durable_run("fury")
  g.s.hand = ["blizzard", "blizzard"]
  g.s.enemies[0].poison = 3

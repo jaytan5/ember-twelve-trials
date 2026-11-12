@@ -76,7 +76,7 @@ func test_durations() -> void:
 func test_thresholds() -> void:
  for suffix in ["", "+"]:
   var g = fresh()
-  var threshold = 30 if suffix == "" else 45
+  var threshold = 35 if suffix == "" else 50
   play(g, "rage_slash" + suffix)
   check(g.s.low_hp_crit_threshold == threshold, "ability stores threshold " + suffix)
   g.s.low_hp_crit = 100
@@ -132,8 +132,18 @@ func test_supply_and_migration() -> void:
  g.s.battle_checkpoint.state.version = 7
  g.s.battle_checkpoint.state.potions = 3
  g.save_run(path)
- check(copy.load_run(path) and copy.s.version == 8 and copy.s.potions == 2 and copy.s.low_hp_crit_threshold == 45, "legacy save caps potions and migrates active upgraded ability")
+ check(copy.load_run(path) and copy.s.version == 8 and copy.s.potions == 2 and copy.s.low_hp_crit_threshold == 50, "legacy save caps potions and migrates active upgraded ability")
  check(copy.s.enemies[0].vulnerable == 1 and copy.s.barrier_reflects == [0], "legacy indefinite status becomes one round and old barrier remains nonreflecting")
  copy.s.phase = "defeat"
  check(copy.retry_battle() and copy.s.potions == 2, "legacy checkpoint cannot restore third potion")
+ for old_threshold in [30, 45]:
+  g = fresh()
+  g.s.low_hp_crit_threshold = old_threshold
+  g.s.battle_checkpoint.state.low_hp_crit_threshold = old_threshold
+  g.save_run(path)
+  var threshold = 35 if old_threshold == 30 else 50
+  check(copy.load_run(path) and copy.s.low_hp_crit_threshold == threshold, "existing v8 active threshold migrates " + str(old_threshold))
+  check(copy.s.battle_checkpoint.state.low_hp_crit_threshold == threshold, "stored checkpoint receives updated threshold " + str(old_threshold))
+  copy.s.phase = "defeat"
+  check(copy.retry_battle() and copy.s.low_hp_crit == 0 and copy.s.low_hp_crit_threshold == 35, "retry starts fresh without a previously activated ability " + str(old_threshold))
  DirAccess.remove_absolute(ProjectSettings.globalize_path(path))

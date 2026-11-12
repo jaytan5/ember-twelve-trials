@@ -30,7 +30,7 @@ func enemy_view(ui: Control, index: int) -> Button:
  content.mouse_filter = Control.MOUSE_FILTER_IGNORE
  inset.add_child(content)
  var intent_color = ui.MUTED
- if alive and e.get("frozen", 0) > 0: intent_color = Color("8edcf2")
+ if alive and (e.get("frozen", 0) > 0 or e.get("stunned", 0) > 0): intent_color = Color("8edcf2")
  elif alive and ui.game.shows_intents(): intent_color = ui.RED if ui.game.intent_for(e).type == "attack" else ui.GOLD
  var intent = ui.label(ui.game.visible_intent_text(e) if alive else "已击败", 19, intent_color)
  intent.name = "EnemyIntent" + str(index)
@@ -51,6 +51,8 @@ func enemy_view(ui: Control, index: int) -> Button:
  content.add_child(health)
  var statuses: Array[String] = []
  if e.get("frozen", 0) > 0: statuses.append("冰冻 %d" % e.frozen)
+ if e.get("stunned", 0) > 0: statuses.append("眩晕 %d" % e.stunned)
+ if e.get("mark_turns", 0) > 0: statuses.append("标记：攻击暴击 +%d%% · %d 回合" % [e.mark_crit, e.mark_turns])
  if e.block > 0: statuses.append("护甲 %d" % e.block)
  if e.poison > 0: statuses.append("毒 %d" % e.poison)
  if e.weak > 0: statuses.append("虚弱 -30%% · %d 回合" % e.weak)

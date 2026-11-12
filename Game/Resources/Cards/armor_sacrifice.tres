@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "armor_sacrifice"
+title = "卸甲重击"
+kind = "攻击"
+route = "bastion"
+cost = 2
+target = true
+exhaust = false
+effects = {"consume_block_damage":200}
+upgrade = {"consume_block_damage":250}

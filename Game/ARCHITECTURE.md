@@ -6,6 +6,8 @@
 | Scenes/Battle/BattleAnimator.gd | 依次播放受击震动、护盾/治疗闪光和血条插值；GameShell在隔离副本上生成事件，播放完成后才提交状态、随机数状态与存档 |
 | Scenes/Card/CardNameButton.gd | 卡组管理的卡名按钮，原生鼠标悬停弹出完整卡牌；沿用独立副本的拖动与升级信息 |
 | Scenes/MainMenu/HomeView.gd | 开场 Logo、开始界面菜单和无声 OGV 循环背景；背景播放器跨界面重绘保留，由 GameShell 按 title/home 状态启停 |
+| Scenes/Map/AdventureMapScreen.gd、MapArtButton.gd | 独立 1600×900 地图美术画布、12 关浏览热区、主角与光圈、真实血量、固定轮廓的透明图像按钮；MapView 负责实例化 |
+| Assets/UI/AdventureMap/定稿_v1 | v4 审核素材的工程内版本，第二章含字名牌更正为街口集市；背景含底座、数字、皇冠与路线，外部投影按独立 JSON 坐标放置 |
 | Scripts/Combat/CombatState.gd | 对局生命周期、玩家伤害、回合、关卡转换 |
 | Scripts/CardSystem/CardEffects.gd | 卡牌结算，支持普通费用与X费用 |
 | Scripts/CardSystem/DeckSystem.gd | 洗牌、抽牌、手牌上限 |
@@ -26,6 +28,8 @@
 
 ## 自定义Resource
 
+冒险地图中 `selected_stage` 仅属于视图，不写入对局状态；所有 01–12 可点击查看，`GameShell.enter_map_stage` 仍只允许当前 `s.stage`，入口不重建战斗。右下文案随 battle/reward/relic/camp/结束阶段变化，返回主页调用原有存档逻辑。头像圆形裁剪、血条按真实生命裁切，UI 与地图统一等比缩放。`tests/test_adventure_map_art.gd` 覆盖真实点击、全部节点、进度/随机数保持、弹窗阻挡及窗口缩放；美术来源和提示词在工程根 `美术接入记录/冒险地图/`。
+
 Godot“新建资源”可选择 CardData、EnemyData、BossData、LevelData、RelicData、RewardData、GameConfig。
 CardData的effects保存效果参数，upgrade保存升级覆盖值；不会修改共享资源以记录战斗状态。
 BossData继承EnemyData，LevelData直接引用其敌人资源。
@@ -38,11 +42,11 @@ BossData继承EnemyData，LevelData直接引用其敌人资源。
 
 ## 新效果参数
 
-heal：直接回血；armor_damage：移除护甲后伤害倍率；store_energy：X能量转下回合；stored_bonus：升级额外能量；freeze_all：冻结下一次敌方行动；barrier：抵挡次数；exhaust：使用后本场移出。
+heal：直接回血；armor_damage：移除护甲后伤害倍率；store_energy：X能量转下回合；energy：本回合立即获得能量（厚积薄发升级为1）；freeze_all：冻结下一次敌方行动；barrier：抵挡次数；exhaust：使用后本场移出。
 
 金钟罩先于护甲抵挡正伤害，包括自伤；重复使用增加次数。`barrier_reflects` 按施放顺序记录各次护罩的反弹比例，升级为50%，反弹给传入 `take_player_damage` 的实际攻击者，自伤不反弹。冻结不累加，毒素仍按回合结算。全才伤害在本牌增加力量之前结算。
 
-`weak`、`vulnerable` 记录剩余回合，基础1、升级2，敌方阶段结束统一递减，防御、蓄力与冰冻均计时；重复施加取较长剩余时间。`low_hp_crit_threshold` 记录暴力执法的30%／45%生命门槛，每段重新判断。`self_damage_unless_kill` 在破阵攻击结算后检查目标，存活才扣10生命。药水规则上限2瓶，永久删牌接口与商店入口已移除。
+`weak`、`vulnerable` 记录剩余回合，基础1、升级2，敌方阶段结束统一递减，防御、蓄力与冰冻均计时；重复施加取较长剩余时间。`low_hp_crit_threshold` 记录暴力执法的35%／50%生命门槛，每段重新判断。`self_damage_unless_kill` 在破阵攻击结算后检查目标，存活才扣10生命。药水规则上限2瓶，永久删牌接口与商店入口已移除。
 
 ## 导航与显示
 
@@ -69,3 +73,19 @@ GameShell 的 screen 状态分别为 title（启动时的纯背景、Logo 与开
 MainMenuView 只实例化 Components/TalentScreen.tscn。该场景组合静态背景/标题与九个独立 TextureButton；RouteCard、DifficultyButton 采用同一 ArtButton 状态实现，SelectionOutline 提供扩展到控件外的柔和阴影、呼吸光圈与流动边缘亮光。卡牌与难度各自使用独立 Premium Stylized 3D 素材，文字由引擎单独排版。按钮在选择时原地更新，不改写对局数据。新冒险和存档确认仍调用 GameShell 的原有服务。
 
 资源与导出说明见 Assets/UI/TalentSelection/README.md。主页 HomeView 与 HomeMenuButton 已恢复本次修改前内容；新样式仅用于天赋页。
+
+2026-11-12：暴力执法门槛更新为35%／50%，加载时同步迁移原30%／45%的主状态与重试快照。厚积薄发升级在扣除全部能量并记录X后，本回合立即通过energy获得1点；下回合仅发放X，不包含这1点。
+
+## 2026-11-12 卡牌扩充
+
+新增9个独立Resource，当前为通用20张、三路线各12张，总计56张。奖励与商店自动收录，图鉴数量动态读取。
+
+`stun`控制单体跳过行动；`mark_crit/mark_turns`为敌方标记，只有攻击牌通过hit_enemy的attack参数享受加成；与低血暴击相加后统一掷一次。EnemySystem在敌方阶段结束递减标记。
+
+`autoplay`通过CardEffects.resolve_card共用出牌流程；整批预取，不占手牌位，免费结算、正常计数和移出。单次手动出牌共用64次自动结算预算，胜负后剩余预取牌回弃牌堆。自动X牌读取当前能量但不扣费。
+
+`bomb_damage`写入状态bombs队列，记录目标、到期回合和伤害；CombatState.end_turn在敌方行动前结算，随后检查胜负。目标死亡自动转向首个存活目标。
+
+怒吼的`turn_strength`立即增加力量，本玩家回合结束移除；`lost_hp_next_strength`在出牌时计算失血百分比并加入next_strength，沿用下一回合临时力量机制。存档v8增加可选字段，主状态与重试快照加载时补齐，不追溯改写旧存档已经排定的next_strength。
+
+铁壁：consume_block_damage先消耗护甲，thorns_attack读取永久与临时反伤；蚀毒：trigger_poison立即结算毒伤，preserve_poison控制是否减层，poison_damage_cap限定毒层对普通攻击的加成。

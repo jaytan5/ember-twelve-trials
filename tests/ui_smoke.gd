@@ -15,7 +15,7 @@ func capture(name_value: String) -> void:
  if DisplayServer.get_name() != "headless":
   await RenderingServer.frame_post_draw
   root.get_texture().get_image().save_png("res://test-results/" + name_value + ".png")
- check_bounds(ui.layout if is_instance_valid(ui.layout) else ui.find_child("HomeScreen" if ui.screen == "home" else "TalentScreen", true, false))
+ check_bounds(ui.layout if is_instance_valid(ui.layout) else ui.find_child("AdventureMapScreen" if ui.screen == "map" else ("HomeScreen" if ui.screen == "home" else "TalentScreen"), true, false))
  if is_instance_valid(ui.modal): check_bounds(ui.modal)
  print("UI SCREEN: ", name_value)
 
@@ -225,13 +225,14 @@ func test_navigation() -> void:
  await capture("navigation-map")
  expect(ui.find_child("ChapterMap", true, false).get_child_count() == 4, "map has four chapter areas")
  for stage in range(1, 13):
-  expect(ui.find_child("MapStage_%d" % stage, true, false).disabled == (stage != 1), "only current map stage available: %d" % stage)
+  expect(not ui.find_child("MapStage_%d" % stage, true, false).disabled, "all map stages can be browsed: %d" % stage)
  var before = ui.game.s.duplicate(true)
  await press_key(KEY_SPACE)
  await press_key(KEY_1)
  ui.enter_map_stage(2)
  expect(ui.screen == "map" and ui.game.s == before, "map blocks combat hotkeys and future-stage access")
  await click_node(ui.find_child("MapStage_1", true, false))
+ await click_node(ui.find_child("MapEnterButton", true, false))
  expect(ui.screen == "run" and ui.game.s == before, "map entry preserves prepared battle")
  await capture("navigation-battle")
  var hero: Rect2 = ui.find_child("HeroPanel", true, false).get_global_rect()
@@ -247,6 +248,7 @@ func test_navigation() -> void:
  expect(ui.game.s == before, "settings menu pauses combat input")
  await click_node(ui.find_child("Menu_关卡地图", true, false))
  await click_node(ui.find_child("MapStage_1", true, false))
+ await click_node(ui.find_child("MapEnterButton", true, false))
  expect(ui.game.s == before, "battle-map-battle keeps hand enemies hp and turn")
  await click_node(ui.find_child("DrawPile", true, false))
  expect(is_instance_valid(ui.modal), "vertical draw pile button opens pile")
@@ -263,6 +265,7 @@ func test_navigation() -> void:
  await click_node(ui.find_child("ConfirmRoute", true, false))
  expect(ui.screen == "map" and ui.game.s == before, "continue preserves entire saved state")
  await click_node(ui.find_child("MapStage_1", true, false))
+ await click_node(ui.find_child("MapEnterButton", true, false))
  for enemy in ui.game.s.enemies: enemy.hp = 0
  ui.game.check_outcome()
  ui.commit()
@@ -274,7 +277,10 @@ func test_navigation() -> void:
  ui.advance()
  await settle()
  expect(ui.screen == "map" and ui.game.s.stage == 2 and ui.game.s.phase == "battle", "after camp next stage opens on map")
- expect(ui.find_child("MapStage_1", true, false).disabled and not ui.find_child("MapStage_2", true, false).disabled, "completed stage locked and next stage unlocked")
+ await click_node(ui.find_child("MapStage_1", true, false))
+ expect(ui.find_child("MapEnterButton", true, false).disabled, "completed stage can be browsed but not replayed")
+ await click_node(ui.find_child("MapStage_2", true, false))
+ expect(not ui.find_child("MapEnterButton", true, false).disabled, "next stage unlocked")
  await capture("navigation-map-progress")
  ui.enter_map_stage(2)
  ui.game.s.hand = ["guard", "guard", "guard", "guard", "guard", "guard", "guard", "guard", "guard", "guard"]

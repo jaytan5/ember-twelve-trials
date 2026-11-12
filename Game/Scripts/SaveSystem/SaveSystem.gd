@@ -72,6 +72,11 @@ func load_run(path: String = "user://run_save.json") -> bool:
  return true
 
 func migrate_balance_state(state: Dictionary) -> void:
+ if not state.has("turn_strength"): state.turn_strength = 0
+ if not state.has("bombs"): state.bombs = []
+ for enemy in state.get("enemies", []):
+  for status in ["stunned", "mark_crit", "mark_turns"]:
+   if not enemy.has(status): enemy[status] = 0
  if not state.has("fate_triggers"):
   state.fate_triggers = 1 if state.get("fate_triggered", false) else 0
  state.erase("fate_triggered")
@@ -105,8 +110,11 @@ func migrate_balance_state(state: Dictionary) -> void:
    if zone == "shop_cards": state.shop_sold = sold
  state.potions = clampi(int(state.get("potions", 0)), 0, 2)
  state.erase("shop_removed")
- if not state.has("low_hp_crit_threshold"):
-  state.low_hp_crit_threshold = 45 if state.get("low_hp_crit", 0) >= 60 else 30
+ var old_threshold = int(state.get("low_hp_crit_threshold", 0))
+ if old_threshold in [30, 45]:
+  state.low_hp_crit_threshold = 50 if old_threshold == 45 else 35
+ elif old_threshold == 0:
+  state.low_hp_crit_threshold = 50 if state.get("low_hp_crit", 0) >= 60 else 35
  if not state.has("barrier_reflects"): state.barrier_reflects = []
  var charges = maxi(0, int(state.get("barrier", 0)))
  while state.barrier_reflects.size() < charges: state.barrier_reflects.append(0)

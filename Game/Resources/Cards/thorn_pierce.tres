@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "thorn_pierce"
+title = "荆棘穿刺"
+kind = "攻击"
+route = "bastion"
+cost = 1
+target = true
+exhaust = false
+effects = {"damage":4,"thorns_attack":2}
+upgrade = {"damage":6,"thorns_attack":3}

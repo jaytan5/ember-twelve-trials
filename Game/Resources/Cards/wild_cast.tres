@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "wild_cast"
+title = "灵感迸发"
+kind = "技能"
+route = "neutral"
+cost = 3
+target = false
+exhaust = false
+effects = {"autoplay":3}
+upgrade = {"autoplay":4}

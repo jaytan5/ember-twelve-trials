@@ -10,9 +10,11 @@ static func resolve_turn(run) -> void:
    run.hit_enemy(i, e.poison, true)
    e.poison = maxi(0, e.poison - 1)
   if e.hp <= 0: continue
-  if e.get("frozen", 0) > 0:
-   e.frozen -= 1
-   run.note("%s 被冰冻，跳过本次行动。" % e.name)
+  if e.get("frozen", 0) > 0 or e.get("stunned", 0) > 0:
+   var reason = "眩晕" if e.get("stunned", 0) > 0 else "冰冻"
+   e.frozen = maxi(0, e.get("frozen", 0) - 1)
+   e.stunned = maxi(0, e.get("stunned", 0) - 1)
+   run.note("%s 被%s，跳过本次行动。" % [e.name, reason])
    continue
   var intent = run.intent_for(e)
   match intent.type:
@@ -40,3 +42,5 @@ static func resolve_turn(run) -> void:
  for enemy in run.s.enemies:
   enemy.weak = maxi(0, enemy.weak - 1)
   enemy.vulnerable = maxi(0, enemy.vulnerable - 1)
+  enemy.mark_turns = maxi(0, int(enemy.get("mark_turns", 0)) - 1)
+  if enemy.mark_turns == 0: enemy.mark_crit = 0

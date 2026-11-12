@@ -6,6 +6,6 @@
 [resource]
 script = ExtResource("1")
 number = 7
-title = "血砂营地"
-chapter = "血砂荒原"
+title = "英雄展厅"
+chapter = "飞机展馆"
 enemies = Array[Resource]([ExtResource("e0")])

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Scripts/CardSystem/CardData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "desperate_strength"
+title = "背水之力"
+kind = "技能"
+route = "fury"
+cost = 1
+target = false
+exhaust = false
+effects = {"lost_hp_next_strength":15}
+upgrade = {"lost_hp_next_strength":20}

@@ -1,0 +1,3626 @@
+{
+  "1": {
+    "图层": [
+      [
+        "bg",
+        "01 背景、关卡底座、数字与路线"
+      ],
+      [
+        "shadow",
+        "02 UI独立外部投影"
+      ],
+      [
+        "glow",
+        "03 脚下圆盘光圈"
+      ],
+      [
+        "pictures",
+        "04 头像与地区缩略图"
+      ],
+      [
+        "frames",
+        "05 主标题、属性牌与地区名牌"
+      ],
+      [
+        "buttons",
+        "06 返回、设置、进入按钮"
+      ],
+      [
+        "text",
+        "07 动态血量与关卡文字"
+      ],
+      [
+        "hero",
+        "08 站立主角"
+      ]
+    ],
+    "元素": [
+      {
+        "type": "image",
+        "layer": "bg",
+        "file": "透明素材/背景_含原版风格关卡与数字.png",
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 1,
+        "x": 230,
+        "y": 804,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 2,
+        "x": 426,
+        "y": 791,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 3,
+        "x": 507,
+        "y": 684,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 4,
+        "x": 708,
+        "y": 681,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 5,
+        "x": 1003,
+        "y": 698,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 6,
+        "x": 806,
+        "y": 517,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 7,
+        "x": 619,
+        "y": 385,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 8,
+        "x": 724,
+        "y": 307,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 9,
+        "x": 1074,
+        "y": 345,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 10,
+        "x": 1294,
+        "y": 405,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 11,
+        "x": 1483,
+        "y": 362,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 12,
+        "x": 1436,
+        "y": 294,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/主标题_冒险地图_厚木含字.png",
+        "x": 122,
+        "y": 0,
+        "w": 340,
+        "h": 112
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/人物属性牌_木金底框.png",
+        "x": 20,
+        "y": 108,
+        "w": 335,
+        "h": 120
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "52/52",
+        "x": 180,
+        "y": 136.33333333333334,
+        "w": 135,
+        "h": 28,
+        "size": 32,
+        "style": "hudValue"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤泉村落_含字.png",
+        "x": 60,
+        "y": 461,
+        "w": 300,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_集市市场_含字.png",
+        "x": 447,
+        "y": 407,
+        "w": 299,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_飞机展馆_含字.png",
+        "x": 506,
+        "y": 99,
+        "w": 290,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤山洞穴_含字.png",
+        "x": 1144,
+        "y": 97,
+        "w": 293,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/关卡卡片_镂空木金框.png",
+        "x": 1095,
+        "y": 503,
+        "w": 490,
+        "h": 383
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "01 汤泉村落",
+        "x": 1147,
+        "y": 553,
+        "w": 386,
+        "h": 55,
+        "size": 37,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/按钮_进入关卡_无字.png",
+        "x": 1174,
+        "y": 775,
+        "w": 332,
+        "h": 80,
+        "title": "进入关卡"
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "进入关卡",
+        "x": 1190,
+        "y": 788,
+        "w": 300,
+        "h": 47,
+        "size": 43,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/返回_含箭头.png",
+        "x": 20,
+        "y": 15,
+        "w": 99,
+        "h": 85,
+        "title": "返回"
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/设置_含齿轮.png",
+        "x": 1497,
+        "y": 12,
+        "w": 89,
+        "h": 89,
+        "title": "设置"
+      },
+      {
+        "type": "image",
+        "layer": "hero",
+        "file": "透明素材/主角_站立_无投影.png",
+        "x": 193.28,
+        "y": 644,
+        "w": 73.44,
+        "h": 144
+      }
+    ]
+  },
+  "2": {
+    "图层": [
+      [
+        "bg",
+        "01 背景、关卡底座、数字与路线"
+      ],
+      [
+        "shadow",
+        "02 UI独立外部投影"
+      ],
+      [
+        "glow",
+        "03 脚下圆盘光圈"
+      ],
+      [
+        "pictures",
+        "04 头像与地区缩略图"
+      ],
+      [
+        "frames",
+        "05 主标题、属性牌与地区名牌"
+      ],
+      [
+        "buttons",
+        "06 返回、设置、进入按钮"
+      ],
+      [
+        "text",
+        "07 动态血量与关卡文字"
+      ],
+      [
+        "hero",
+        "08 站立主角"
+      ]
+    ],
+    "元素": [
+      {
+        "type": "image",
+        "layer": "bg",
+        "file": "透明素材/背景_含原版风格关卡与数字.png",
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 1,
+        "x": 230,
+        "y": 804,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 2,
+        "x": 426,
+        "y": 791,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 3,
+        "x": 507,
+        "y": 684,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 4,
+        "x": 708,
+        "y": 681,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 5,
+        "x": 1003,
+        "y": 698,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 6,
+        "x": 806,
+        "y": 517,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 7,
+        "x": 619,
+        "y": 385,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 8,
+        "x": 724,
+        "y": 307,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 9,
+        "x": 1074,
+        "y": 345,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 10,
+        "x": 1294,
+        "y": 405,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 11,
+        "x": 1483,
+        "y": 362,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 12,
+        "x": 1436,
+        "y": 294,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/主标题_冒险地图_厚木含字.png",
+        "x": 122,
+        "y": 0,
+        "w": 340,
+        "h": 112
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/人物属性牌_木金底框.png",
+        "x": 20,
+        "y": 108,
+        "w": 335,
+        "h": 120
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "52/52",
+        "x": 180,
+        "y": 136.33333333333334,
+        "w": 135,
+        "h": 28,
+        "size": 32,
+        "style": "hudValue"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤泉村落_含字.png",
+        "x": 60,
+        "y": 461,
+        "w": 300,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_集市市场_含字.png",
+        "x": 447,
+        "y": 407,
+        "w": 299,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_飞机展馆_含字.png",
+        "x": 506,
+        "y": 99,
+        "w": 290,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤山洞穴_含字.png",
+        "x": 1144,
+        "y": 97,
+        "w": 293,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/关卡卡片_镂空木金框.png",
+        "x": 1095,
+        "y": 503,
+        "w": 490,
+        "h": 383
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "02 汤泉村落",
+        "x": 1147,
+        "y": 553,
+        "w": 386,
+        "h": 55,
+        "size": 37,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/按钮_进入关卡_无字.png",
+        "x": 1174,
+        "y": 775,
+        "w": 332,
+        "h": 80,
+        "title": "进入关卡"
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "进入关卡",
+        "x": 1190,
+        "y": 788,
+        "w": 300,
+        "h": 47,
+        "size": 43,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/返回_含箭头.png",
+        "x": 20,
+        "y": 15,
+        "w": 99,
+        "h": 85,
+        "title": "返回"
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/设置_含齿轮.png",
+        "x": 1497,
+        "y": 12,
+        "w": 89,
+        "h": 89,
+        "title": "设置"
+      },
+      {
+        "type": "image",
+        "layer": "hero",
+        "file": "透明素材/主角_站立_无投影.png",
+        "x": 389.28,
+        "y": 631,
+        "w": 73.44,
+        "h": 144
+      }
+    ]
+  },
+  "3": {
+    "图层": [
+      [
+        "bg",
+        "01 背景、关卡底座、数字与路线"
+      ],
+      [
+        "shadow",
+        "02 UI独立外部投影"
+      ],
+      [
+        "glow",
+        "03 脚下圆盘光圈"
+      ],
+      [
+        "pictures",
+        "04 头像与地区缩略图"
+      ],
+      [
+        "frames",
+        "05 主标题、属性牌与地区名牌"
+      ],
+      [
+        "buttons",
+        "06 返回、设置、进入按钮"
+      ],
+      [
+        "text",
+        "07 动态血量与关卡文字"
+      ],
+      [
+        "hero",
+        "08 站立主角"
+      ]
+    ],
+    "元素": [
+      {
+        "type": "image",
+        "layer": "bg",
+        "file": "透明素材/背景_含原版风格关卡与数字.png",
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 1,
+        "x": 230,
+        "y": 804,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 2,
+        "x": 426,
+        "y": 791,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 3,
+        "x": 507,
+        "y": 684,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 4,
+        "x": 708,
+        "y": 681,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 5,
+        "x": 1003,
+        "y": 698,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 6,
+        "x": 806,
+        "y": 517,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 7,
+        "x": 619,
+        "y": 385,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 8,
+        "x": 724,
+        "y": 307,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 9,
+        "x": 1074,
+        "y": 345,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 10,
+        "x": 1294,
+        "y": 405,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 11,
+        "x": 1483,
+        "y": 362,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 12,
+        "x": 1436,
+        "y": 294,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/主标题_冒险地图_厚木含字.png",
+        "x": 122,
+        "y": 0,
+        "w": 340,
+        "h": 112
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/人物属性牌_木金底框.png",
+        "x": 20,
+        "y": 108,
+        "w": 335,
+        "h": 120
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "52/52",
+        "x": 180,
+        "y": 136.33333333333334,
+        "w": 135,
+        "h": 28,
+        "size": 32,
+        "style": "hudValue"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤泉村落_含字.png",
+        "x": 60,
+        "y": 461,
+        "w": 300,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_集市市场_含字.png",
+        "x": 447,
+        "y": 407,
+        "w": 299,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_飞机展馆_含字.png",
+        "x": 506,
+        "y": 99,
+        "w": 290,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤山洞穴_含字.png",
+        "x": 1144,
+        "y": 97,
+        "w": 293,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/关卡卡片_镂空木金框.png",
+        "x": 1095,
+        "y": 503,
+        "w": 490,
+        "h": 383
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "03 汤泉村落",
+        "x": 1147,
+        "y": 553,
+        "w": 386,
+        "h": 55,
+        "size": 37,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/按钮_进入关卡_无字.png",
+        "x": 1174,
+        "y": 775,
+        "w": 332,
+        "h": 80,
+        "title": "进入关卡"
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "进入关卡",
+        "x": 1190,
+        "y": 788,
+        "w": 300,
+        "h": 47,
+        "size": 43,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/返回_含箭头.png",
+        "x": 20,
+        "y": 15,
+        "w": 99,
+        "h": 85,
+        "title": "返回"
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/设置_含齿轮.png",
+        "x": 1497,
+        "y": 12,
+        "w": 89,
+        "h": 89,
+        "title": "设置"
+      },
+      {
+        "type": "image",
+        "layer": "hero",
+        "file": "透明素材/主角_站立_无投影.png",
+        "x": 470.28,
+        "y": 524,
+        "w": 73.44,
+        "h": 144
+      }
+    ]
+  },
+  "4": {
+    "图层": [
+      [
+        "bg",
+        "01 背景、关卡底座、数字与路线"
+      ],
+      [
+        "shadow",
+        "02 UI独立外部投影"
+      ],
+      [
+        "glow",
+        "03 脚下圆盘光圈"
+      ],
+      [
+        "pictures",
+        "04 头像与地区缩略图"
+      ],
+      [
+        "frames",
+        "05 主标题、属性牌与地区名牌"
+      ],
+      [
+        "buttons",
+        "06 返回、设置、进入按钮"
+      ],
+      [
+        "text",
+        "07 动态血量与关卡文字"
+      ],
+      [
+        "hero",
+        "08 站立主角"
+      ]
+    ],
+    "元素": [
+      {
+        "type": "image",
+        "layer": "bg",
+        "file": "透明素材/背景_含原版风格关卡与数字.png",
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 1,
+        "x": 230,
+        "y": 804,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 2,
+        "x": 426,
+        "y": 791,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 3,
+        "x": 507,
+        "y": 684,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 4,
+        "x": 708,
+        "y": 681,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 5,
+        "x": 1003,
+        "y": 698,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 6,
+        "x": 806,
+        "y": 517,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 7,
+        "x": 619,
+        "y": 385,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 8,
+        "x": 724,
+        "y": 307,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 9,
+        "x": 1074,
+        "y": 345,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 10,
+        "x": 1294,
+        "y": 405,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 11,
+        "x": 1483,
+        "y": 362,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 12,
+        "x": 1436,
+        "y": 294,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/主标题_冒险地图_厚木含字.png",
+        "x": 122,
+        "y": 0,
+        "w": 340,
+        "h": 112
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/人物属性牌_木金底框.png",
+        "x": 20,
+        "y": 108,
+        "w": 335,
+        "h": 120
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "52/52",
+        "x": 180,
+        "y": 136.33333333333334,
+        "w": 135,
+        "h": 28,
+        "size": 32,
+        "style": "hudValue"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤泉村落_含字.png",
+        "x": 60,
+        "y": 461,
+        "w": 300,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_集市市场_含字.png",
+        "x": 447,
+        "y": 407,
+        "w": 299,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_飞机展馆_含字.png",
+        "x": 506,
+        "y": 99,
+        "w": 290,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤山洞穴_含字.png",
+        "x": 1144,
+        "y": 97,
+        "w": 293,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/关卡卡片_镂空木金框.png",
+        "x": 1095,
+        "y": 503,
+        "w": 490,
+        "h": 383
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "04 集市市场",
+        "x": 1147,
+        "y": 553,
+        "w": 386,
+        "h": 55,
+        "size": 37,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/按钮_进入关卡_无字.png",
+        "x": 1174,
+        "y": 775,
+        "w": 332,
+        "h": 80,
+        "title": "进入关卡"
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "进入关卡",
+        "x": 1190,
+        "y": 788,
+        "w": 300,
+        "h": 47,
+        "size": 43,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/返回_含箭头.png",
+        "x": 20,
+        "y": 15,
+        "w": 99,
+        "h": 85,
+        "title": "返回"
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/设置_含齿轮.png",
+        "x": 1497,
+        "y": 12,
+        "w": 89,
+        "h": 89,
+        "title": "设置"
+      },
+      {
+        "type": "image",
+        "layer": "hero",
+        "file": "透明素材/主角_站立_无投影.png",
+        "x": 671.28,
+        "y": 521,
+        "w": 73.44,
+        "h": 144
+      }
+    ]
+  },
+  "5": {
+    "图层": [
+      [
+        "bg",
+        "01 背景、关卡底座、数字与路线"
+      ],
+      [
+        "shadow",
+        "02 UI独立外部投影"
+      ],
+      [
+        "glow",
+        "03 脚下圆盘光圈"
+      ],
+      [
+        "pictures",
+        "04 头像与地区缩略图"
+      ],
+      [
+        "frames",
+        "05 主标题、属性牌与地区名牌"
+      ],
+      [
+        "buttons",
+        "06 返回、设置、进入按钮"
+      ],
+      [
+        "text",
+        "07 动态血量与关卡文字"
+      ],
+      [
+        "hero",
+        "08 站立主角"
+      ]
+    ],
+    "元素": [
+      {
+        "type": "image",
+        "layer": "bg",
+        "file": "透明素材/背景_含原版风格关卡与数字.png",
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 1,
+        "x": 230,
+        "y": 804,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 2,
+        "x": 426,
+        "y": 791,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 3,
+        "x": 507,
+        "y": 684,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 4,
+        "x": 708,
+        "y": 681,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 5,
+        "x": 1003,
+        "y": 698,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 6,
+        "x": 806,
+        "y": 517,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 7,
+        "x": 619,
+        "y": 385,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 8,
+        "x": 724,
+        "y": 307,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 9,
+        "x": 1074,
+        "y": 345,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 10,
+        "x": 1294,
+        "y": 405,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 11,
+        "x": 1483,
+        "y": 362,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 12,
+        "x": 1436,
+        "y": 294,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/主标题_冒险地图_厚木含字.png",
+        "x": 122,
+        "y": 0,
+        "w": 340,
+        "h": 112
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/人物属性牌_木金底框.png",
+        "x": 20,
+        "y": 108,
+        "w": 335,
+        "h": 120
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "52/52",
+        "x": 180,
+        "y": 136.33333333333334,
+        "w": 135,
+        "h": 28,
+        "size": 32,
+        "style": "hudValue"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤泉村落_含字.png",
+        "x": 60,
+        "y": 461,
+        "w": 300,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_集市市场_含字.png",
+        "x": 447,
+        "y": 407,
+        "w": 299,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_飞机展馆_含字.png",
+        "x": 506,
+        "y": 99,
+        "w": 290,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤山洞穴_含字.png",
+        "x": 1144,
+        "y": 97,
+        "w": 293,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/关卡卡片_镂空木金框.png",
+        "x": 1095,
+        "y": 503,
+        "w": 490,
+        "h": 383
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "05 集市市场",
+        "x": 1147,
+        "y": 553,
+        "w": 386,
+        "h": 55,
+        "size": 37,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/按钮_进入关卡_无字.png",
+        "x": 1174,
+        "y": 775,
+        "w": 332,
+        "h": 80,
+        "title": "进入关卡"
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "进入关卡",
+        "x": 1190,
+        "y": 788,
+        "w": 300,
+        "h": 47,
+        "size": 43,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/返回_含箭头.png",
+        "x": 20,
+        "y": 15,
+        "w": 99,
+        "h": 85,
+        "title": "返回"
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/设置_含齿轮.png",
+        "x": 1497,
+        "y": 12,
+        "w": 89,
+        "h": 89,
+        "title": "设置"
+      },
+      {
+        "type": "image",
+        "layer": "hero",
+        "file": "透明素材/主角_站立_无投影.png",
+        "x": 966.28,
+        "y": 538,
+        "w": 73.44,
+        "h": 144
+      }
+    ]
+  },
+  "6": {
+    "图层": [
+      [
+        "bg",
+        "01 背景、关卡底座、数字与路线"
+      ],
+      [
+        "shadow",
+        "02 UI独立外部投影"
+      ],
+      [
+        "glow",
+        "03 脚下圆盘光圈"
+      ],
+      [
+        "pictures",
+        "04 头像与地区缩略图"
+      ],
+      [
+        "frames",
+        "05 主标题、属性牌与地区名牌"
+      ],
+      [
+        "buttons",
+        "06 返回、设置、进入按钮"
+      ],
+      [
+        "text",
+        "07 动态血量与关卡文字"
+      ],
+      [
+        "hero",
+        "08 站立主角"
+      ]
+    ],
+    "元素": [
+      {
+        "type": "image",
+        "layer": "bg",
+        "file": "透明素材/背景_含原版风格关卡与数字.png",
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 1,
+        "x": 230,
+        "y": 804,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 2,
+        "x": 426,
+        "y": 791,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 3,
+        "x": 507,
+        "y": 684,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 4,
+        "x": 708,
+        "y": 681,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 5,
+        "x": 1003,
+        "y": 698,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 6,
+        "x": 806,
+        "y": 517,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 7,
+        "x": 619,
+        "y": 385,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 8,
+        "x": 724,
+        "y": 307,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 9,
+        "x": 1074,
+        "y": 345,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 10,
+        "x": 1294,
+        "y": 405,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 11,
+        "x": 1483,
+        "y": 362,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 12,
+        "x": 1436,
+        "y": 294,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/主标题_冒险地图_厚木含字.png",
+        "x": 122,
+        "y": 0,
+        "w": 340,
+        "h": 112
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/人物属性牌_木金底框.png",
+        "x": 20,
+        "y": 108,
+        "w": 335,
+        "h": 120
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "52/52",
+        "x": 180,
+        "y": 136.33333333333334,
+        "w": 135,
+        "h": 28,
+        "size": 32,
+        "style": "hudValue"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤泉村落_含字.png",
+        "x": 60,
+        "y": 461,
+        "w": 300,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_集市市场_含字.png",
+        "x": 447,
+        "y": 407,
+        "w": 299,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_飞机展馆_含字.png",
+        "x": 506,
+        "y": 99,
+        "w": 290,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤山洞穴_含字.png",
+        "x": 1144,
+        "y": 97,
+        "w": 293,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/关卡卡片_镂空木金框.png",
+        "x": 1095,
+        "y": 503,
+        "w": 490,
+        "h": 383
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "06 集市市场",
+        "x": 1147,
+        "y": 553,
+        "w": 386,
+        "h": 55,
+        "size": 37,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/按钮_进入关卡_无字.png",
+        "x": 1174,
+        "y": 775,
+        "w": 332,
+        "h": 80,
+        "title": "进入关卡"
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "进入关卡",
+        "x": 1190,
+        "y": 788,
+        "w": 300,
+        "h": 47,
+        "size": 43,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/返回_含箭头.png",
+        "x": 20,
+        "y": 15,
+        "w": 99,
+        "h": 85,
+        "title": "返回"
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/设置_含齿轮.png",
+        "x": 1497,
+        "y": 12,
+        "w": 89,
+        "h": 89,
+        "title": "设置"
+      },
+      {
+        "type": "image",
+        "layer": "hero",
+        "file": "透明素材/主角_站立_无投影.png",
+        "x": 769.28,
+        "y": 357,
+        "w": 73.44,
+        "h": 144
+      }
+    ]
+  },
+  "7": {
+    "图层": [
+      [
+        "bg",
+        "01 背景、关卡底座、数字与路线"
+      ],
+      [
+        "shadow",
+        "02 UI独立外部投影"
+      ],
+      [
+        "glow",
+        "03 脚下圆盘光圈"
+      ],
+      [
+        "pictures",
+        "04 头像与地区缩略图"
+      ],
+      [
+        "frames",
+        "05 主标题、属性牌与地区名牌"
+      ],
+      [
+        "buttons",
+        "06 返回、设置、进入按钮"
+      ],
+      [
+        "text",
+        "07 动态血量与关卡文字"
+      ],
+      [
+        "hero",
+        "08 站立主角"
+      ]
+    ],
+    "元素": [
+      {
+        "type": "image",
+        "layer": "bg",
+        "file": "透明素材/背景_含原版风格关卡与数字.png",
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 1,
+        "x": 230,
+        "y": 804,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 2,
+        "x": 426,
+        "y": 791,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 3,
+        "x": 507,
+        "y": 684,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 4,
+        "x": 708,
+        "y": 681,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 5,
+        "x": 1003,
+        "y": 698,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 6,
+        "x": 806,
+        "y": 517,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 7,
+        "x": 619,
+        "y": 385,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 8,
+        "x": 724,
+        "y": 307,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 9,
+        "x": 1074,
+        "y": 345,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 10,
+        "x": 1294,
+        "y": 405,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 11,
+        "x": 1483,
+        "y": 362,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 12,
+        "x": 1436,
+        "y": 294,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/主标题_冒险地图_厚木含字.png",
+        "x": 122,
+        "y": 0,
+        "w": 340,
+        "h": 112
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/人物属性牌_木金底框.png",
+        "x": 20,
+        "y": 108,
+        "w": 335,
+        "h": 120
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "52/52",
+        "x": 180,
+        "y": 136.33333333333334,
+        "w": 135,
+        "h": 28,
+        "size": 32,
+        "style": "hudValue"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤泉村落_含字.png",
+        "x": 60,
+        "y": 461,
+        "w": 300,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_集市市场_含字.png",
+        "x": 447,
+        "y": 407,
+        "w": 299,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_飞机展馆_含字.png",
+        "x": 506,
+        "y": 99,
+        "w": 290,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤山洞穴_含字.png",
+        "x": 1144,
+        "y": 97,
+        "w": 293,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/关卡卡片_镂空木金框.png",
+        "x": 1095,
+        "y": 503,
+        "w": 490,
+        "h": 383
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "07 飞机展馆",
+        "x": 1147,
+        "y": 553,
+        "w": 386,
+        "h": 55,
+        "size": 37,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/按钮_进入关卡_无字.png",
+        "x": 1174,
+        "y": 775,
+        "w": 332,
+        "h": 80,
+        "title": "进入关卡"
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "进入关卡",
+        "x": 1190,
+        "y": 788,
+        "w": 300,
+        "h": 47,
+        "size": 43,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/返回_含箭头.png",
+        "x": 20,
+        "y": 15,
+        "w": 99,
+        "h": 85,
+        "title": "返回"
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/设置_含齿轮.png",
+        "x": 1497,
+        "y": 12,
+        "w": 89,
+        "h": 89,
+        "title": "设置"
+      },
+      {
+        "type": "image",
+        "layer": "hero",
+        "file": "透明素材/主角_站立_无投影.png",
+        "x": 590.44,
+        "y": 257,
+        "w": 57.120000000000005,
+        "h": 112
+      }
+    ]
+  },
+  "8": {
+    "图层": [
+      [
+        "bg",
+        "01 背景、关卡底座、数字与路线"
+      ],
+      [
+        "shadow",
+        "02 UI独立外部投影"
+      ],
+      [
+        "glow",
+        "03 脚下圆盘光圈"
+      ],
+      [
+        "pictures",
+        "04 头像与地区缩略图"
+      ],
+      [
+        "frames",
+        "05 主标题、属性牌与地区名牌"
+      ],
+      [
+        "buttons",
+        "06 返回、设置、进入按钮"
+      ],
+      [
+        "text",
+        "07 动态血量与关卡文字"
+      ],
+      [
+        "hero",
+        "08 站立主角"
+      ]
+    ],
+    "元素": [
+      {
+        "type": "image",
+        "layer": "bg",
+        "file": "透明素材/背景_含原版风格关卡与数字.png",
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 1,
+        "x": 230,
+        "y": 804,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 2,
+        "x": 426,
+        "y": 791,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 3,
+        "x": 507,
+        "y": 684,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 4,
+        "x": 708,
+        "y": 681,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 5,
+        "x": 1003,
+        "y": 698,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 6,
+        "x": 806,
+        "y": 517,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 7,
+        "x": 619,
+        "y": 385,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 8,
+        "x": 724,
+        "y": 307,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 9,
+        "x": 1074,
+        "y": 345,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 10,
+        "x": 1294,
+        "y": 405,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 11,
+        "x": 1483,
+        "y": 362,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 12,
+        "x": 1436,
+        "y": 294,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/主标题_冒险地图_厚木含字.png",
+        "x": 122,
+        "y": 0,
+        "w": 340,
+        "h": 112
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/人物属性牌_木金底框.png",
+        "x": 20,
+        "y": 108,
+        "w": 335,
+        "h": 120
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "52/52",
+        "x": 180,
+        "y": 136.33333333333334,
+        "w": 135,
+        "h": 28,
+        "size": 32,
+        "style": "hudValue"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤泉村落_含字.png",
+        "x": 60,
+        "y": 461,
+        "w": 300,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_集市市场_含字.png",
+        "x": 447,
+        "y": 407,
+        "w": 299,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_飞机展馆_含字.png",
+        "x": 506,
+        "y": 99,
+        "w": 290,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤山洞穴_含字.png",
+        "x": 1144,
+        "y": 97,
+        "w": 293,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/关卡卡片_镂空木金框.png",
+        "x": 1095,
+        "y": 503,
+        "w": 490,
+        "h": 383
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "08 飞机展馆",
+        "x": 1147,
+        "y": 553,
+        "w": 386,
+        "h": 55,
+        "size": 37,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/按钮_进入关卡_无字.png",
+        "x": 1174,
+        "y": 775,
+        "w": 332,
+        "h": 80,
+        "title": "进入关卡"
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "进入关卡",
+        "x": 1190,
+        "y": 788,
+        "w": 300,
+        "h": 47,
+        "size": 43,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/返回_含箭头.png",
+        "x": 20,
+        "y": 15,
+        "w": 99,
+        "h": 85,
+        "title": "返回"
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/设置_含齿轮.png",
+        "x": 1497,
+        "y": 12,
+        "w": 89,
+        "h": 89,
+        "title": "设置"
+      },
+      {
+        "type": "image",
+        "layer": "hero",
+        "file": "透明素材/主角_站立_无投影.png",
+        "x": 695.44,
+        "y": 179,
+        "w": 57.120000000000005,
+        "h": 112
+      }
+    ]
+  },
+  "9": {
+    "图层": [
+      [
+        "bg",
+        "01 背景、关卡底座、数字与路线"
+      ],
+      [
+        "shadow",
+        "02 UI独立外部投影"
+      ],
+      [
+        "glow",
+        "03 脚下圆盘光圈"
+      ],
+      [
+        "pictures",
+        "04 头像与地区缩略图"
+      ],
+      [
+        "frames",
+        "05 主标题、属性牌与地区名牌"
+      ],
+      [
+        "buttons",
+        "06 返回、设置、进入按钮"
+      ],
+      [
+        "text",
+        "07 动态血量与关卡文字"
+      ],
+      [
+        "hero",
+        "08 站立主角"
+      ]
+    ],
+    "元素": [
+      {
+        "type": "image",
+        "layer": "bg",
+        "file": "透明素材/背景_含原版风格关卡与数字.png",
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 1,
+        "x": 230,
+        "y": 804,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 2,
+        "x": 426,
+        "y": 791,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 3,
+        "x": 507,
+        "y": 684,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 4,
+        "x": 708,
+        "y": 681,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 5,
+        "x": 1003,
+        "y": 698,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 6,
+        "x": 806,
+        "y": 517,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 7,
+        "x": 619,
+        "y": 385,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 8,
+        "x": 724,
+        "y": 307,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 9,
+        "x": 1074,
+        "y": 345,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 10,
+        "x": 1294,
+        "y": 405,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 11,
+        "x": 1483,
+        "y": 362,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 12,
+        "x": 1436,
+        "y": 294,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/主标题_冒险地图_厚木含字.png",
+        "x": 122,
+        "y": 0,
+        "w": 340,
+        "h": 112
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/人物属性牌_木金底框.png",
+        "x": 20,
+        "y": 108,
+        "w": 335,
+        "h": 120
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "52/52",
+        "x": 180,
+        "y": 136.33333333333334,
+        "w": 135,
+        "h": 28,
+        "size": 32,
+        "style": "hudValue"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤泉村落_含字.png",
+        "x": 60,
+        "y": 461,
+        "w": 300,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_集市市场_含字.png",
+        "x": 447,
+        "y": 407,
+        "w": 299,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_飞机展馆_含字.png",
+        "x": 506,
+        "y": 99,
+        "w": 290,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤山洞穴_含字.png",
+        "x": 1144,
+        "y": 97,
+        "w": 293,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/关卡卡片_镂空木金框.png",
+        "x": 1095,
+        "y": 503,
+        "w": 490,
+        "h": 383
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "09 飞机展馆",
+        "x": 1147,
+        "y": 553,
+        "w": 386,
+        "h": 55,
+        "size": 37,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/按钮_进入关卡_无字.png",
+        "x": 1174,
+        "y": 775,
+        "w": 332,
+        "h": 80,
+        "title": "进入关卡"
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "进入关卡",
+        "x": 1190,
+        "y": 788,
+        "w": 300,
+        "h": 47,
+        "size": 43,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/返回_含箭头.png",
+        "x": 20,
+        "y": 15,
+        "w": 99,
+        "h": 85,
+        "title": "返回"
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/设置_含齿轮.png",
+        "x": 1497,
+        "y": 12,
+        "w": 89,
+        "h": 89,
+        "title": "设置"
+      },
+      {
+        "type": "image",
+        "layer": "hero",
+        "file": "透明素材/主角_站立_无投影.png",
+        "x": 1045.44,
+        "y": 217,
+        "w": 57.120000000000005,
+        "h": 112
+      }
+    ]
+  },
+  "10": {
+    "图层": [
+      [
+        "bg",
+        "01 背景、关卡底座、数字与路线"
+      ],
+      [
+        "shadow",
+        "02 UI独立外部投影"
+      ],
+      [
+        "glow",
+        "03 脚下圆盘光圈"
+      ],
+      [
+        "pictures",
+        "04 头像与地区缩略图"
+      ],
+      [
+        "frames",
+        "05 主标题、属性牌与地区名牌"
+      ],
+      [
+        "buttons",
+        "06 返回、设置、进入按钮"
+      ],
+      [
+        "text",
+        "07 动态血量与关卡文字"
+      ],
+      [
+        "hero",
+        "08 站立主角"
+      ]
+    ],
+    "元素": [
+      {
+        "type": "image",
+        "layer": "bg",
+        "file": "透明素材/背景_含原版风格关卡与数字.png",
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 1,
+        "x": 230,
+        "y": 804,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 2,
+        "x": 426,
+        "y": 791,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 3,
+        "x": 507,
+        "y": 684,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 4,
+        "x": 708,
+        "y": 681,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 5,
+        "x": 1003,
+        "y": 698,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 6,
+        "x": 806,
+        "y": 517,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 7,
+        "x": 619,
+        "y": 385,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 8,
+        "x": 724,
+        "y": 307,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 9,
+        "x": 1074,
+        "y": 345,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 10,
+        "x": 1294,
+        "y": 405,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 11,
+        "x": 1483,
+        "y": 362,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 12,
+        "x": 1436,
+        "y": 294,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/主标题_冒险地图_厚木含字.png",
+        "x": 122,
+        "y": 0,
+        "w": 340,
+        "h": 112
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/人物属性牌_木金底框.png",
+        "x": 20,
+        "y": 108,
+        "w": 335,
+        "h": 120
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "52/52",
+        "x": 180,
+        "y": 136.33333333333334,
+        "w": 135,
+        "h": 28,
+        "size": 32,
+        "style": "hudValue"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤泉村落_含字.png",
+        "x": 60,
+        "y": 461,
+        "w": 300,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_集市市场_含字.png",
+        "x": 447,
+        "y": 407,
+        "w": 299,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_飞机展馆_含字.png",
+        "x": 506,
+        "y": 99,
+        "w": 290,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤山洞穴_含字.png",
+        "x": 1144,
+        "y": 97,
+        "w": 293,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/关卡卡片_镂空木金框.png",
+        "x": 1095,
+        "y": 503,
+        "w": 490,
+        "h": 383
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "10 汤山洞穴",
+        "x": 1147,
+        "y": 553,
+        "w": 386,
+        "h": 55,
+        "size": 37,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/按钮_进入关卡_无字.png",
+        "x": 1174,
+        "y": 775,
+        "w": 332,
+        "h": 80,
+        "title": "进入关卡"
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "进入关卡",
+        "x": 1190,
+        "y": 788,
+        "w": 300,
+        "h": 47,
+        "size": 43,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/返回_含箭头.png",
+        "x": 20,
+        "y": 15,
+        "w": 99,
+        "h": 85,
+        "title": "返回"
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/设置_含齿轮.png",
+        "x": 1497,
+        "y": 12,
+        "w": 89,
+        "h": 89,
+        "title": "设置"
+      },
+      {
+        "type": "image",
+        "layer": "hero",
+        "file": "透明素材/主角_站立_无投影.png",
+        "x": 1265.44,
+        "y": 277,
+        "w": 57.120000000000005,
+        "h": 112
+      }
+    ]
+  },
+  "11": {
+    "图层": [
+      [
+        "bg",
+        "01 背景、关卡底座、数字与路线"
+      ],
+      [
+        "shadow",
+        "02 UI独立外部投影"
+      ],
+      [
+        "glow",
+        "03 脚下圆盘光圈"
+      ],
+      [
+        "pictures",
+        "04 头像与地区缩略图"
+      ],
+      [
+        "frames",
+        "05 主标题、属性牌与地区名牌"
+      ],
+      [
+        "buttons",
+        "06 返回、设置、进入按钮"
+      ],
+      [
+        "text",
+        "07 动态血量与关卡文字"
+      ],
+      [
+        "hero",
+        "08 站立主角"
+      ]
+    ],
+    "元素": [
+      {
+        "type": "image",
+        "layer": "bg",
+        "file": "透明素材/背景_含原版风格关卡与数字.png",
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 1,
+        "x": 230,
+        "y": 804,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 2,
+        "x": 426,
+        "y": 791,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 3,
+        "x": 507,
+        "y": 684,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 4,
+        "x": 708,
+        "y": 681,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 5,
+        "x": 1003,
+        "y": 698,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 6,
+        "x": 806,
+        "y": 517,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 7,
+        "x": 619,
+        "y": 385,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 8,
+        "x": 724,
+        "y": 307,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 9,
+        "x": 1074,
+        "y": 345,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 10,
+        "x": 1294,
+        "y": 405,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 11,
+        "x": 1483,
+        "y": 362,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 12,
+        "x": 1436,
+        "y": 294,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/主标题_冒险地图_厚木含字.png",
+        "x": 122,
+        "y": 0,
+        "w": 340,
+        "h": 112
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/人物属性牌_木金底框.png",
+        "x": 20,
+        "y": 108,
+        "w": 335,
+        "h": 120
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "52/52",
+        "x": 180,
+        "y": 136.33333333333334,
+        "w": 135,
+        "h": 28,
+        "size": 32,
+        "style": "hudValue"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤泉村落_含字.png",
+        "x": 60,
+        "y": 461,
+        "w": 300,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_集市市场_含字.png",
+        "x": 447,
+        "y": 407,
+        "w": 299,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_飞机展馆_含字.png",
+        "x": 506,
+        "y": 99,
+        "w": 290,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤山洞穴_含字.png",
+        "x": 1144,
+        "y": 97,
+        "w": 293,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/关卡卡片_镂空木金框.png",
+        "x": 1095,
+        "y": 503,
+        "w": 490,
+        "h": 383
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "11 汤山洞穴",
+        "x": 1147,
+        "y": 553,
+        "w": 386,
+        "h": 55,
+        "size": 37,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/按钮_进入关卡_无字.png",
+        "x": 1174,
+        "y": 775,
+        "w": 332,
+        "h": 80,
+        "title": "进入关卡"
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "进入关卡",
+        "x": 1190,
+        "y": 788,
+        "w": 300,
+        "h": 47,
+        "size": 43,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/返回_含箭头.png",
+        "x": 20,
+        "y": 15,
+        "w": 99,
+        "h": 85,
+        "title": "返回"
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/设置_含齿轮.png",
+        "x": 1497,
+        "y": 12,
+        "w": 89,
+        "h": 89,
+        "title": "设置"
+      },
+      {
+        "type": "image",
+        "layer": "hero",
+        "file": "透明素材/主角_站立_无投影.png",
+        "x": 1454.44,
+        "y": 234,
+        "w": 57.120000000000005,
+        "h": 112
+      }
+    ]
+  },
+  "12": {
+    "图层": [
+      [
+        "bg",
+        "01 背景、关卡底座、数字与路线"
+      ],
+      [
+        "shadow",
+        "02 UI独立外部投影"
+      ],
+      [
+        "glow",
+        "03 脚下圆盘光圈"
+      ],
+      [
+        "pictures",
+        "04 头像与地区缩略图"
+      ],
+      [
+        "frames",
+        "05 主标题、属性牌与地区名牌"
+      ],
+      [
+        "buttons",
+        "06 返回、设置、进入按钮"
+      ],
+      [
+        "text",
+        "07 动态血量与关卡文字"
+      ],
+      [
+        "hero",
+        "08 站立主角"
+      ]
+    ],
+    "元素": [
+      {
+        "type": "image",
+        "layer": "bg",
+        "file": "透明素材/背景_含原版风格关卡与数字.png",
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 1,
+        "x": 230,
+        "y": 804,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 2,
+        "x": 426,
+        "y": 791,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 3,
+        "x": 507,
+        "y": 684,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 4,
+        "x": 708,
+        "y": 681,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 5,
+        "x": 1003,
+        "y": 698,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 6,
+        "x": 806,
+        "y": 517,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 7,
+        "x": 619,
+        "y": 385,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 8,
+        "x": 724,
+        "y": 307,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 9,
+        "x": 1074,
+        "y": 345,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 10,
+        "x": 1294,
+        "y": 405,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 11,
+        "x": 1483,
+        "y": 362,
+        "w": 105,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "invisible-level-hitbox",
+        "layer": "bg",
+        "number": 12,
+        "x": 1436,
+        "y": 294,
+        "w": 110,
+        "h": 62,
+        "visual": "底座、数字、皇冠、路径已合并入背景，不叠加状态贴图"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/主标题_冒险地图_厚木含字.png",
+        "x": 122,
+        "y": 0,
+        "w": 340,
+        "h": 112
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/人物属性牌_木金底框.png",
+        "x": 20,
+        "y": 108,
+        "w": 335,
+        "h": 120
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "52/52",
+        "x": 180,
+        "y": 136.33333333333334,
+        "w": 135,
+        "h": 28,
+        "size": 32,
+        "style": "hudValue"
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤泉村落_含字.png",
+        "x": 60,
+        "y": 461,
+        "w": 300,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_集市市场_含字.png",
+        "x": 447,
+        "y": 407,
+        "w": 299,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_飞机展馆_含字.png",
+        "x": 506,
+        "y": 99,
+        "w": 290,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/名牌_汤山洞穴_含字.png",
+        "x": 1144,
+        "y": 97,
+        "w": 293,
+        "h": 106
+      },
+      {
+        "type": "image",
+        "layer": "frames",
+        "file": "透明素材/关卡卡片_镂空木金框.png",
+        "x": 1095,
+        "y": 503,
+        "w": 490,
+        "h": 383
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "12 汤山洞穴",
+        "x": 1147,
+        "y": 553,
+        "w": 386,
+        "h": 55,
+        "size": 37,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/按钮_进入关卡_无字.png",
+        "x": 1174,
+        "y": 775,
+        "w": 332,
+        "h": 80,
+        "title": "进入关卡"
+      },
+      {
+        "type": "text",
+        "layer": "text",
+        "text": "进入关卡",
+        "x": 1190,
+        "y": 788,
+        "w": 300,
+        "h": 47,
+        "size": 43,
+        "style": ""
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/返回_含箭头.png",
+        "x": 20,
+        "y": 15,
+        "w": 99,
+        "h": 85,
+        "title": "返回"
+      },
+      {
+        "type": "button",
+        "layer": "buttons",
+        "file": "透明素材/设置_含齿轮.png",
+        "x": 1497,
+        "y": 12,
+        "w": 89,
+        "h": 89,
+        "title": "设置"
+      },
+      {
+        "type": "image",
+        "layer": "hero",
+        "file": "透明素材/主角_站立_无投影.png",
+        "x": 1407.44,
+        "y": 166,
+        "w": 57.120000000000005,
+        "h": 112
+      }
+    ]
+  }
+}

@@ -147,6 +147,9 @@ func active_status_lines(s: Dictionary) -> Array[String]:
  if s.next_lifesteal > 0: lines.append("下回合吸血 %d%%" % s.next_lifesteal)
  if s.low_hp_crit > 0: lines.append("暴力执法 %d%%%s" % [s.low_hp_crit, "（生效中）" if s.hp * 100 < s.max_hp * s.low_hp_crit_threshold else "（需生命低于%d%%）" % s.low_hp_crit_threshold])
  if s.temporary_strength > 0: lines.append("本回合临时力量 +%d" % s.temporary_strength)
+ if s.get("turn_strength", 0) > 0: lines.append("怒吼力量 +%d（本回合）" % s.turn_strength)
+ for bomb in s.get("bombs", []):
+  lines.append("发条炸弹 %d 伤害 · %s结束时" % [bomb.damage, "本回合" if bomb.turn <= s.turn else "下回合"])
  if s.next_strength > 0: lines.append("下回合力量 +%d（仅一回合）" % s.next_strength)
  if s.retain_cap > 0: lines.append("留甲上限 %d" % s.retain_cap)
  if s.coating > 0: lines.append("淬毒 %d" % s.coating)

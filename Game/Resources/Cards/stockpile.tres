@@ -12,4 +12,4 @@ cost = -1
 target = false
 exhaust = false
 effects = {"store_energy": true}
-upgrade = {"stored_bonus": 1}
+upgrade = {"energy": 1}
