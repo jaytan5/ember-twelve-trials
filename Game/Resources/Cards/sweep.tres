@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "sweep"
-title = "横扫"
+title = "横扫四方"
 kind = "攻击"
 route = "neutral"
 cost = 2

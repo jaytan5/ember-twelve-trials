@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "sunder"
-title = "碎甲击"
+title = "碎甲重击"
 kind = "攻击"
 route = "neutral"
 cost = 3

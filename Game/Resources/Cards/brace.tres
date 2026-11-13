@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "brace"
-title = "稳步推进"
+title = "暗藏毒计"
 kind = "技能"
 route = "neutral"
 cost = 1

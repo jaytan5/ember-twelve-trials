@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "aegis"
-title = "金钟罩"
+title = "蛋壳结界"
 kind = "技能"
 route = "neutral"
 cost = 1

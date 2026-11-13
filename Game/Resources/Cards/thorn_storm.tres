@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "thorn_storm"
-title = "反击风暴"
+title = "飞刺齐发"
 kind = "技能"
 route = "bastion"
 cost = 3

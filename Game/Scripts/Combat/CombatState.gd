@@ -9,6 +9,7 @@ const RewardSystem = preload("res://Game/Scripts/LevelSystem/RewardSystem.gd")
 const DECK_LIMIT = 30
 const DECK_MIN = 15
 const POTION_LIMIT = 2
+const FATE_LIMIT = 3
 var s: Dictionary = {}
 var rng = RandomNumberGenerator.new()
 var capture_combat_events = false
@@ -125,11 +126,13 @@ func begin_turn() -> void:
  s.next_strength = 0
  draw_cards((Data.CONFIG.initial_hand if s.turn == 1 else Data.CONFIG.turn_draw) + relic_bonus("turn_draw") + s.next_draw)
  s.next_draw = 0
- if s.fate_triggers < 3 and s.hp > 0 and s.hp * 2 < s.max_hp and relic_bonus("low_hp_energy") > 0:
+ if s.fate_triggers < FATE_LIMIT and s.hp > 0 and s.hp * 2 < s.max_hp and relic_bonus("low_hp_energy") > 0:
   s.fate_triggers += 1
-  draw_cards(relic_bonus("low_hp_draw"))
-  s.energy += relic_bonus("low_hp_energy")
-  note("逆命护符：抽取 2 张牌，获得 3 点能量（本场 %d/3 次）。" % s.fate_triggers)
+  var fate_draw = relic_bonus("low_hp_draw")
+  var fate_energy = relic_bonus("low_hp_energy")
+  draw_cards(fate_draw)
+  s.energy += fate_energy
+  note("逆命护符：抽取 %d 张牌，获得 %d 点能量（本场 %d/%d 次）。" % [fate_draw, fate_energy, s.fate_triggers, FATE_LIMIT])
  note("回合 %d：抽牌，恢复能量。" % s.turn)
 
 func resolve_combo_relic() -> void:
@@ -192,14 +195,18 @@ func poison_enemy(index: int, amount: int) -> void:
  s.enemies[index].poison += amount
 
 func can_play(index: int) -> bool:
+ return can_play_on(index, s.get("target", -1))
+
+func can_play_on(index: int, target: int) -> bool:
  if s.phase != "battle" or index < 0 or index >= s.hand.size(): return false
  var c = Data.card(s.hand[index])
  if s.energy < energy_cost(c): return false
+ if c.get("target", false) or c.has("poison_cost") or c.get("requires_poison", false):
+  if target < 0 or target >= s.enemies.size() or s.enemies[target].hp <= 0: return false
  if c.has("poison_cost"):
-  if s.target < 0 or s.target >= s.enemies.size(): return false
-  if s.enemies[s.target].hp <= 0 or s.enemies[s.target].poison < c.poison_cost: return false
+  if s.enemies[target].poison < c.poison_cost: return false
  if c.get("requires_poison", false):
-  if s.target < 0 or s.target >= s.enemies.size() or s.enemies[s.target].hp <= 0 or s.enemies[s.target].poison <= 0: return false
+  if s.enemies[target].poison <= 0: return false
  return not living().is_empty()
 
 func play(index: int) -> bool:
@@ -289,7 +296,7 @@ func check_outcome() -> void:
   note("战败。可以重新开始本小关，或重新选择路线。" if difficulty_info().allow_retry else "传奇冒险结束。只能从第一关重新开始。")
  elif living().is_empty():
   s.wins += 1
-  var boss: bool = int(s.stage) % 3 == 0
+  var boss: bool = is_boss_stage()
   s.last_gold = (Data.REWARD.boss_gold if boss else Data.REWARD.normal_gold) + relic_bonus("victory_gold")
   s.gold += s.last_gold
   var hp_before_reward: int = s.hp
@@ -316,7 +323,7 @@ func roll_relics() -> Array:
 func take_card(index: int) -> void:
  if s.phase != "reward": return
  if index >= 0 and index < s.reward_cards.size(): acquire_card(s.reward_cards[index])
- if int(s.stage) % 3 == 0 and not s.boss_reward_taken:
+ if is_boss_stage() and not s.boss_reward_taken:
   s.phase = "relic"
  else: enter_camp()
 
@@ -337,9 +344,15 @@ func enter_camp() -> void:
  s.shop_sold = []
  s.shop_healed = false
 
+func is_boss_stage(stage: int = -1) -> bool:
+ return Data.is_boss_stage(int(s.stage) if stage < 0 else stage)
+
+func rest_amount() -> int:
+ return int(ceil(s.max_hp * 0.25))
+
 func rest() -> void:
  if s.phase != "camp" or s.camp_used: return
- var amount = int(ceil(s.max_hp * 0.25))
+ var amount = rest_amount()
  s.hp = mini(s.max_hp, s.hp + amount)
  s.camp_used = true
  note("营火休整：恢复 %d 生命。" % amount)
@@ -361,23 +374,23 @@ func buy_card(index: int) -> bool:
  return true
 
 func buy_heal() -> bool:
- if s.phase != "camp" or s.gold < 30 or s.shop_healed or s.hp >= s.max_hp: return false
- s.gold -= 30
- s.hp = mini(s.max_hp, s.hp + 24)
+ if s.phase != "camp" or s.gold < Data.REWARD.heal_price or s.shop_healed or s.hp >= s.max_hp: return false
+ s.gold -= Data.REWARD.heal_price
+ s.hp = mini(s.max_hp, s.hp + Data.REWARD.heal_amount)
  s.shop_healed = true
  return true
 
 func buy_potion() -> bool:
- if s.phase != "camp" or s.gold < 25 or s.potions >= POTION_LIMIT: return false
- s.gold -= 25
+ if s.phase != "camp" or s.gold < Data.REWARD.potion_price or s.potions >= POTION_LIMIT: return false
+ s.gold -= Data.REWARD.potion_price
  s.potions += 1
  return true
 
 func use_potion() -> bool:
  if s.phase != "battle" or s.potions <= 0 or s.hp >= s.max_hp: return false
  s.potions -= 1
- heal_player(20)
- note("使用治疗药水，恢复 20 生命。")
+ heal_player(Data.REWARD.potion_heal)
+ note("使用治疗药水，恢复 %d 生命。" % Data.REWARD.potion_heal)
  return true
 
 func next_stage() -> void:
@@ -450,11 +463,11 @@ func take_player_damage(amount: int, bypass_armor: bool = false, attacker: int =
  if s.barrier > 0:
   s.barrier -= 1
   var reflect = int(s.barrier_reflects.pop_front()) if not s.barrier_reflects.is_empty() else 0
-  note("金钟罩抵挡了 %d 点伤害。" % amount)
+  note("蛋壳结界抵挡了 %d 点伤害。" % amount)
   record_combat_event(-1, before, before, "blocked")
   if reflect > 0 and attacker >= 0 and attacker < s.enemies.size() and s.enemies[attacker].hp > 0:
    var reflected = int(floor(amount * reflect / 100.0))
-   note("金钟罩反弹 %d 点伤害。" % reflected)
+   note("蛋壳结界反弹 %d 点伤害。" % reflected)
    hit_enemy(attacker, reflected)
   return 0
  var absorbed = 0 if bypass_armor else mini(s.block, amount)

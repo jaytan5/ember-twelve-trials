@@ -8,6 +8,7 @@ static var CHAPTERS: Array = CONFIG.chapters
 static var CARDS: Dictionary = load_definitions("res://Game/Resources/Cards")
 static var RELICS: Dictionary = load_definitions("res://Game/Resources/Relics")
 static var STAGE_NAMES: Array = level_names()
+static var BOSS_STAGES: Array = boss_stages()
 
 static func load_definitions(folder: String) -> Dictionary:
  var result: Dictionary = {}
@@ -25,6 +26,19 @@ static func level_names() -> Array:
  var result: Array = []
  for i in range(1, 13): result.append(load("res://Game/Resources/Levels/level_%02d.tres" % i).title)
  return result
+
+static func boss_stages() -> Array:
+ # A stage is a boss stage when its LevelData contains an enemy flagged as boss.
+ var result: Array = []
+ for i in range(1, 13):
+  for definition in load("res://Game/Resources/Levels/level_%02d.tres" % i).enemies:
+   if definition.boss:
+    result.append(i)
+    break
+ return result
+
+static func is_boss_stage(stage: int) -> bool:
+ return stage in BOSS_STAGES
 
 static func encounter(stage: int) -> Array:
  return load("res://Game/Resources/Levels/level_%02d.tres" % clampi(stage, 1, 12)).create_enemies()

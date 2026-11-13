@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "insight"
-title = "洞察"
+title = "敏锐洞察"
 kind = "技能"
 route = "neutral"
 cost = 2

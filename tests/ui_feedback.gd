@@ -127,6 +127,8 @@ func test_title() -> void:
  root.push_input(hover)
  await create_timer(0.16).timeout
  check(start.scale.x > 1.0 and start.self_modulate.r > 1.0, "hover highlights refined button without an outer panel")
+ # Remove the verified backup too; otherwise loading correctly recovers from it.
+ ui.SaveSystem.delete_save()
  var broken_save = FileAccess.open("user://run_save.json", FileAccess.WRITE)
  broken_save.store_string("{}")
  broken_save.close()
@@ -134,7 +136,7 @@ func test_title() -> void:
  await settle()
  check(ui.screen == "home" and is_instance_valid(ui.modal), "unreadable save produces a visible message without the removed footer")
  ui.close_modal()
- DirAccess.remove_absolute(ProjectSettings.globalize_path("user://run_save.json"))
+ ui.SaveSystem.delete_save()
  ui.render()
  await settle()
  start = ui.find_child("HomeNew", true, false)
@@ -238,12 +240,12 @@ func test_statuses() -> void:
  ui.game.s.deck = ["strike"]
  ui.game.s.reserve = ["leech"]
  ui.render()
- check(not "汲取" in ui.find_child("HeroStatuses", true, false).text and not "汲取" in ui.find_child("HeroStatuses", true, false).tooltip_text, "reserve-only leech hides wound status and tooltip")
+ check(not "汲取生机" in ui.find_child("HeroStatuses", true, false).text and not "汲取生机" in ui.find_child("HeroStatuses", true, false).tooltip_text, "reserve-only leech hides wound status and tooltip")
  for id in ["leech", "leech+"]:
   ui.game.s.deck = [id]
-  check("汲取可恢复：10 生命" in ui.battle_view_component.active_status_lines(ui.game.s), "equipped leech shows available healing: " + id)
+  check("汲取生机可恢复：10 生命" in ui.battle_view_component.active_status_lines(ui.game.s), "equipped leech shows available healing: " + id)
  ui.game.s.recoverable_hp = 0
- check(not "汲取" in "\n".join(ui.battle_view_component.active_status_lines(ui.game.s)), "equipped leech with no wounds stays hidden")
+ check(not "汲取生机" in "\n".join(ui.battle_view_component.active_status_lines(ui.game.s)), "equipped leech with no wounds stays hidden")
  await setup()
 
 func test_deck_names() -> void:
@@ -258,7 +260,7 @@ func test_deck_names() -> void:
  var first = ui.find_child("DeckCard0", true, false)
  var reserve = ui.find_child("ReserveCard0", true, false)
  check(first.text == ui.Data.card(ui.game.s.deck[0]).name and first.get_child_count() == 0, "active entry shows only name")
- check(reserve.text == "嗜血+" and reserve.get_child_count() == 0, "reserve entry shows only name with upgrade")
+ check(reserve.text == "以战养战+" and reserve.get_child_count() == 0, "reserve entry shows only name with upgrade")
  check(first.size.y <= 45 and ui.find_child("DeckCard29", true, false).get_global_rect().end.y < 800, "thirty compact names fit panel")
  await capture("compact-deck")
  var motion = InputEventMouseMotion.new()

@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "bloodlust"
-title = "燃血"
+title = "透支潜能"
 kind = "技能"
 route = "fury"
 cost = 0

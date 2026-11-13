@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "whirlwind"
-title = "顺劈斩"
+title = "乱刃连斩"
 kind = "攻击"
 route = "fury"
 cost = 2

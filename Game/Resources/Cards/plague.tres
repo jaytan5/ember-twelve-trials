@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "plague"
-title = "疫潮"
+title = "漫天毒雾"
 kind = "技能"
 route = "venom"
 cost = 3

@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "quick"
-title = "快斩"
+title = "迅捷连击"
 kind = "攻击"
 route = "neutral"
 cost = 0

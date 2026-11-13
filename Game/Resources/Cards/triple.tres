@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "triple"
-title = "疾风三连"
+title = "疾风连击"
 kind = "攻击"
 route = "fury"
 cost = 2

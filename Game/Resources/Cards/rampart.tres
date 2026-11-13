@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "rampart"
-title = "钢铁壁垒"
+title = "全副武装"
 kind = "技能"
 route = "bastion"
 cost = 3

@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "rage_slash"
-title = "暴力执法"
+title = "逆境觉醒"
 kind = "能力"
 route = "fury"
 cost = 2

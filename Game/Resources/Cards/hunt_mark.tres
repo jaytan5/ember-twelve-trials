@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "hunt_mark"
-title = "猎杀标记"
+title = "盯紧破绽"
 kind = "技能"
 route = "fury"
 cost = 1

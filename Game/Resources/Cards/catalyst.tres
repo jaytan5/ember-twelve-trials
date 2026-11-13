@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "catalyst"
-title = "催化"
+title = "毒性催化"
 kind = "技能"
 route = "venom"
 cost = 2

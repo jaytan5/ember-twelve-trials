@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "battle_trance"
-title = "嗜血"
+title = "以战养战"
 kind = "能力"
 route = "fury"
 cost = 3

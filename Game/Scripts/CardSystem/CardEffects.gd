@@ -100,7 +100,7 @@ static func resolve_card(run, id: String, free: bool, budget: Dictionary) -> voi
   var stacks: int = run.s.enemies[target].poison
   run.s.enemies[target].poison = 0
   run.hit_enemy(target, stacks * c.poison_burst, true)
-  run.note("毒爆消耗 %d 层毒素。" % stacks)
+  run.note("毒素引爆消耗 %d 层毒素。" % stacks)
  if c.get("trigger_poison", false):
   var stacks: int = run.s.enemies[target].poison
   run.hit_enemy(target, stacks, true)

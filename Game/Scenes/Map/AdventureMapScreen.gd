@@ -142,13 +142,15 @@ func select_stage(stage: int) -> void:
  if stage < 1 or stage > 12: return
  selected_stage = stage
  var chapter = (stage-1)/3
- var point: Vector2 = POINTS[stage-1]
- var height = 112.0 if stage >= 7 else 144.0
- hero.size = Vector2(height*.51,height)
- hero.position = point-Vector2(hero.size.x*.5,height+16)
- foot_shadow.position = point-Vector2(31,26)
- foot_shadow.size = Vector2(62,23)
- glow.position = point+Vector2(-90,-55)
+ # 未到达的关卡只更新详情，保留人物、接地投影和光圈的现有站位。
+ if stage <= int(host.game.s.stage):
+  var point: Vector2 = POINTS[stage-1]
+  var height = 112.0 if stage >= 7 else 144.0
+  hero.size = Vector2(height*.51,height)
+  hero.position = point-Vector2(hero.size.x*.5,height+16)
+  foot_shadow.position = point-Vector2(31,26)
+  foot_shadow.size = Vector2(62,23)
+  glow.position = point+Vector2(-90,-55)
  thumbnail.texture = load(ART+"缩略图_"+CHAPTERS[chapter]+".png")
  title_copy.configure("%02d %s" % [stage,CHAPTERS[chapter]],Vector2(1340,580.5),37)
  var current = stage == int(host.game.s.stage)
@@ -166,7 +168,7 @@ func select_stage(stage: int) -> void:
  enter_copy.modulate = Color.WHITE if current else Color(.76,.73,.68)
  enter_button.update_feedback()
  var progress = "当前关卡" if current else ("已完成" if completed else "完成前一关后解锁")
- status_copy.configure(("首领战" if stage%3 == 0 else "普通战斗")+" · "+progress,Vector2(1340,765),18)
+ status_copy.configure(("首领战" if host.Data.is_boss_stage(stage) else "普通战斗")+" · "+progress,Vector2(1340,765),18)
  for i in range(stage_buttons.size()): stage_buttons[i].set_meta("selected",i+1 == stage)
 
 func update_layout() -> void:

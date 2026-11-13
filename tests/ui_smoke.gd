@@ -8,6 +8,8 @@ func _initialize() -> void:
 
 func settle() -> void:
  while is_instance_valid(ui) and ui.busy: await process_frame
+ var hand = ui.find_child("HandScroll", true, false) if is_instance_valid(ui) else null
+ while is_instance_valid(hand) and hand.transitioning: await process_frame
  for _i in range(5): await process_frame
 
 func capture(name_value: String) -> void:
@@ -70,12 +72,34 @@ func run() -> void:
  ui.on_menu = false
  ui.render()
  await capture("02-battle")
- # Real input: click a visible playable card, including its child controls.
+ # Real input: drag a visible playable card onto the battlefield / enemy.
  var hand = ui.find_child("HandCards", true, false)
  var index = 0
  while ui.game.s.energy < ui.Data.card(ui.game.s.hand[index]).cost: index += 1
  var played: int = ui.game.s.played
- await click_node(hand.get_child(index))
+ var controller = hand.get_parent()
+ var source = Vector2.ZERO
+ for y in range(0, int(controller.size.y), 4):
+  for x in range(0, int(controller.size.x), 4):
+   var candidate = controller.global_position + Vector2(x, y)
+   if controller.hit_card(candidate) == index:
+    source = candidate
+    break
+  if source != Vector2.ZERO: break
+ var destination = ui.find_child("EnemyPanel%d" % ui.game.s.target, true, false).get_global_rect().get_center()
+ var press = InputEventMouseButton.new()
+ press.position = source
+ press.button_index = MOUSE_BUTTON_LEFT
+ press.pressed = true
+ root.push_input(press)
+ var drag_motion = InputEventMouseMotion.new()
+ drag_motion.position = destination
+ root.push_input(drag_motion)
+ var release = InputEventMouseButton.new()
+ release.position = destination
+ release.button_index = MOUSE_BUTTON_LEFT
+ root.push_input(release)
+ await settle()
  if ui.game.s.played != played + 1:
   printerr("FAIL: card mouse input")
   errors += 1
@@ -198,7 +222,7 @@ func press_key(keycode: int) -> void:
 
 func test_navigation() -> void:
  # All UI checks use the isolated APPDATA selected by run_checks.ps1.
- DirAccess.remove_absolute(ProjectSettings.globalize_path("user://run_save.json"))
+ ui.SaveSystem.delete_save()
  ui.render()
  await settle()
  expect(ui.screen == "home" and ui.find_child("HomeContinue", true, false).disabled, "fresh launch shows home and disables empty continue")

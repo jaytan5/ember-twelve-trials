@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "blizzard"
-title = "暴风雪"
+title = "冰封万象"
 kind = "技能"
 route = "neutral"
 cost = 2

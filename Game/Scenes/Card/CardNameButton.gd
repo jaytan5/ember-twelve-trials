@@ -8,7 +8,7 @@ func _make_custom_tooltip(_for_text: String) -> Object:
  var preview: Button = host.card_view(card_id, func(): pass)
  preview.name = "OwnedCardTooltip"
  preview.theme = host.theme
- preview.custom_minimum_size = Vector2(300, 340)
+ preview.custom_minimum_size = Vector2(300, 450)
  preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
  preview.tooltip_text = ""
  return preview

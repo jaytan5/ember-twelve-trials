@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "warcry"
-title = "怒吼"
+title = "振奋战吼"
 kind = "技能"
 route = "fury"
 cost = 1

@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "hold"
-title = "固守"
+title = "固守不移"
 kind = "能力"
 route = "bastion"
 cost = 2

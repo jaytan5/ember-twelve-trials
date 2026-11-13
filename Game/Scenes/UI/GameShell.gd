@@ -1,6 +1,7 @@
 extends Control
 const Data = preload("res://Game/Scripts/CardSystem/CardCatalog.gd")
 const Run = preload("res://Game/Scripts/Combat/CombatState.gd")
+const SaveSystem = preload("res://Game/Scripts/SaveSystem/SaveSystem.gd")
 const Sigil = preload("res://Game/Scenes/Enemy/Sigil.gd")
 const DeckManager = preload("res://Game/Scripts/CardSystem/DeckManager.gd")
 const BG = Color("0c1220")
@@ -37,6 +38,7 @@ var selected_route = "venom"
 var selected_difficulty = "easy"
 var message = ""
 var busy = false
+var hand_transition_snapshot: Variant = null
 var battle_animator = preload("res://Game/Scenes/Battle/BattleAnimator.gd").new()
 var game_cursor = preload("res://Game/Scenes/UI/GameCursor.gd").new()
 signal combat_animation_finished
@@ -133,6 +135,11 @@ func spacer(parent: Control) -> void:
  parent.add_child(space)
 
 func render() -> void:
+ var previous_hand: Array = []
+ var old_hand = find_child("HandScroll", true, false)
+ if is_instance_valid(old_hand): previous_hand = old_hand.snapshot()
+ if hand_transition_snapshot != null: previous_hand = hand_transition_snapshot
+ hand_transition_snapshot = null
  settings.set_menu_music_enabled(screen in ["title", "home", "routes"])
  modal = null
  for child in get_children():
@@ -180,9 +187,13 @@ func render() -> void:
   "camp": build_camp()
   "victory", "defeat": build_ending()
  var footer = row()
- footer.add_child(label(message if not message.is_empty() else "四大场景 · 十二道试炼  /  冒险进度自动保存到本机", 13, MUTED))
+ var feedback = label(message if not message.is_empty() else "四大场景 · 十二道试炼  /  冒险进度自动保存到本机", 13, MUTED)
+ feedback.name = "StatusMessage"
+ footer.add_child(feedback)
  spacer(footer)
  layout.add_child(footer)
+ var new_hand = find_child("HandScroll", true, false)
+ if is_instance_valid(new_hand): new_hand.animate_entry(previous_hand)
 
 func build_header() -> void:
  var header = row(18)
@@ -233,8 +244,8 @@ func page_heading(kicker: String, heading: String, desc: String) -> void:
 
 func build_reward() -> void:
  var s = game.s
- var boss: bool = int(s.stage) % 3 == 0
- page_heading("VICTORY  /  第 %d 关完成" % s.stage, "Boss 已倒下。收下战利品。" if boss else "战斗胜利，让卡组更进一步。", "获得 %d 金币%s。选择一张加入卡组，也可以跳过以保持精简。" % [s.last_gold, "，并恢复 15 生命" if boss else ""])
+ var boss: bool = game.is_boss_stage()
+ page_heading("VICTORY  /  第 %d 关完成" % s.stage, "Boss 已倒下。收下战利品。" if boss else "战斗胜利，让卡组更进一步。", "获得 %d 金币%s。选择一张加入卡组，也可以跳过以保持精简。" % [s.last_gold, "，并恢复 %d 生命" % Data.REWARD.boss_heal if boss else ""])
  var center = CenterContainer.new()
  center.size_flags_vertical = Control.SIZE_EXPAND_FILL
  var cards = row(24)
@@ -285,7 +296,7 @@ func build_camp() -> void:
  camp.add_child(label("营火", 27, GOLD))
  camp.add_child(paragraph("每关一次免费机会\n休息 / 锻造 · 二选一", 18))
  camp.add_child(health_bar(s.hp, s.max_hp, GREEN))
- var rest_button = button("休息 · 恢复 %d 生命" % int(ceil(s.max_hp * 0.25)), func():
+ var rest_button = button("休息 · 恢复 %d 生命" % game.rest_amount(), func():
   game.rest()
   message = "营火休整完成。"
   commit(), true)
@@ -313,27 +324,28 @@ func build_camp() -> void:
   var item = column(8)
   item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
   var sold: bool = i in s.shop_sold
-  var card_button = card_view(s.shop_cards[i], func(): buy_shop_card(i), "45 金币", sold or s.gold < 45)
+  var price: int = Data.REWARD.shop_price
+  var card_button = card_view(s.shop_cards[i], func(): buy_shop_card(i), "%d 金币" % price, sold or s.gold < price)
   card_button.custom_minimum_size.x = 190
   item.add_child(card_button)
-  item.add_child(label("已购买" if sold else "点击购买 · 45 金币", 14, MUTED if sold else GOLD))
+  item.add_child(label("已购买" if sold else "点击购买 · %d 金币" % price, 14, MUTED if sold else GOLD))
   stock.add_child(item)
  shop_box.add_child(stock)
  var services = row(10)
- var heal = button("治疗 +24\n30 金币", func():
+ var heal = button("治疗 +%d\n%d 金币" % [Data.REWARD.heal_amount, Data.REWARD.heal_price], func():
   if game.buy_heal():
    message = "商店治疗完成。"
    commit())
- heal.disabled = s.gold < 30 or s.shop_healed or s.hp >= s.max_hp
+ heal.disabled = s.gold < Data.REWARD.heal_price or s.shop_healed or s.hp >= s.max_hp
  services.add_child(heal)
- var potion = button("药水 +1（%d/2）\n25 金币" % s.potions, func():
+ var potion = button("药水 +1（%d/%d）\n%d 金币" % [s.potions, game.POTION_LIMIT, Data.REWARD.potion_price], func():
   if game.buy_potion():
    message = "补充了一瓶治疗药水。"
    commit())
- potion.disabled = s.gold < 25 or s.potions >= game.POTION_LIMIT
+ potion.disabled = s.gold < Data.REWARD.potion_price or s.potions >= game.POTION_LIMIT
  services.add_child(potion)
  shop_box.add_child(services)
- shop_box.add_child(paragraph("治疗每关限一次；药水最多携带 2 瓶。药水战斗中使用，不消耗能量。", 14))
+ shop_box.add_child(paragraph("治疗每关限一次；药水最多携带 %d 瓶。药水战斗中使用，不消耗能量。" % game.POTION_LIMIT, 14))
  content.add_child(shop)
  layout.add_child(content)
  layout.add_child(button("前往第 %d 关 · %s  →" % [s.stage + 1, Data.STAGE_NAMES[s.stage]], func():
@@ -485,9 +497,11 @@ func retry_current_battle() -> void:
  message = "已重新开始第 %d 关。" % game.s.stage
  commit()
 
-func play_card(index: int) -> void:
- if busy or screen != "run" or is_instance_valid(modal) or not game.can_play(index): return
- await animate_combat_action("card", index)
+func play_card(index: int, target: int = -1) -> void:
+ if busy or screen != "run" or is_instance_valid(modal): return
+ var chosen = game.s.get("target", -1) if target < 0 else target
+ if not game.can_play_on(index, chosen): return
+ await animate_combat_action("card", index, chosen)
 
 func end_player_turn() -> void:
  if busy or screen != "run" or is_instance_valid(modal) or game.s.phase != "battle": return
@@ -497,7 +511,7 @@ func use_battle_potion() -> void:
  if busy or game.s.phase != "battle" or game.s.potions <= 0 or game.s.hp >= game.s.max_hp: return
  await animate_combat_action("potion")
 
-func animate_combat_action(action: String, index: int = -1) -> void:
+func animate_combat_action(action: String, index: int = -1, target: int = -1) -> void:
  # Resolve on an isolated copy; live state, RNG, saving and reward screens wait.
  var prepared = Run.new()
  prepared.s = game.s.duplicate(true)
@@ -505,23 +519,29 @@ func animate_combat_action(action: String, index: int = -1) -> void:
  prepared.capture_combat_events = true
  match action:
   "card":
+   if target >= 0: prepared.select_target(target)
    if not prepared.play(index): return
   "end_turn": prepared.end_turn()
   "potion":
    if not prepared.use_potion(): return
  busy = true
+ var hand = find_child("HandScroll", true, false)
+ var previous_hand: Array = hand.snapshot(index if action == "card" else -1) if is_instance_valid(hand) else []
+ if is_instance_valid(hand) and hand.dragging >= 0: hand.cancel_drag()
  var input_shield = Control.new()
  input_shield.name = "CombatInputShield"
  input_shield.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
  input_shield.mouse_filter = Control.MOUSE_FILTER_STOP
  input_shield.mouse_default_cursor_shape = Control.CURSOR_WAIT
  add_child(input_shield)
- await battle_animator.play_events(self, prepared.combat_events, index)
+ if action == "card" and is_instance_valid(hand): await hand.fly_out(index)
+ await battle_animator.play_events(self, prepared.combat_events)
  game.s = prepared.s
  game.rng.state = prepared.rng.state
  busy = false
  message = "敌方行动结束，轮到你了。" if action == "end_turn" else "已出牌。" if action == "card" else "已使用治疗药水。"
  if game.s.phase != "battle": message = "战斗已结束。"
+ hand_transition_snapshot = previous_hand
  commit()
  combat_animation_finished.emit()
 
@@ -638,8 +658,25 @@ func confirm_deck_change(index: int, mode: String) -> void:
 
 func show_card_info(id: String) -> void:
  var c = Data.card(id)
- var content = open_modal(c.name, Vector2(570, 420))
- content.add_child(paragraph("费用：%s 能量\n类型：%s\n\n%s" % [Data.cost_text(c), c.kind, Data.describe(c)], 20, TEXT))
+ var content = ADVENTURE_UI.begin(self, c.name, Vector2(880, 720))
+ modal.name = "CardInfoDialog"
+ var paper = ADVENTURE_UI.paper(self)
+ paper.size_flags_vertical = Control.SIZE_EXPAND_FILL
+ content.add_child(paper)
+ var details = row(22)
+ paper.add_child(details)
+ var face = card_view(id, func(): pass)
+ face.custom_minimum_size = Vector2(296, 480)
+ details.add_child(face)
+ var copy = column(14)
+ copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+ details.add_child(copy)
+ copy.add_child(ADVENTURE_UI.heading(self, c.name, 27))
+ copy.add_child(ADVENTURE_UI.note(self, "费用：%s 能量  ·  %s" % [Data.cost_text(c), c.kind], 18))
+ var scroll = ScrollContainer.new()
+ scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+ copy.add_child(scroll)
+ scroll.add_child(paragraph(Data.describe(c), 20, ADVENTURE_UI.WOOD))
 
 func show_pile(title_value: String, pile: Array) -> void:
  var content = open_modal(title_value)
@@ -675,14 +712,15 @@ func show_stage(stage: int) -> void:
  for e in game.encounter_for(stage): encounters.append("%s · %d 生命" % [e.name, e.hp])
  content.add_child(label("当前冒险：" + game.difficulty_info().name + "难度", 17, GOLD))
  content.add_child(paragraph("\n".join(encounters), 20, TEXT))
- content.add_child(paragraph("Boss 关：80 金币、恢复 15 生命、升级卡三选一和遗物三选一。第 12 关直接结算通关。" if stage % 3 == 0 else "普通关：30 金币、卡牌三选一，随后进入营火与商店。", 17))
+ var reward = Data.REWARD
+ content.add_child(paragraph("Boss 关：%d 金币、恢复 %d 生命、升级卡三选一和遗物三选一。第 12 关直接结算通关。" % [reward.boss_gold, reward.boss_heal] if game.is_boss_stage(stage) else "普通关：%d 金币、卡牌三选一，随后进入营火与商店。" % reward.normal_gold, 17))
 
 func show_help() -> void:
  var content = ADVENTURE_UI.begin(self, "玩法与状态说明", Vector2(1220, 800), ADVENTURE_UI.BOOK_ICON)
- var text_value = "【新增效果】\n厚积薄发：消耗全部当前能量，下回合额外获得等量能量；升级后本回合使用后额外获得1点能量。冰冻：跳过下一次敌方行动（毒照常结算，行动顺序不前进）。金钟罩：抵挡一次正伤害，连续攻击只挡一段，可叠加次数，跨回合保留；升级后反弹所挡伤害的50%。碎甲击：移除护甲并造成等量伤害，不受力量或易伤加成。\n\n【冒险流程】\n从主界面选择新冒险或继续冒险，确认路线后进入关卡地图。继续冒险锁定存档路线和难度。四大场景共 12 关依次推进，每两场普通战斗后挑战 Boss（第 3 / 6 / 9 / 12 关）。生命跨关保留，护甲和战斗状态重置；每关结束可补给。\n\n【战斗】\n每回合通常有 3 能量。首回合抽5张，之后每回合抽2张，手牌上限10张。先点敌人选目标，再点击卡牌打出。数字 1–9、0 出牌，左右方向键切换目标，空格结束回合。未用的能量不保留，剩余手牌保留；满手牌时停止抽牌，未抽的牌留在牌库；抽牌堆耗尽时洗入弃牌堆。\n\n【护甲与伤害】\n护甲抵挡普通伤害，在你下回合开始时清空；「固守」本场每回合保留剩余护甲至上限，多张取最高上限。力量增加每段攻击伤害。毒素无视护甲，在该敌人行动前造成等于层数的伤害，再减少 1 层。\n\n【其他状态】\n虚弱：攻击伤害降低 30%。易伤：受到的普通伤害增加 30%。两者基础持续1回合，升级持续2回合；敌方阶段结束减少1回合，重复施加取较长剩余时间。反伤：每次受到攻击时反击，即使伤害被护甲完全抵挡。\n\n【成长与存档】\n能力牌与急救使用后本场移出，下场恢复；其他已打出的牌进入弃牌堆，可再次抽到。营火免费休息与升级二选一；商店独立开放。每次操作自动保存，退出窗口后可继续。开始新冒险会替换旧存档。"
- text_value += "\n\n【治疗与延迟效果】\n卸力、急救、全才可直接恢复生命；汲取仅恢复上一轮敌方攻击造成的未恢复伤势。棘甲反伤仅持续至下个玩家回合开始，其他反伤能力持续整场。厚积薄发、毒素回收提供下回合额外能量；催化翻倍最多新增12层，升级18层。"
- text_value += "\n\n【路线核心】\n蚀毒：叠毒侵蚀，或用毒爆消耗全部毒层，按倍率造成无视护甲的伤害（不受力量、易伤影响）。淬毒使每张攻击牌结算后向命中且存活的敌人施加等量毒素，多段只触发一次。毒素回收需要目标至少 4 层毒。\n铁壁：护甲转单体或全体伤害；也能叠反伤，使用反击风暴主动输出，保留反伤继续反击。\n狂刃：力量强化每段攻击。嗜血使下一回合所有对敌伤害附带75%吸血，按实际扣除的敌方生命逐段向下取整治疗；持续至再下一回合开始，包含毒素和反伤。怒吼立即增加6（升级9）临时力量，本玩家回合结束时移除；背水之力按出牌时的失血量，在下回合增加15%（升级20%）的临时力量。暴力执法生效后，生命严格低于35%（升级50%）时，每段对敌伤害有50%（升级60%）几率翻倍；治疗使生命回到门槛以上后立即停止暴击。顺劈斩每段重新随机选择存活敌人。猎杀标记使攻击牌对目标的暴击率增加20（升级30）个百分点，持续两回合，与暴力执法相加，上限100%。这些状态下场清空。\n\n【卡组管理】\n出战卡组 15–30 张，备用卡库不参与抽牌。战斗外打开右上角设置菜单中的卡组，可把卡牌拖到另一侧，或点击后选择移入。出战满 30 张时，新获得的卡自动进入备用卡库并打开管理界面；先拖出旧卡，再拖入新卡。换牌免费，卡牌不会被删除。图鉴可查看全部 " + str(Data.CARDS.size()) + " 种牌和升级版。"
- text_value += "\n\n【新卡结算】\n震慑：单体眩晕，跳过下一次敌方行动，毒素照常结算；与冰冻不叠加跳过次数。灵感迸发：从牌堆预取3张（升级4张），依次免费使用；不足时洗入弃牌堆，预取不占手牌位置，其他抽牌仍有上限；X牌按当前能量结算且不扣能量，目标不满足毒素条件时该牌进入弃牌堆。发条炸弹：2费能力牌，下一玩家回合结束、敌人行动前对锁定目标造成21（升级28）伤害；目标死亡转向存活敌人。卸甲重击消耗全部护甲造成2倍（升级2.5倍）攻击伤害；荆棘穿刺使用反伤增加攻击伤害。毒性发作立即触发一次毒伤，基础减1层、升级不减；毒蚀穿刺按毒层提高普通攻击伤害。"
+ var text_value = "【新增效果】\n厚积薄发：消耗全部当前能量，下回合额外获得等量能量；升级后本回合使用后额外获得1点能量。冰冻：跳过下一次敌方行动（毒照常结算，行动顺序不前进）。蛋壳结界：抵挡一次正伤害，连续攻击只挡一段，可叠加次数，跨回合保留；升级后反弹所挡伤害的50%。碎甲重击：移除护甲并造成等量伤害，不受力量或易伤加成。\n\n【冒险流程】\n从主界面选择新冒险或继续冒险，确认路线后进入关卡地图。继续冒险锁定存档路线和难度。四大场景共 12 关依次推进，每两场普通战斗后挑战 Boss（第 3 / 6 / 9 / 12 关）。生命跨关保留，护甲和战斗状态重置；每关结束可补给。\n\n【战斗】\n每回合通常有 3 能量。首回合抽5张，之后每回合抽2张，手牌上限10张。悬停手牌可放大查看；将单体牌拖到合法敌人，无目标牌拖入战场区域，松开出牌。右键或 Esc 取消拖拽，非法落点自动回弹。数字 1–9、0 出牌，左右方向键切换目标，空格结束回合。未用的能量不保留，剩余手牌保留；满手牌时停止抽牌，未抽的牌留在牌库；抽牌堆耗尽时洗入弃牌堆。\n\n【护甲与伤害】\n护甲抵挡普通伤害，在你下回合开始时清空；「固守不移」本场每回合保留剩余护甲至上限，多张取最高上限。力量增加每段攻击伤害。毒素无视护甲，在该敌人行动前造成等于层数的伤害，再减少 1 层。\n\n【其他状态】\n虚弱：攻击伤害降低 30%。易伤：受到的普通伤害增加 30%。两者基础持续1回合，升级持续2回合；敌方阶段结束减少1回合，重复施加取较长剩余时间。反伤：每次受到攻击时反击，即使伤害被护甲完全抵挡。\n\n【成长与存档】\n能力牌与紧急救护使用后本场移出，下场恢复；其他已打出的牌进入弃牌堆，可再次抽到。营火免费休息与升级二选一；商店独立开放。每次操作自动保存，退出窗口后可继续。开始新冒险会替换旧存档。"
+ text_value += "\n\n【治疗与延迟效果】\n卸劲调息、紧急救护、全能身手可直接恢复生命；汲取生机仅恢复上一轮敌方攻击造成的未恢复伤势。荆棘护甲反伤仅持续至下个玩家回合开始，其他反伤能力持续整场。厚积薄发、毒素回收提供下回合额外能量；毒性催化翻倍最多新增12层，升级18层。"
+ text_value += "\n\n【路线核心】\n蚀毒：叠毒侵蚀，或用毒素引爆消耗全部毒层，按倍率造成无视护甲的伤害（不受力量、易伤影响）。淬毒使每张攻击牌结算后向命中且存活的敌人施加等量毒素，多段只触发一次。毒素回收需要目标至少 4 层毒。\n铁壁：护甲转单体或全体伤害；也能叠反伤，使用飞刺齐发主动输出，保留反伤继续反击。\n狂刃：力量强化每段攻击。以战养战使下一回合所有对敌伤害附带75%吸血，按实际扣除的敌方生命逐段向下取整治疗；持续至再下一回合开始，包含毒素和反伤。振奋战吼立即增加6（升级9）临时力量，本玩家回合结束时移除；背水之力按出牌时的失血量，在下回合增加15%（升级20%）的临时力量。逆境觉醒生效后，生命严格低于35%（升级50%）时，每段对敌伤害有50%（升级60%）几率翻倍；治疗使生命回到门槛以上后立即停止暴击。乱刃连斩每段重新随机选择存活敌人。盯紧破绽使攻击牌对目标的暴击率增加20（升级30）个百分点，持续两回合，与逆境觉醒相加，上限100%。这些状态下场清空。\n\n【卡组管理】\n出战卡组 15–30 张，备用卡库不参与抽牌。战斗外打开右上角设置菜单中的卡组，可把卡牌拖到另一侧，或点击后选择移入。出战满 30 张时，新获得的卡自动进入备用卡库并打开管理界面；先拖出旧卡，再拖入新卡。换牌免费，卡牌不会被删除。图鉴可查看全部 " + str(Data.CARDS.size()) + " 种牌和升级版。"
+ text_value += "\n\n【新卡结算】\n震慑心神：单体眩晕，跳过下一次敌方行动，毒素照常结算；与冰冻不叠加跳过次数。灵感迸发：从牌堆预取3张（升级4张），依次免费使用；不足时洗入弃牌堆，预取不占手牌位置，其他抽牌仍有上限；X牌按当前能量结算且不扣能量，目标不满足毒素条件时该牌进入弃牌堆。发条炸弹：2费能力牌，下一玩家回合结束、敌人行动前对锁定目标造成21（升级28）伤害；目标死亡转向存活敌人。卸甲重击消耗全部护甲造成2倍（升级2.5倍）攻击伤害；荆棘穿刺使用反伤增加攻击伤害。毒性发作立即触发一次毒伤，基础减1层、升级不减；趁毒追击按毒层提高普通攻击伤害。"
  text_value = "【难度】\n轻松：显示下次攻击的单段伤害、连击次数和总伤害，也预告防御与蓄力。预告计入敌人的力量和虚弱，实际生命损失还会受到你的护甲影响。\n标准：隐藏所有行动预告，保留基础数值。\n勇者：隐藏预告；敌人生命 +35%，攻击、防御、蓄力 +25%，向上取整。行动模式和连击次数不变。\n轻松、标准、勇者战败后均可重新开始本小关。传奇沿用勇者数值，但战败不能重试，只能从头开始。\n难度在新冒险开始前选择，本局固定；旧版存档按轻松难度继续，已发生的行动仍显示在战斗记录中。\n\n" + text_value
  ADVENTURE_UI.help_layout(self, content, text_value)
 
@@ -754,7 +792,7 @@ func confirm_route() -> void:
   resuming = false
   message = "进度与卡组已保留，选择当前关卡并点击进入继续冒险。"
   render()
- elif FileAccess.file_exists("user://run_save.json"):
+ elif SaveSystem.has_save():
   confirm_new_run()
  else: start_new()
 
@@ -767,7 +805,7 @@ func open_map() -> void:
 func enter_map_stage(stage: int) -> void:
  if screen != "map" or stage != int(game.s.stage): return
  screen = "run"
- message = "点击敌人选择目标，再点击手牌出牌。" if game.s.phase == "battle" else "继续完成当前关卡的结算与补给。"
+ message = "悬停查看手牌，拖到敌人或战场出牌；右键 / Esc 取消。" if game.s.phase == "battle" else "继续完成当前关卡的结算与补给。"
  render()
 
 func return_home() -> void:

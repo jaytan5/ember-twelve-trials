@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "strike"
-title = "斩击"
+title = "奋力挥击"
 kind = "攻击"
 route = "neutral"
 cost = 1

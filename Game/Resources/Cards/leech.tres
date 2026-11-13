@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "leech"
-title = "汲取"
+title = "汲取生机"
 kind = "攻击"
 route = "venom"
 cost = 2

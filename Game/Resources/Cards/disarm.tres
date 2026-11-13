@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "disarm"
-title = "卸力"
+title = "卸劲调息"
 kind = "技能"
 route = "neutral"
 cost = 1

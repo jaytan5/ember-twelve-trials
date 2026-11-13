@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "mend"
-title = "急救"
+title = "紧急救护"
 kind = "技能"
 route = "neutral"
 cost = 2

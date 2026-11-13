@@ -54,7 +54,7 @@ func run() -> void:
    check(cards != null and cards.get_child_count() == groups[route].size(), "new hand renders: " + route + suffix)
    for card in cards.get_children(): check_card(card, card.get_global_rect())
    var status = ui.find_child("HeroStatuses", true, false)
-   check(status.text.contains("发条炸弹") and status.text.contains("怒吼力量"), "timers and immediate strength visible")
+   check(status.text.contains("发条炸弹") and status.text.contains("振奋战吼力量"), "timers and immediate strength visible")
    check(ui.find_child("EnemyIntent0", true, false).text == "眩晕 · 本次无法行动", "stun visible")
    if DisplayServer.get_name() != "headless":
     await RenderingServer.frame_post_draw

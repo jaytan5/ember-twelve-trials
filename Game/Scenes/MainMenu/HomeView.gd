@@ -85,7 +85,7 @@ func build_home(ui: Control) -> void:
  var start = art_button(ui, home, "HomeNew", "开始游戏", START_ART, START_REGION, ui.open_new_routes)
  place_menu_button(start, 0.747)
  var resume = art_button(ui, home, "HomeContinue", "继续游戏", CONTINUE_ART, CONTINUE_REGION, ui.open_continue_routes)
- resume.disabled = not FileAccess.file_exists("user://run_save.json")
+ resume.disabled = not ui.SaveSystem.has_save()
  resume.update_feedback()
  place_menu_button(resume, 0.87)
  var settings_button = art_button(ui, home, "HomeSettings", "", SETTINGS_ART, SETTINGS_REGION, ui.show_settings)

@@ -1,6 +1,7 @@
 extends SceneTree
 const Run = preload("res://scripts/run_state.gd")
 const Data = preload("res://scripts/data.gd")
+const SaveSystem = preload("res://Game/Scripts/SaveSystem/SaveSystem.gd")
 var failures = 0
 var checks = 0
 
@@ -167,7 +168,31 @@ func test_save() -> void:
  copy.end_turn()
  check(copy.s.turn == 2, "loaded battle resumes")
  check(not copy.load_run("res://missing-save.json"), "missing save handled")
+ # Safe write: no temporary file is left, the backup matches, and replacing an existing save works.
+ check(not FileAccess.file_exists(path + ".tmp") and FileAccess.get_file_as_string(path + ".bak") == FileAccess.get_file_as_string(path), "save leaves verified backup and no temp file")
+ g.s.gold = 777
+ check(g.save_run(path) == OK, "save replaces existing file")
+ var damaged = FileAccess.open(path, FileAccess.WRITE)
+ damaged.store_string("{\"version\":8, \"rou")
+ damaged.close()
+ var recovered = Run.new()
+ check(recovered.load_run(path) and recovered.s.gold == 777, "damaged main save recovers from backup")
+ DirAccess.rename_absolute(ProjectSettings.globalize_path(path + ".bak"), ProjectSettings.globalize_path(path + ".tmp"))
  DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+ var interrupted = Run.new()
+ check(interrupted.load_run(path) and interrupted.s.gold == 777, "interrupted replace recovers from verified temp file")
+ SaveSystem.delete_save(path)
+ check(not SaveSystem.has_save(path) and not FileAccess.file_exists(path + ".tmp"), "delete_save removes every copy")
+ # Shop and potion prices come from the reward resource.
+ var shop = Run.new()
+ shop.new_run("bastion", 9)
+ shop.s.phase = "camp"
+ shop.s.gold = 100
+ shop.s.potions = 0
+ shop.s.hp = 10
+ check(shop.buy_heal() and shop.s.gold == 100 - Data.REWARD.heal_price and shop.s.hp == 10 + Data.REWARD.heal_amount, "heal price and amount from reward resource")
+ check(shop.buy_potion() and shop.s.gold == 100 - Data.REWARD.heal_price - Data.REWARD.potion_price, "potion price from reward resource")
+ check(Data.BOSS_STAGES == [3, 6, 9, 12], "boss stages derived from level data")
 
 # A simple non-cheating heuristic bot uses only visible intent and current hand.
 func simulate(route: String, seed_value: int):

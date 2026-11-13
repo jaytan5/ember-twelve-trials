@@ -8,3 +8,7 @@ class_name RewardData
 @export var boss_gold: int = 80
 @export var boss_heal: int = 15
 @export var shop_price: int = 45
+@export var heal_price: int = 30
+@export var heal_amount: int = 24
+@export var potion_price: int = 25
+@export var potion_heal: int = 20

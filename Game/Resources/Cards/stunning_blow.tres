@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "stunning_blow"
-title = "震慑"
+title = "震慑心神"
 kind = "技能"
 route = "neutral"
 cost = 2

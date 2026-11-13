@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "shield_draw"
-title = "整备"
+title = "整装待发"
 kind = "技能"
 route = "bastion"
 cost = 1

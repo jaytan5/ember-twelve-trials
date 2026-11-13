@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "guard"
-title = "防守"
+title = "稳固防御"
 kind = "技能"
 route = "neutral"
 cost = 1

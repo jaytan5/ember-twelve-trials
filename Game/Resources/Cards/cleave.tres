@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "cleave"
-title = "双连斩"
+title = "连环挥击"
 kind = "攻击"
 route = "fury"
 cost = 1

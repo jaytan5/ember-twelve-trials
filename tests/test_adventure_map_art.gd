@@ -38,6 +38,9 @@ func capture(filename: String) -> void:
 func map_screen():
  return ui.find_child("AdventureMapScreen",true,false)
 
+func actor_layout(screen) -> Array:
+ return [screen.hero.position,screen.hero.size,screen.foot_shadow.position,screen.foot_shadow.size,screen.glow.position,screen.glow.size]
+
 func open_map() -> void:
  ui.screen = "map"
  ui.render()
@@ -63,8 +66,8 @@ func run() -> void:
  for stage in range(1,13):
   await click(screen.stage_buttons[stage-1])
   expect(screen.selected_stage == stage,"real node click selects %02d" % stage)
-  expect(screen.glow.position+Vector2(90,55) == screen.POINTS[stage-1],"glow follows chosen disc %02d" % stage)
-  expect(screen.hero.position+Vector2(screen.hero.size.x*.5,screen.hero.size.y+16) == screen.POINTS[stage-1],"hero stands on selected disc %02d" % stage)
+  expect(screen.glow.position+Vector2(90,55) == screen.POINTS[0],"unreached preview keeps glow on reached disc %02d" % stage)
+  expect(screen.hero.position+Vector2(screen.hero.size.x*.5,screen.hero.size.y+16) == screen.POINTS[0],"unreached preview keeps hero on reached disc %02d" % stage)
   expect(screen.enter_button.disabled == (stage != 1),"entry only for actual current stage %02d" % stage)
   expect(ui.game.s == state and ui.game.rng.state == rng_before,"browsing leaves adventure and RNG unchanged")
   if stage in [4,7,12]: await capture("%02d-preview" % stage)
@@ -99,8 +102,20 @@ func run() -> void:
   expect(screen.selected_stage == stage,"reopen selects actual progress %d" % stage)
   await click(screen.stage_buttons[0])
   expect(screen.enter_button.disabled,"completed stage preview cannot replay")
+  expect(screen.hero.position+Vector2(screen.hero.size.x*.5,screen.hero.size.y+16) == screen.POINTS[0],"reached completed stage can still move hero")
+  if stage < 12:
+   var reached_layout = actor_layout(screen)
+   await click(screen.stage_buttons[11])
+   expect(screen.selected_stage == 12 and screen.title_copy.text == "12 汤山洞穴","unreached stage still updates detail panel")
+   expect(actor_layout(screen) == reached_layout,"future preview preserves completed-stage hero size shadow and glow")
+   expect(screen.enter_button.disabled,"unreached preview remains locked after completed stage")
   await click(screen.stage_buttons[stage-1])
   expect(not screen.enter_button.disabled,"current stage remains enterable after browsing")
+  expect(screen.hero.position+Vector2(screen.hero.size.x*.5,screen.hero.size.y+16) == screen.POINTS[stage-1],"current stage places hero on reached disc")
+  if stage < 12:
+   var current_layout = actor_layout(screen)
+   await click(screen.stage_buttons[stage])
+   expect(actor_layout(screen) == current_layout,"next unreached stage does not move hero shadow or glow")
  ui.game.s.stage = 4
  ui.game.s.wins = 3
  for dimensions in [Vector2i(1280,720),Vector2i(1024,768)]:
@@ -109,8 +124,10 @@ func run() -> void:
   screen = map_screen()
   expect(is_equal_approx(screen.design.scale.x,screen.design.scale.y),"uniform map scaling "+str(dimensions))
   expect(screen.title_copy.text == "04 街口集市","detail title uses corrected chapter name")
+  var scaled_layout = actor_layout(screen)
   await click(screen.stage_buttons[5])
   expect(screen.selected_stage == 6,"scaled real click selects stage")
+  expect(actor_layout(screen) == scaled_layout,"scaled future preview keeps hero shadow and glow in place")
   await capture("scaled-%dx%d" % [dimensions.x,dimensions.y])
  root.size = Vector2i(1600,900)
  await open_map()

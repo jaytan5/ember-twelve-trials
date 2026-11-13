@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "venom_pierce"
-title = "毒蚀穿刺"
+title = "趁毒追击"
 kind = "攻击"
 route = "venom"
 cost = 1

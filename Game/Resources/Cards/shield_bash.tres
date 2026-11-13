@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "shield_bash"
-title = "盾击"
+title = "重盾猛击"
 kind = "攻击"
 route = "bastion"
 cost = 1

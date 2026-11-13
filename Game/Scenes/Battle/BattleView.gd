@@ -6,6 +6,7 @@ func build_battle(ui: Control) -> void:
  var arena = ui.row(16)
  arena.size_flags_vertical = Control.SIZE_EXPAND_FILL
  var battlefield = ui.panel()
+ battlefield.name = "Battlefield"
  battlefield.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  var field = ui.column(12)
  battlefield.add_child(field)
@@ -53,22 +54,13 @@ func build_battle(ui: Control) -> void:
  var hand_area = ui.column(8)
  hand_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
  var heading = ui.row()
- heading.add_child(ui.label("手牌  %d / 10" % s.hand.size(), 19))
+ heading.add_child(ui.label("手牌  %d / %d" % [s.hand.size(), ui.Data.CONFIG.hand_limit], 19))
  ui.spacer(heading)
- heading.add_child(ui.label("1–9 / 0 出牌 · ← → 选目标", 14, ui.MUTED))
+ heading.add_child(ui.label("拖到战场出牌 · 单体牌拖到敌人 · 右键 / Esc 取消", 13, ui.MUTED))
  hand_area.add_child(heading)
  hand_area.add_child(ui.label("当前目标：%s  ·  回合结束保留手牌" % s.enemies[s.target].name, 14, ui.GOLD))
- var hand_scroll = ScrollContainer.new()
- hand_scroll.name = "HandScroll"
- hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
- hand_scroll.custom_minimum_size.y = 286
- hand_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
- var hand_row = ui.row(12)
- hand_row.name = "HandCards"
- for i in range(s.hand.size()):
-  hand_row.add_child(ui.card_view(s.hand[i], func(): ui.play_card(i), str((i + 1) % 10), not ui.game.can_play(i)))
- if s.hand.is_empty(): hand_row.add_child(ui.label("手牌已用尽，可以结束回合。", 20, ui.MUTED))
- hand_scroll.add_child(hand_row)
+ var hand_scroll = preload("res://Game/Scenes/Battle/HandController.gd").new()
+ hand_scroll.setup(ui)
  hand_area.add_child(hand_scroll)
  dock.add_child(hand_area)
 
@@ -123,11 +115,11 @@ func build_hero(ui: Control) -> Control:
  status_label.name = "HeroStatuses"
  status_label.visible = not status.is_empty()
  status_label.tooltip_text = "临时反伤在下回合开始清零。"
- if has_leech(s): status_label.tooltip_text = "汲取仅治疗上一轮敌方攻击造成的未恢复伤势；卸力、急救、全才可直接治疗。" + status_label.tooltip_text
+ if has_leech(s): status_label.tooltip_text = "汲取生机仅治疗上一轮敌方攻击造成的未恢复伤势；卸劲调息、紧急救护、全能身手可直接治疗。" + status_label.tooltip_text
  status_label.mouse_filter = Control.MOUSE_FILTER_PASS
  status_scroll.add_child(status_label)
  info.add_child(status_scroll)
- var potion = ui.button("药水 ×%d  ·  恢复 20 生命" % s.potions, ui.use_battle_potion)
+ var potion = ui.button("药水 ×%d  ·  恢复 %d 生命" % [s.potions, ui.Data.REWARD.potion_heal], ui.use_battle_potion)
  potion.add_theme_font_size_override("font_size", 14)
  potion.disabled = s.potions <= 0 or s.hp >= s.max_hp
  info.add_child(potion)
@@ -141,13 +133,13 @@ func active_status_lines(s: Dictionary) -> Array[String]:
  if s.strength != 0: lines.append("力量 %d" % s.strength)
  if s.thorns > 0: lines.append("反伤 %d" % s.thorns)
  if s.temp_thorns > 0: lines.append("临时反伤 %d" % s.temp_thorns)
- if s.barrier > 0: lines.append("金钟罩 %d" % s.barrier)
- if s.recoverable_hp > 0 and has_leech(s): lines.append("汲取可恢复：%d 生命" % s.recoverable_hp)
+ if s.barrier > 0: lines.append("蛋壳结界 %d" % s.barrier)
+ if s.recoverable_hp > 0 and has_leech(s): lines.append("汲取生机可恢复：%d 生命" % s.recoverable_hp)
  if s.lifesteal > 0: lines.append("吸血 %d%%" % s.lifesteal)
  if s.next_lifesteal > 0: lines.append("下回合吸血 %d%%" % s.next_lifesteal)
- if s.low_hp_crit > 0: lines.append("暴力执法 %d%%%s" % [s.low_hp_crit, "（生效中）" if s.hp * 100 < s.max_hp * s.low_hp_crit_threshold else "（需生命低于%d%%）" % s.low_hp_crit_threshold])
+ if s.low_hp_crit > 0: lines.append("逆境觉醒 %d%%%s" % [s.low_hp_crit, "（生效中）" if s.hp * 100 < s.max_hp * s.low_hp_crit_threshold else "（需生命低于%d%%）" % s.low_hp_crit_threshold])
  if s.temporary_strength > 0: lines.append("本回合临时力量 +%d" % s.temporary_strength)
- if s.get("turn_strength", 0) > 0: lines.append("怒吼力量 +%d（本回合）" % s.turn_strength)
+ if s.get("turn_strength", 0) > 0: lines.append("振奋战吼力量 +%d（本回合）" % s.turn_strength)
  for bomb in s.get("bombs", []):
   lines.append("发条炸弹 %d 伤害 · %s结束时" % [bomb.damage, "本回合" if bomb.turn <= s.turn else "下回合"])
  if s.next_strength > 0: lines.append("下回合力量 +%d（仅一回合）" % s.next_strength)

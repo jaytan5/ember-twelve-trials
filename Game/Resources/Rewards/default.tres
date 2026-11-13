@@ -12,3 +12,7 @@ normal_gold = 30
 boss_gold = 80
 boss_heal = 15
 shop_price = 45
+heal_price = 30
+heal_amount = 24
+potion_price = 25
+potion_heal = 20

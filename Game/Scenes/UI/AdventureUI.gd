@@ -88,59 +88,8 @@ static func name_button(ui: Control, node: Button, route: String, upgraded: bool
  node.add_theme_color_override("font_pressed_color", WOOD)
 
 static func card(ui: Control, id: String, action: Callable, dimensions: Vector2 = Vector2(268, 310), locked: bool = false) -> Button:
- var c: Dictionary = ui.Data.card(id)
- var tint = _route_color(c.route)
- var node = Button.new()
+ var node: Button = ui.card_view(id, action, "", locked)
  node.custom_minimum_size = dimensions
- node.disabled = locked
- node.focus_mode = Control.FOCUS_NONE
- node.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
- node.tooltip_text = c.name + "\n" + ui.Data.describe(c)
- node.add_theme_stylebox_override("normal", ui.settings_view_component._style(PAPER_LIGHT, GOLD, 15, 0, 3, 5))
- node.add_theme_stylebox_override("hover", ui.settings_view_component._style(Color("fff5df"), GOLD_LIGHT, 15, 0, 4, 6))
- node.add_theme_stylebox_override("pressed", ui.settings_view_component._style(Color("e4c99c"), GOLD, 15, 0, 3, 3))
- node.add_theme_stylebox_override("disabled", ui.settings_view_component._style(Color("dac9ac"), Color("b6a181"), 15, 0, 3, 2))
- node.pressed.connect(ui.settings.play_click)
- node.pressed.connect(action)
- var margin = MarginContainer.new()
- margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
- for edge in ["left", "right", "top", "bottom"]: margin.add_theme_constant_override("margin_" + edge, 15)
- margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
- node.add_child(margin)
- var body = ui.column(10)
- body.mouse_filter = Control.MOUSE_FILTER_IGNORE
- margin.add_child(body)
- var header = ui.row(10)
- header.mouse_filter = Control.MOUSE_FILTER_IGNORE
- var cost = PanelContainer.new()
- cost.custom_minimum_size = Vector2(43, 43)
- cost.add_theme_stylebox_override("panel", ui.settings_view_component._style(BLUE, GOLD_LIGHT, 20, 5, 3, 2))
- var cost_text = ui.label(ui.Data.cost_text(c), 25, PAPER_LIGHT)
- cost_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
- cost.add_child(cost_text)
- header.add_child(cost)
- var name_label = ui.label(c.name, 23, RED if c.upgraded else WOOD)
- name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
- name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
- name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
- header.add_child(name_label)
- body.add_child(header)
- var meta = ui.label(("通用" if c.route == "neutral" else ui.Data.ROUTES[c.route].name) + "  ·  " + c.kind + ("  ·  已升级" if c.upgraded else ""), 15, tint)
- body.add_child(meta)
- body.add_child(divider(ui))
- var description = RichTextLabel.new()
- description.text = ui.Data.describe(c)
- description.name = "CardDescription"
- description.custom_minimum_size.y = 96
- description.size_flags_vertical = Control.SIZE_EXPAND_FILL
- description.add_theme_font_override("normal_font", ui.READING_FONT)
- description.add_theme_font_size_override("normal_font_size", 17)
- description.add_theme_color_override("default_color", WOOD)
- description.mouse_filter = Control.MOUSE_FILTER_IGNORE
- description.scroll_active = true
- body.add_child(description)
- body.add_child(ui.label("已升级 · 不可重复锻造" if locked else ("单体 · 当前目标" if c.get("target", false) else "自身 / 全体效果"), 13, MUTED_INK))
- for child in node.get_children(): _passive(child)
  return node
 
 static func _passive(node: Node) -> void:

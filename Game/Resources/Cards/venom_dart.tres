@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "venom_dart"
-title = "蚀骨飞针"
+title = "淬毒飞针"
 kind = "攻击"
 route = "venom"
 cost = 0

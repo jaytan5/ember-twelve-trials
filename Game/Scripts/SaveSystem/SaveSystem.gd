@@ -2,20 +2,50 @@ extends RefCounted
 const Data = preload("res://Game/Scripts/CardSystem/CardCatalog.gd")
 const DECK_LIMIT = 30
 const DECK_MIN = 15
+const SAVE_PATH = "user://run_save.json"
 var s: Dictionary = {}
 var rng = RandomNumberGenerator.new()
 
-func save_run(path: String = "user://run_save.json") -> Error:
- var file = FileAccess.open(path, FileAccess.WRITE)
- if file == null: return FileAccess.get_open_error()
+## A save is written to "<path>.tmp", verified, copied to "<path>.bak", then moved over
+## "<path>". The previous save stays intact until a complete new copy exists.
+static func has_save(path: String = SAVE_PATH) -> bool:
+ return FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak")
+
+static func delete_save(path: String = SAVE_PATH) -> void:
+ for candidate in [path, path + ".tmp", path + ".bak"]:
+  if FileAccess.file_exists(candidate): DirAccess.remove_absolute(ProjectSettings.globalize_path(candidate))
+
+func save_run(path: String = SAVE_PATH) -> Error:
  var payload = s.duplicate(true)
  payload.rng_state = str(rng.state)
- file.store_string(JSON.stringify(payload))
- return OK
+ var text = JSON.stringify(payload)
+ var target = ProjectSettings.globalize_path(path)
+ var temp = target + ".tmp"
+ var file = FileAccess.open(temp, FileAccess.WRITE)
+ if file == null: return FileAccess.get_open_error()
+ file.store_string(text)
+ file.flush()
+ var result = file.get_error()
+ file.close()
+ if result == OK and FileAccess.get_file_as_string(temp) != text: result = ERR_FILE_CORRUPT
+ if result == OK: result = DirAccess.copy_absolute(temp, target + ".bak")
+ if result == OK: result = DirAccess.rename_absolute(temp, target)
+ if result != OK and FileAccess.file_exists(temp): DirAccess.remove_absolute(temp)
+ return result
 
-func load_run(path: String = "user://run_save.json") -> bool:
+func load_run(path: String = SAVE_PATH) -> bool:
+ # Prefer the main save. A verified .tmp exists only if the final move was interrupted;
+ # .bak holds the last verified save if the main file is damaged.
+ for candidate in [path, path + ".tmp", path + ".bak"]:
+  if load_file(candidate): return true
+ return false
+
+func load_file(path: String) -> bool:
  if not FileAccess.file_exists(path): return false
- var parsed = normalize_numbers(JSON.parse_string(FileAccess.get_file_as_string(path)))
+ # JSON.parse() reports damaged files through its return value without logging an engine error.
+ var json = JSON.new()
+ if json.parse(FileAccess.get_file_as_string(path)) != OK: return false
+ var parsed = normalize_numbers(json.data)
  if not parsed is Dictionary: return false
  if parsed.get("version", 0) not in [1, 2, 3, 4, 5, 6, 7, 8]: return false
  if not parsed.has("difficulty"): parsed.difficulty = "easy"
